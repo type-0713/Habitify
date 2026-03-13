@@ -409,10 +409,10 @@ const setLocalStorage = <T,>(key: string, value: T) => {
 
 const playNotificationSound = (enabled: boolean, frequency: number = 880, durationSeconds: number = 0.15) => {
   if (!enabled || typeof window === 'undefined') return;
-  const AudioContext = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-  if (!AudioContext) return;
+  const AudioContextCtor = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof window.AudioContext }).webkitAudioContext;
+  if (!AudioContextCtor) return;
   try {
-    const context = new AudioContext();
+    const context = new AudioContextCtor();
     const oscillator = context.createOscillator();
     const gain = context.createGain();
     oscillator.type = 'sine';
@@ -475,14 +475,6 @@ const getWeekDates = () => {
   }
   return weekDates;
 };
-
-const getGreeting = () => {
-  const hour = new Date().getHours();
-  if (hour < 12) return 'Good morning';
-  if (hour < 18) return 'Good afternoon';
-  return 'Good evening';
-};
-
 
 const getStreak = (habit: Habit): number => {
   let streak = 0;
