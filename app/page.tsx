@@ -9,6 +9,268 @@ import { Check, Plus, Flame, Menu, LogOut, Home, ListTodo, BarChart3, Bell, User
 // Types
 type Theme = 'dark' | 'light';
 type Page = 'dashboard' | 'habits' | 'calendar' | 'stats' | 'profile';
+type Language = 'en' | 'ru' | 'uz';
+
+const translations = {
+  en: {
+    languageLabel: 'Language',
+    dashboard: 'Dashboard',
+    habits: 'Habits',
+    calendar: 'Calendar',
+    statistics: 'Statistics',
+    profile: 'Profile',
+    light: 'Light',
+    dark: 'Dark',
+    logout: 'Logout',
+    soundOn: 'Sound on',
+    soundOff: 'Sound off',
+    greetingMorning: 'Good morning',
+    greetingAfternoon: 'Good afternoon',
+    greetingEvening: 'Good evening',
+    habitsCompletedToday: 'habits completed today',
+    todaysProgress: "Today's Progress",
+    complete: 'Complete',
+    habitsCompleted: 'Habits completed',
+    currentStreak: 'Current Streak',
+    days: 'days',
+    best: 'Best',
+    totalHabits: 'Total Habits',
+    activeHabits: 'Active habits',
+    addNewHabit: 'Add New Habit',
+    todaysHabits: "Today's Habits",
+    noHabitsYet: 'No habits yet. Create your first habit to get started!',
+    createFirstHabit: 'Create First Habit',
+    thisWeekOverview: 'This Week Overview',
+    allHabits: 'All Habits',
+    newHabit: 'New Habit',
+    noHabitsCreated: 'No habits created yet. Start building better habits today!',
+    createYourFirstHabit: 'Create Your First Habit',
+    category: 'Category',
+    goal: 'Goal',
+    streak: 'Streak',
+    bestStreakLabel: 'Best Streak',
+    statisticsTitle: 'Statistics',
+    completedToday: 'Completed Today',
+    trend30Days: '30-Day Trend',
+    habitDistribution: 'Habit Distribution',
+    completed: 'Completed',
+    active: 'Active',
+    habitsPerformance: 'Habits Performance',
+    completion: 'Completion',
+    bio: 'Bio',
+    joined: 'Joined',
+    totalCompleted: 'Total Completed',
+    accountAge: 'Account Age',
+    yourHabits: 'Your Habits',
+    noHabitsYetShort: 'No habits yet',
+    completedCount: 'completed',
+    completedCheckbox: 'Completed',
+    addHabitTitle: 'Add New Habit',
+    habitName: 'Habit Name',
+    habitNamePlaceholder: 'e.g., Morning Meditation',
+    unit: 'Unit',
+    icon: 'Icon',
+    reminderTimeOptional: 'Reminder Time (Optional)',
+    cancel: 'Cancel',
+    addHabit: 'Add Habit',
+    monthlyResetTitle: 'Monthly reset',
+    resetNoticePrefix: 'Local data was cleared on',
+    closeNotice: 'Close notice',
+    weekdaysShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+  },
+  ru: {
+    languageLabel: 'Язык',
+    dashboard: 'Панель',
+    habits: 'Привычки',
+    calendar: 'Календарь',
+    statistics: 'Статистика',
+    profile: 'Профиль',
+    light: 'Светлая',
+    dark: 'Темная',
+    logout: 'Выйти',
+    soundOn: 'Звук вкл.',
+    soundOff: 'Звук выкл.',
+    greetingMorning: 'Доброе утро',
+    greetingAfternoon: 'Добрый день',
+    greetingEvening: 'Добрый вечер',
+    habitsCompletedToday: 'привычек выполнено сегодня',
+    todaysProgress: 'Прогресс за сегодня',
+    complete: 'Выполнено',
+    habitsCompleted: 'Привычек выполнено',
+    currentStreak: 'Текущая серия',
+    days: 'дней',
+    best: 'Лучшее',
+    totalHabits: 'Всего привычек',
+    activeHabits: 'Активные привычки',
+    addNewHabit: 'Добавить привычку',
+    todaysHabits: 'Привычки сегодня',
+    noHabitsYet: 'Пока нет привычек. Создайте первую привычку!',
+    createFirstHabit: 'Создать первую привычку',
+    thisWeekOverview: 'Обзор недели',
+    allHabits: 'Все привычки',
+    newHabit: 'Новая привычка',
+    noHabitsCreated: 'Привычек еще нет. Начните сегодня!',
+    createYourFirstHabit: 'Создать первую привычку',
+    category: 'Категория',
+    goal: 'Цель',
+    streak: 'Серия',
+    bestStreakLabel: 'Лучшая серия',
+    statisticsTitle: 'Статистика',
+    completedToday: 'Выполнено сегодня',
+    trend30Days: 'Тренд за 30 дней',
+    habitDistribution: 'Распределение привычек',
+    completed: 'Выполнено',
+    active: 'Активные',
+    habitsPerformance: 'Эффективность привычек',
+    completion: 'Выполнение',
+    bio: 'О себе',
+    joined: 'Присоединился',
+    totalCompleted: 'Всего выполнено',
+    accountAge: 'Возраст аккаунта',
+    yourHabits: 'Ваши привычки',
+    noHabitsYetShort: 'Пока нет привычек',
+    completedCount: 'выполнено',
+    completedCheckbox: 'Выполнено',
+    addHabitTitle: 'Добавить привычку',
+    habitName: 'Название привычки',
+    habitNamePlaceholder: 'например, Утренняя медитация',
+    unit: 'Ед. измерения',
+    icon: 'Иконка',
+    reminderTimeOptional: 'Время напоминания (необязательно)',
+    cancel: 'Отмена',
+    addHabit: 'Добавить',
+    monthlyResetTitle: 'Ежемесячная очистка',
+    resetNoticePrefix: 'Локальные данные очищены',
+    closeNotice: 'Закрыть уведомление',
+    weekdaysShort: ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'],
+  },
+  uz: {
+    languageLabel: 'Til',
+    dashboard: 'Boshqaruv',
+    habits: 'Odatlar',
+    calendar: 'Kalendar',
+    statistics: 'Statistika',
+    profile: 'Profil',
+    light: "Yorug'",
+    dark: "Qorong'i",
+    logout: 'Chiqish',
+    soundOn: 'Ovoz yoqilgan',
+    soundOff: "Ovoz o'chirilgan",
+    greetingMorning: 'Xayrli tong',
+    greetingAfternoon: 'Xayrli kun',
+    greetingEvening: 'Xayrli kech',
+    habitsCompletedToday: 'odat bugun bajarildi',
+    todaysProgress: 'Bugungi progress',
+    complete: 'Bajarildi',
+    habitsCompleted: 'Bajarilgan odatlar',
+    currentStreak: 'Hozirgi seriya',
+    days: 'kun',
+    best: 'Eng yaxshisi',
+    totalHabits: 'Jami odatlar',
+    activeHabits: 'Faol odatlar',
+    addNewHabit: "Yangi odat qo'shish",
+    todaysHabits: 'Bugungi odatlar',
+    noHabitsYet: "Hali odatlar yo'q. Birinchi odatni yarating!",
+    createFirstHabit: 'Birinchi odatni yaratish',
+    thisWeekOverview: "Haftalik ko'rinish",
+    allHabits: 'Barcha odatlar',
+    newHabit: 'Yangi odat',
+    noHabitsCreated: "Hali odatlar yo'q. Bugun boshlang!",
+    createYourFirstHabit: 'Birinchi odatni yaratish',
+    category: 'Kategoriya',
+    goal: 'Maqsad',
+    streak: 'Seriya',
+    bestStreakLabel: 'Eng yaxshi seriya',
+    statisticsTitle: 'Statistika',
+    completedToday: 'Bugun bajarildi',
+    trend30Days: '30 kunlik trend',
+    habitDistribution: 'Odatlar taqsimoti',
+    completed: 'Bajarilgan',
+    active: 'Faol',
+    habitsPerformance: 'Odatlar natijasi',
+    completion: 'Bajarilish',
+    bio: 'Bio',
+    joined: "Qo'shilgan",
+    totalCompleted: 'Jami bajarilgan',
+    accountAge: 'Akkount yoshi',
+    yourHabits: 'Odatlaringiz',
+    noHabitsYetShort: "Hali odatlar yo'q",
+    completedCount: 'bajarildi',
+    completedCheckbox: 'Bajarildi',
+    addHabitTitle: "Yangi odat qo'shish",
+    habitName: 'Odat nomi',
+    habitNamePlaceholder: 'masalan, Ertalabki meditatsiya',
+    unit: 'Birlik',
+    icon: 'Ikonka',
+    reminderTimeOptional: 'Eslatma vaqti (ixtiyoriy)',
+    cancel: 'Bekor qilish',
+    addHabit: "Qo'shish",
+    monthlyResetTitle: 'Oylik tozalash',
+    resetNoticePrefix: "Lokal ma'lumotlar tozalandi",
+    closeNotice: 'Bildirishnomani yopish',
+    weekdaysShort: ['Ya', 'Du', 'Se', 'Ch', 'Pa', 'Ju', 'Sh'],
+  },
+};
+
+const categoryLabels: Record<Language, Record<string, string>> = {
+  en: {
+    health: 'Health',
+    productivity: 'Productivity',
+    learning: 'Learning',
+    fitness: 'Fitness',
+    wellness: 'Wellness',
+    finance: 'Finance',
+    hobbies: 'Hobbies',
+  },
+  ru: {
+    health: 'Здоровье',
+    productivity: 'Продуктивность',
+    learning: 'Обучение',
+    fitness: 'Фитнес',
+    wellness: 'Самочувствие',
+    finance: 'Финансы',
+    hobbies: 'Хобби',
+  },
+  uz: {
+    health: "Sog'liq",
+    productivity: 'Samaradorlik',
+    learning: "O'qish",
+    fitness: 'Fitnes',
+    wellness: 'Farovonlik',
+    finance: 'Moliya',
+    hobbies: 'Xobbi',
+  },
+};
+
+const unitLabels: Record<Language, Record<string, string>> = {
+  en: {
+    min: 'min',
+    hours: 'hours',
+    reps: 'reps',
+    km: 'km',
+    liters: 'liters',
+    count: 'count',
+    pages: 'pages',
+  },
+  ru: {
+    min: 'мин',
+    hours: 'ч',
+    reps: 'повт.',
+    km: 'км',
+    liters: 'л',
+    count: 'раз',
+    pages: 'стр.',
+  },
+  uz: {
+    min: 'daq',
+    hours: 'soat',
+    reps: 'marta',
+    km: 'km',
+    liters: 'l',
+    count: 'marta',
+    pages: 'bet',
+  },
+};
 
 interface HabitCompletion {
   date: string;
@@ -94,6 +356,35 @@ type ThemeConfig = (typeof themes)['dark'];
 
 const MS_PER_DAY = 1000 * 60 * 60 * 24;
 
+const normalizeLanguage = (value: string | null | undefined): Language => {
+  if (value === 'ru' || value === 'uz' || value === 'en') {
+    return value;
+  }
+  return 'en';
+};
+
+const getLocale = (language: Language) => {
+  if (language === 'ru') return 'ru-RU';
+  if (language === 'uz') return 'uz-UZ';
+  return 'en-US';
+};
+
+const getCategoryLabel = (language: Language, category: string) => {
+  return categoryLabels[language][category] ?? category;
+};
+
+const getUnitLabel = (language: Language, unit: string) => {
+  return unitLabels[language][unit] ?? unit;
+};
+
+const getGreeting = (language: Language) => {
+  const hour = new Date().getHours();
+  const text = translations[language];
+  if (hour < 12) return text.greetingMorning;
+  if (hour < 18) return text.greetingAfternoon;
+  return text.greetingEvening;
+};
+
 // Utility Functions
 function getLocalStorage<T>(key: string, defaultValue: T): T;
 function getLocalStorage<T>(key: string, defaultValue?: T): T | null;
@@ -163,9 +454,14 @@ const getMonthKey = (date: Date) => {
 
 const getMonthStart = (date: Date) => new Date(date.getFullYear(), date.getMonth(), 1);
 
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString + 'T00:00:00');
-  return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+const getCurrentTimeString = () => {
+  const now = new Date();
+  return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+};
+
+const formatDate = (dateString: string, locale: string) => {
+  const date = parseLocalDate(dateString);
+  return date.toLocaleDateString(locale, { weekday: 'short', month: 'short', day: 'numeric' });
 };
 
 const getWeekDates = () => {
@@ -178,6 +474,13 @@ const getWeekDates = () => {
     weekDates.push(formatLocalDate(date));
   }
   return weekDates;
+};
+
+const getGreeting = () => {
+  const hour = new Date().getHours();
+  if (hour < 12) return 'Good morning';
+  if (hour < 18) return 'Good afternoon';
+  return 'Good evening';
 };
 
 
@@ -246,6 +549,7 @@ export default function HabitTrackerApp() {
   const [profileOverrides, setProfileOverrides] = useState<ProfileOverrides>({});
   const [resetNotice, setResetNotice] = useState<string | null>(null);
   const [soundEnabled, setSoundEnabled] = useState(() => getLocalStorage<boolean>('sound_enabled', true) ?? true);
+  const [language, setLanguage] = useState<Language>(() => normalizeLanguage(getLocalStorage<string>('language', 'en')));
 
   const [currentPage, setCurrentPage] = useState<Page>('dashboard');
   const [sidebarOpen] = useState(true);
@@ -265,6 +569,8 @@ export default function HabitTrackerApp() {
   });
 
   const themeConfig = themes[theme];
+  const locale = getLocale(language);
+  const text = translations[language];
   const minMonth = getMonthStart(new Date());
 
   const handleMonthChange = (date: Date) => {
@@ -294,8 +600,8 @@ export default function HabitTrackerApp() {
         setLocalStorage(resetKey, monthKey);
         setSelectedDate(getTodayDate());
         setCurrentMonth(getMonthStart(now));
-        const resetDateLabel = now.toLocaleDateString('uz-UZ', { day: 'numeric', month: 'long', year: 'numeric' });
-        setResetNotice(`Local data was cleared on ${resetDateLabel}.`);
+        const resetDateLabel = now.toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' });
+        setResetNotice(`${text.resetNoticePrefix} ${resetDateLabel}.`);
         playNotificationSound(soundEnabled, 740);
       }
     };
@@ -304,7 +610,7 @@ export default function HabitTrackerApp() {
     return () => {
       window.clearInterval(intervalId);
     };
-  }, [isSignedIn, soundEnabled, user?.id]);
+  }, [isSignedIn, language, locale, soundEnabled, text.resetNoticePrefix, user?.id]);
 
   // Load user-specific data after auth is ready.
   useEffect(() => {
@@ -331,6 +637,11 @@ export default function HabitTrackerApp() {
   useEffect(() => {
     setLocalStorage('sound_enabled', soundEnabled);
   }, [soundEnabled]);
+
+  // Save language preference
+  useEffect(() => {
+    setLocalStorage('language', language);
+  }, [language]);
 
   // Save habits
   useEffect(() => {
@@ -556,6 +867,8 @@ export default function HabitTrackerApp() {
             habitsCount={habits.length}
             theme={theme}
             onThemeChange={setTheme}
+            language={language}
+            onLanguageChange={setLanguage}
             onClose={() => setMobileSidebarOpen(false)}
           />
         </>
@@ -572,6 +885,8 @@ export default function HabitTrackerApp() {
         habitsCount={habits.length}
         theme={theme}
         onThemeChange={setTheme}
+        language={language}
+        onLanguageChange={setLanguage}
       />
 
       {/* Main Content */}
@@ -583,19 +898,20 @@ export default function HabitTrackerApp() {
           theme={theme}
           soundEnabled={soundEnabled}
           onSoundToggle={() => setSoundEnabled((prev) => !prev)}
+          language={language}
         />
 
         {resetNotice && (
           <div className="px-6 md:px-8 pt-4">
             <div className={`${themeConfig.card} rounded-xl p-4 border ${themeConfig.border} shadow-lg flex items-start justify-between gap-4`}>
               <div className="min-w-0">
-                <p className={`${themeConfig.text} font-semibold`}>Oylik tozalash</p>
+                <p className={`${themeConfig.text} font-semibold`}>{text.monthlyResetTitle}</p>
                 <p className={`${themeConfig.textSecondary} text-sm break-words`}>{resetNotice}</p>
               </div>
               <button
                 onClick={() => setResetNotice(null)}
                 className={`p-2 rounded-lg transition ${themeConfig.hover}`}
-                aria-label="Close notice"
+                aria-label={text.closeNotice}
               >
                 <X className="w-4 h-4" />
               </button>
@@ -615,6 +931,8 @@ export default function HabitTrackerApp() {
               onDeleteHabit={deleteHabit}
               theme={theme}
               themeConfig={themeConfig}
+              language={language}
+              locale={locale}
             />
           )}
 
@@ -626,6 +944,7 @@ export default function HabitTrackerApp() {
               onDeleteHabit={deleteHabit}
               theme={theme}
               themeConfig={themeConfig}
+              language={language}
             />
           )}
 
@@ -639,11 +958,13 @@ export default function HabitTrackerApp() {
               theme={theme}
               themeConfig={themeConfig}
               minMonth={minMonth}
+              language={language}
+              locale={locale}
             />
           )}
 
           {currentPage === 'stats' && (
-            <StatsPage habits={habits} metrics={calculateMetrics()} theme={theme} themeConfig={themeConfig} />
+            <StatsPage habits={habits} metrics={calculateMetrics()} theme={theme} themeConfig={themeConfig} language={language} locale={locale} />
           )}
 
           {currentPage === 'profile' && (
@@ -653,22 +974,25 @@ export default function HabitTrackerApp() {
               onUpdate={updateProfile}
               theme={theme}
               themeConfig={themeConfig}
+              language={language}
+              locale={locale}
             />
           )}
         </div>
       </main>
 
       {/* Add Habit Modal */}
-      {showAddHabit && (
-        <AddHabitModal
-          habit={newHabit}
-          onChange={setNewHabit}
-          onAdd={handleAddHabit}
-          onClose={() => setShowAddHabit(false)}
-          theme={theme}
-          themeConfig={themeConfig}
-        />
-      )}
+        {showAddHabit && (
+          <AddHabitModal
+            habit={newHabit}
+            onChange={setNewHabit}
+            onAdd={handleAddHabit}
+            onClose={() => setShowAddHabit(false)}
+            theme={theme}
+            themeConfig={themeConfig}
+            language={language}
+          />
+        )}
         </div>
       </SignedIn>
     </>
@@ -694,6 +1018,8 @@ function Sidebar({
   habitsCount,
   theme,
   onThemeChange,
+  language,
+  onLanguageChange,
   variant = 'desktop',
   onClose,
 }: {
@@ -705,10 +1031,13 @@ function Sidebar({
   habitsCount: number;
   theme: Theme;
   onThemeChange: (theme: Theme) => void;
+  language: Language;
+  onLanguageChange: (language: Language) => void;
   variant?: 'desktop' | 'mobile';
   onClose?: () => void;
 }) {
   const themeConfig = themes[theme];
+  const text = translations[language];
   const isMobile = variant === 'mobile';
   const showLabels = isMobile ? true : isOpen;
   const widthClass = isMobile ? 'w-64' : isOpen ? 'w-64' : 'w-20';
@@ -716,11 +1045,11 @@ function Sidebar({
     isMobile ? 'flex md:hidden fixed inset-y-0 left-0 z-50' : 'hidden md:flex'
   } ${widthClass} ${theme === 'dark' ? 'bg-slate-800/80 border-slate-700' : 'bg-white shadow-xl border-slate-200'} backdrop-blur-xl border-r transition-all duration-300 flex flex-col overflow-y-auto`;
   const menuItems: { id: Page; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
-    { id: 'dashboard', label: 'Dashboard', icon: Home },
-    { id: 'habits', label: 'Habits', icon: ListTodo },
-    { id: 'calendar', label: 'Calendar', icon: Calendar },
-    { id: 'stats', label: 'Statistics', icon: BarChart3 },
-    { id: 'profile', label: 'Profile', icon: User },
+    { id: 'dashboard', label: text.dashboard, icon: Home },
+    { id: 'habits', label: text.habits, icon: ListTodo },
+    { id: 'calendar', label: text.calendar, icon: Calendar },
+    { id: 'stats', label: text.statistics, icon: BarChart3 },
+    { id: 'profile', label: text.profile, icon: User },
   ];
   const handlePageChange = (page: Page) => {
     onPageChange(page);
@@ -792,8 +1121,28 @@ function Sidebar({
           ) : (
             <Moon className="w-4 h-4" />
           )}
-          {showLabels && <span className="text-xs font-medium">{theme === 'dark' ? 'Light' : 'Dark'}</span>}
+          {showLabels && <span className="text-xs font-medium">{theme === 'dark' ? text.light : text.dark}</span>}
         </button>
+      </div>
+
+      {/* Language Toggle */}
+      <div className={`p-4 border-t ${themeConfig.border}`}>
+        {showLabels && <p className={`text-xs ${themeConfig.textSecondary} mb-2`}>{text.languageLabel}</p>}
+        <div className={`flex ${showLabels ? 'gap-2' : 'flex-col gap-2 items-center'}`}>
+          {(['en', 'ru', 'uz'] as Language[]).map((lang) => (
+            <button
+              key={lang}
+              onClick={() => onLanguageChange(lang)}
+              className={`px-2 py-1 rounded-lg text-xs font-medium transition ${
+                language === lang
+                  ? 'bg-blue-500 text-white shadow'
+                  : `${themeConfig.bgTertiary} ${themeConfig.textSecondary} hover:opacity-80`
+              }`}
+            >
+              {lang.toUpperCase()}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* User Profile */}
@@ -831,7 +1180,7 @@ function Sidebar({
           className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-lg transition text-sm font-medium"
         >
           <LogOut className="w-4 h-4" />
-          {showLabels && 'Logout'}
+          {showLabels && text.logout}
         </button>
       </div>
     </aside>
@@ -846,6 +1195,7 @@ function Header({
   theme,
   soundEnabled,
   onSoundToggle,
+  language,
 }: {
   user: UserProfile;
   onMenuClick: () => void;
@@ -853,8 +1203,10 @@ function Header({
   theme: Theme;
   soundEnabled: boolean;
   onSoundToggle: () => void;
+  language: Language;
 }) {
   const themeConfig = themes[theme];
+  const text = translations[language];
 
   return (
     <header className={`${theme === 'dark' ? 'bg-slate-800/50 border-slate-700' : 'bg-white shadow-md border-slate-200'} backdrop-blur-xl border-b sticky top-0 z-40`}>
@@ -868,10 +1220,10 @@ function Header({
           </button>
           <div>
             <h2 className={`text-xl font-bold ${themeConfig.text}`}>
-              Good morning, {user.name}!
+              {getGreeting(language)}, {user.name}!
             </h2>
             <p className={`${themeConfig.textSecondary} text-sm`}>
-              {metrics.completedToday} / {metrics.totalHabits} habits completed today
+              {metrics.completedToday} / {metrics.totalHabits} {text.habitsCompletedToday}
             </p>
           </div>
         </div>
@@ -881,7 +1233,7 @@ function Header({
             onClick={onSoundToggle}
             aria-pressed={!soundEnabled}
             className={`relative p-2 rounded-lg transition ${themeConfig.hover}`}
-            title={soundEnabled ? 'Sound on' : 'Sound off'}
+            title={soundEnabled ? text.soundOn : text.soundOff}
           >
             <Bell className="w-6 h-6" />
             {metrics.completedToday > 0 && (
@@ -924,6 +1276,8 @@ function DashboardPage({
   onDeleteHabit,
   theme,
   themeConfig,
+  language,
+  locale,
 }: {
   habits: Habit[];
   selectedDate: string;
@@ -934,8 +1288,11 @@ function DashboardPage({
   onDeleteHabit: (habitId: string) => void;
   theme: Theme;
   themeConfig: ThemeConfig;
+  language: Language;
+  locale: string;
 }) {
   const weekDates = getWeekDates();
+  const text = translations[language];
 
   return (
     <div className="space-y-8">
@@ -943,7 +1300,7 @@ function DashboardPage({
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {/* Progress Card */}
         <div className={`${themeConfig.card} rounded-2xl p-6 border ${themeConfig.border} shadow-lg`}>
-          <h3 className={`${themeConfig.textSecondary} text-sm font-medium mb-4`}>Today&apos;s Progress</h3>
+          <h3 className={`${themeConfig.textSecondary} text-sm font-medium mb-4`}>{text.todaysProgress}</h3>
           <div className="flex items-center gap-4">
             <div className="relative w-24 h-24">
               <svg className="w-24 h-24 transform -rotate-90">
@@ -975,13 +1332,13 @@ function DashboardPage({
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="text-center">
                   <p className={`text-2xl font-bold ${themeConfig.text}`}>{metrics.weeklyCompletion}%</p>
-                  <p className={`${themeConfig.textSecondary} text-xs`}>Complete</p>
+                  <p className={`${themeConfig.textSecondary} text-xs`}>{text.complete}</p>
                 </div>
               </div>
             </div>
             <div className="min-w-0">
               <p className={`${themeConfig.text} font-semibold text-lg`}>{metrics.completedToday}/{metrics.totalHabits}</p>
-              <p className={`${themeConfig.textSecondary} text-sm`}>Habits completed</p>
+              <p className={`${themeConfig.textSecondary} text-sm`}>{text.habitsCompleted}</p>
             </div>
           </div>
         </div>
@@ -990,12 +1347,12 @@ function DashboardPage({
         <div className={`${theme === 'dark' ? 'bg-orange-500/20 border-orange-500/30' : 'bg-orange-50 border-orange-200'} ${themeConfig.card} rounded-2xl p-6 border shadow-lg`}>
           <div className="flex items-start justify-between">
             <div>
-              <p className={`${themeConfig.textSecondary} text-sm font-medium mb-2`}>Current Streak</p>
+              <p className={`${themeConfig.textSecondary} text-sm font-medium mb-2`}>{text.currentStreak}</p>
               <div className="flex items-baseline gap-2">
                 <p className={`text-4xl font-bold ${theme === 'dark' ? 'text-orange-400' : 'text-orange-600'}`}>{metrics.currentStreak}</p>
-                <p className={`${themeConfig.textSecondary} text-sm`}>days</p>
+                <p className={`${themeConfig.textSecondary} text-sm`}>{text.days}</p>
               </div>
-              <p className={`${themeConfig.textSecondary} text-xs mt-2`}>Best: {metrics.bestStreak} days</p>
+              <p className={`${themeConfig.textSecondary} text-xs mt-2`}>{text.best}: {metrics.bestStreak} {text.days}</p>
             </div>
             <Flame className={`w-12 h-12 ${theme === 'dark' ? 'text-orange-500/60' : 'text-orange-400/60'}`} />
           </div>
@@ -1003,9 +1360,9 @@ function DashboardPage({
 
         {/* Total Habits Card */}
         <div className={`${theme === 'dark' ? 'bg-green-500/20 border-green-500/30' : 'bg-green-50 border-green-200'} ${themeConfig.card} rounded-2xl p-6 border shadow-lg`}>
-          <p className={`${themeConfig.textSecondary} text-sm font-medium mb-4`}>Total Habits</p>
+          <p className={`${themeConfig.textSecondary} text-sm font-medium mb-4`}>{text.totalHabits}</p>
           <p className={`text-4xl font-bold ${theme === 'dark' ? 'text-green-400' : 'text-green-600'}`}>{metrics.totalHabits}</p>
-          <p className={`${themeConfig.textSecondary} text-xs mt-2`}>Active habits</p>
+          <p className={`${themeConfig.textSecondary} text-xs mt-2`}>{text.activeHabits}</p>
         </div>
 
         {/* Add Habit Card */}
@@ -1015,23 +1372,23 @@ function DashboardPage({
             className="flex flex-col items-center gap-2 text-center"
           >
             <Plus className={`w-8 h-8 ${theme === 'dark' ? 'text-blue-400' : 'text-blue-600'}`} />
-            <span className={`text-sm font-semibold ${theme === 'dark' ? 'text-blue-400' : 'text-blue-600'}`}>Add New Habit</span>
+            <span className={`text-sm font-semibold ${theme === 'dark' ? 'text-blue-400' : 'text-blue-600'}`}>{text.addNewHabit}</span>
           </button>
         </div>
       </div>
 
       {/* Today's Habits */}
       <div>
-        <h3 className={`text-2xl font-bold ${themeConfig.text} mb-6`}>Today&apos;s Habits</h3>
+        <h3 className={`text-2xl font-bold ${themeConfig.text} mb-6`}>{text.todaysHabits}</h3>
         {habits.length === 0 ? (
           <div className={`${themeConfig.card} rounded-2xl p-12 border ${themeConfig.border} text-center shadow-lg`}>
             <Plus className={`w-12 h-12 ${themeConfig.textSecondary} mx-auto mb-4 opacity-50`} />
-            <p className={`${themeConfig.textSecondary} mb-4`}>No habits yet. Create your first habit to get started!</p>
+            <p className={`${themeConfig.textSecondary} mb-4`}>{text.noHabitsYet}</p>
             <button
               onClick={onAddHabit}
               className="px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:shadow-lg transition"
             >
-              Create First Habit
+              {text.createFirstHabit}
             </button>
           </div>
         ) : (
@@ -1049,6 +1406,7 @@ function DashboardPage({
                   onDelete={onDeleteHabit}
                   theme={theme}
                   themeConfig={themeConfig}
+                  language={language}
                 />
               );
             })}
@@ -1059,11 +1417,11 @@ function DashboardPage({
       {/* Week Overview Chart */}
       {habits.length > 0 && (
         <div className={`${themeConfig.card} rounded-2xl p-6 border ${themeConfig.border} shadow-lg`}>
-          <h3 className={`${themeConfig.text} font-bold mb-6`}>This Week Overview</h3>
+          <h3 className={`${themeConfig.text} font-bold mb-6`}>{text.thisWeekOverview}</h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart
               data={weekDates.map((date: string) => ({
-                day: new Date(date).toLocaleDateString('en-US', { weekday: 'short' }),
+                day: parseLocalDate(date).toLocaleDateString(locale, { weekday: 'short' }),
                 completed: habits.filter(
                   h => h.completions.find(c => c.date === date && c.completed)
                 ).length,
@@ -1103,6 +1461,7 @@ function HabitsPage({
   onDeleteHabit,
   theme,
   themeConfig,
+  language,
 }: {
   habits: Habit[];
   selectedDate: string;
@@ -1110,29 +1469,31 @@ function HabitsPage({
   onDeleteHabit: (habitId: string) => void;
   theme: Theme;
   themeConfig: ThemeConfig;
+  language: Language;
 }) {
+  const text = translations[language];
   return (
     <div className="max-w-6xl space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className={`text-3xl font-bold ${themeConfig.text}`}>All Habits</h2>
+        <h2 className={`text-3xl font-bold ${themeConfig.text}`}>{text.allHabits}</h2>
         <button
           onClick={onAddHabit}
           className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full hover:shadow-lg transition"
         >
           <Plus className="w-5 h-5" />
-          New Habit
+          {text.newHabit}
         </button>
       </div>
 
       {habits.length === 0 ? (
         <div className={`${themeConfig.card} rounded-2xl p-12 border ${themeConfig.border} text-center shadow-lg`}>
           <ListTodo className={`w-12 h-12 ${themeConfig.textSecondary} mx-auto mb-4 opacity-50`} />
-          <p className={`${themeConfig.textSecondary} mb-4`}>No habits created yet. Start building better habits today!</p>
+          <p className={`${themeConfig.textSecondary} mb-4`}>{text.noHabitsCreated}</p>
           <button
             onClick={onAddHabit}
             className="px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:shadow-lg transition"
           >
-            Create Your First Habit
+            {text.createYourFirstHabit}
           </button>
         </div>
       ) : (
@@ -1149,9 +1510,9 @@ function HabitsPage({
                     <span className="text-3xl">{habit.icon}</span>
                     <div>
                       <h3 className={`${themeConfig.text} font-semibold`}>{habit.name}</h3>
-                      <p className={`${themeConfig.textSecondary} text-xs`}>Category: {habit.category}</p>
+                      <p className={`${themeConfig.textSecondary} text-xs`}>{text.category}: {getCategoryLabel(language, habit.category)}</p>
                       <p className={`${themeConfig.textSecondary} text-xs`}>
-                        Goal: {habit.goal} {habit.unit}
+                        {text.goal}: {habit.goal} {getUnitLabel(language, habit.unit)}
                       </p>
                     </div>
                   </div>
@@ -1173,13 +1534,13 @@ function HabitsPage({
                     ></div>
                   </div>
                   <p className={`${themeConfig.textSecondary} text-xs`}>
-                    {completion?.current || 0} / {habit.goal} {habit.unit}
+                    {completion?.current || 0} / {habit.goal} {getUnitLabel(language, habit.unit)}
                   </p>
                 </div>
 
                 <div className={`mt-4 pt-4 border-t ${themeConfig.border} flex items-center justify-between text-xs`}>
-                  <span className={themeConfig.textSecondary}>Streak: {getStreak(habit)} days</span>
-                  <span className={`${theme === 'dark' ? 'text-orange-400' : 'text-orange-600'}`}>Best: {getBestStreak(habit)} days</span>
+                  <span className={themeConfig.textSecondary}>{text.streak}: {getStreak(habit)} {text.days}</span>
+                  <span className={`${theme === 'dark' ? 'text-orange-400' : 'text-orange-600'}`}>{text.best}: {getBestStreak(habit)} {text.days}</span>
                 </div>
               </div>
             );
@@ -1200,6 +1561,8 @@ function CalendarPage({
   theme,
   themeConfig,
   minMonth,
+  language,
+  locale,
 }: {
   habits: Habit[];
   currentMonth: Date;
@@ -1209,10 +1572,13 @@ function CalendarPage({
   theme: Theme;
   themeConfig: ThemeConfig;
   minMonth: Date;
+  language: Language;
+  locale: string;
 }) {
   const year = currentMonth.getFullYear();
   const month = currentMonth.getMonth();
   const atMinMonth = year === minMonth.getFullYear() && month === minMonth.getMonth();
+  const text = translations[language];
   const firstDay = new Date(year, month, 1);
   const lastDay = new Date(year, month + 1, 0);
   const daysInMonth = lastDay.getDate();
@@ -1241,7 +1607,7 @@ function CalendarPage({
       <div className={`${themeConfig.card} rounded-2xl p-6 border ${themeConfig.border} shadow-lg`}>
         <div className="flex items-center justify-between mb-6">
           <h2 className={`text-2xl font-bold ${themeConfig.text}`}>
-            {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+            {currentMonth.toLocaleDateString(locale, { month: 'long', year: 'numeric' })}
           </h2>
           <div className="flex gap-2">
             <button
@@ -1268,7 +1634,7 @@ function CalendarPage({
 
         {/* Weekdays Header */}
         <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-4">
-          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+          {text.weekdaysShort.map((day) => (
             <div key={day} className={`text-center ${themeConfig.textSecondary} text-[10px] sm:text-xs font-semibold py-1 sm:py-2`}>
               {day}
             </div>
@@ -1322,7 +1688,7 @@ function CalendarPage({
       {/* Selected Date Details */}
       <div className={`${themeConfig.card} rounded-2xl p-6 border ${themeConfig.border} shadow-lg`}>
         <h3 className={`${themeConfig.text} font-bold mb-4`}>
-          {parseLocalDate(selectedDate).toLocaleDateString('en-US', {
+          {parseLocalDate(selectedDate).toLocaleDateString(locale, {
             weekday: 'long',
             year: 'numeric',
             month: 'long',
@@ -1351,7 +1717,7 @@ function CalendarPage({
                   ></div>
                 </div>
                 <p className={`${themeConfig.textSecondary} text-xs mt-2`}>
-                  {completion?.current || 0} / {habit.goal} {habit.unit}
+                  {completion?.current || 0} / {habit.goal} {getUnitLabel(language, habit.unit)}
                   {completion?.time && ` · ${completion.time}`}
                 </p>
               </div>
@@ -1364,7 +1730,22 @@ function CalendarPage({
 }
 
 // Stats Page
-function StatsPage({ habits, metrics, theme, themeConfig }: { habits: Habit[]; metrics: Metrics; theme: Theme; themeConfig: ThemeConfig }) {
+function StatsPage({
+  habits,
+  metrics,
+  theme,
+  themeConfig,
+  language,
+  locale,
+}: {
+  habits: Habit[];
+  metrics: Metrics;
+  theme: Theme;
+  themeConfig: ThemeConfig;
+  language: Language;
+  locale: string;
+}) {
+  const text = translations[language];
   const getMonthData = () => {
     const today = new Date();
     const data = [];
@@ -1374,7 +1755,7 @@ function StatsPage({ habits, metrics, theme, themeConfig }: { habits: Habit[]; m
       const dateStr = formatLocalDate(date);
       const completed = habits.filter(h => h.completions.find(c => c.date === dateStr && c.completed)).length;
       data.push({
-        date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        date: date.toLocaleDateString(locale, { month: 'short', day: 'numeric' }),
         completed,
       });
     }
@@ -1383,15 +1764,15 @@ function StatsPage({ habits, metrics, theme, themeConfig }: { habits: Habit[]; m
 
   return (
     <div className="max-w-6xl space-y-8">
-      <h2 className={`text-3xl font-bold ${themeConfig.text}`}>Statistics</h2>
+      <h2 className={`text-3xl font-bold ${themeConfig.text}`}>{text.statisticsTitle}</h2>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {[
-          { label: 'Total Habits', value: metrics.totalHabits, color: 'blue' },
-          { label: 'Completed Today', value: metrics.completedToday, color: 'green' },
-          { label: 'Current Streak', value: `${metrics.currentStreak} days`, color: 'orange' },
-          { label: 'Best Streak', value: `${metrics.bestStreak} days`, color: 'purple' },
+          { label: text.totalHabits, value: metrics.totalHabits, color: 'blue' },
+          { label: text.completedToday, value: metrics.completedToday, color: 'green' },
+          { label: text.currentStreak, value: `${metrics.currentStreak} ${text.days}`, color: 'orange' },
+          { label: text.bestStreakLabel, value: `${metrics.bestStreak} ${text.days}`, color: 'purple' },
         ].map((stat, idx) => (
           <div
             key={idx}
@@ -1407,7 +1788,7 @@ function StatsPage({ habits, metrics, theme, themeConfig }: { habits: Habit[]; m
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* 30-Day Trend */}
         <div className={`${themeConfig.card} rounded-xl p-6 border ${themeConfig.border} shadow-lg`}>
-          <h3 className={`${themeConfig.text} font-bold mb-6`}>30-Day Trend</h3>
+          <h3 className={`${themeConfig.text} font-bold mb-6`}>{text.trend30Days}</h3>
           <ResponsiveContainer width="100%" height={300}>
             <AreaChart data={getMonthData()}>
               <defs>
@@ -1444,13 +1825,13 @@ function StatsPage({ habits, metrics, theme, themeConfig }: { habits: Habit[]; m
 
         {/* Habit Distribution */}
         <div className={`${themeConfig.card} rounded-xl p-6 border ${themeConfig.border} shadow-lg`}>
-          <h3 className={`${themeConfig.text} font-bold mb-6`}>Habit Distribution</h3>
+          <h3 className={`${themeConfig.text} font-bold mb-6`}>{text.habitDistribution}</h3>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
                 data={[
-                  { name: 'Completed', value: habits.filter(h => getStreak(h) > 0).length },
-                  { name: 'Active', value: habits.filter(h => getStreak(h) === 0).length },
+                  { name: text.completed, value: habits.filter(h => getStreak(h) > 0).length },
+                  { name: text.active, value: habits.filter(h => getStreak(h) === 0).length },
                 ]}
                 cx="50%"
                 cy="50%"
@@ -1469,7 +1850,7 @@ function StatsPage({ habits, metrics, theme, themeConfig }: { habits: Habit[]; m
 
       {/* Habit Details */}
       <div className={`${themeConfig.card} rounded-xl p-6 border ${themeConfig.border} shadow-lg`}>
-        <h3 className={`${themeConfig.text} font-bold mb-6`}>Habits Performance</h3>
+        <h3 className={`${themeConfig.text} font-bold mb-6`}>{text.habitsPerformance}</h3>
         <div className="space-y-4">
           {habits.map((habit: Habit) => {
             const streak = getStreak(habit);
@@ -1485,9 +1866,9 @@ function StatsPage({ habits, metrics, theme, themeConfig }: { habits: Habit[]; m
                   <div>
                     <p className={`${themeConfig.text} font-medium`}>{habit.name}</p>
                     <div className={`flex gap-4 text-xs ${themeConfig.textSecondary}`}>
-                      <span>Streak: {streak} days</span>
-                      <span>Best: {bestStreak} days</span>
-                      <span>Completion: {completionRate}%</span>
+                      <span>{text.streak}: {streak} {text.days}</span>
+                      <span>{text.best}: {bestStreak} {text.days}</span>
+                      <span>{text.completion}: {completionRate}%</span>
                     </div>
                   </div>
                 </div>
@@ -1510,16 +1891,21 @@ function ProfilePage({
   onUpdate,
   theme,
   themeConfig,
+  language,
+  locale,
 }: {
   user: UserProfile;
   habits: Habit[];
   onUpdate: (user: UserProfile) => void;
   theme: Theme;
   themeConfig: ThemeConfig;
+  language: Language;
+  locale: string;
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState(user);
   const [todayDate] = useState(() => getTodayDate());
+  const text = translations[language];
 
   const handleSave = () => {
     onUpdate(editData);
@@ -1567,7 +1953,7 @@ function ProfilePage({
                 <h2 className={`text-2xl font-bold ${themeConfig.text} break-words`}>{user.name}</h2>
               )}
               <p className={themeConfig.textSecondary}>{user.email}</p>
-              <p className={`text-sm ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>Joined {formatDate(user.joinDate)}</p>
+              <p className={`text-sm ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>{text.joined} {formatDate(user.joinDate, locale)}</p>
             </div>
           </div>
 
@@ -1601,7 +1987,7 @@ function ProfilePage({
 
         {/* Bio */}
         <div>
-          <label className={`block text-sm ${themeConfig.textSecondary} mb-2`}>Bio</label>
+          <label className={`block text-sm ${themeConfig.textSecondary} mb-2`}>{text.bio}</label>
           {isEditing ? (
             <textarea
               value={editData.bio}
@@ -1618,28 +2004,28 @@ function ProfilePage({
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className={`${themeConfig.card} rounded-xl p-6 border ${themeConfig.border} shadow-lg`}>
-          <p className={`${themeConfig.textSecondary} text-sm mb-2`}>Total Habits</p>
+          <p className={`${themeConfig.textSecondary} text-sm mb-2`}>{text.totalHabits}</p>
           <p className={`text-3xl font-bold ${themeConfig.text}`}>{habits.length}</p>
         </div>
         <div className={`${themeConfig.card} rounded-xl p-6 border ${themeConfig.border} shadow-lg`}>
-          <p className={`${themeConfig.textSecondary} text-sm mb-2`}>Total Completed</p>
+          <p className={`${themeConfig.textSecondary} text-sm mb-2`}>{text.totalCompleted}</p>
           <p className={`text-3xl font-bold ${theme === 'dark' ? 'text-green-400' : 'text-green-600'}`}>{totalCompleted}</p>
         </div>
         <div className={`${themeConfig.card} rounded-xl p-6 border ${themeConfig.border} shadow-lg`}>
-          <p className={`${themeConfig.textSecondary} text-sm mb-2`}>Account Age</p>
+          <p className={`${themeConfig.textSecondary} text-sm mb-2`}>{text.accountAge}</p>
           <p className={`text-3xl font-bold text-blue-500`}>
             {accountAgeDays}
-            <span className="text-sm ml-1">days</span>
+            <span className="text-sm ml-1">{text.days}</span>
           </p>
         </div>
       </div>
 
       {/* Recent Habits */}
       <div className={`${themeConfig.card} rounded-2xl p-6 border ${themeConfig.border} shadow-lg`}>
-        <h3 className={`${themeConfig.text} font-bold mb-4`}>Your Habits</h3>
+        <h3 className={`${themeConfig.text} font-bold mb-4`}>{text.yourHabits}</h3>
         <div className="space-y-2">
           {habits.length === 0 ? (
-            <p className={themeConfig.textSecondary}>No habits yet</p>
+            <p className={themeConfig.textSecondary}>{text.noHabitsYetShort}</p>
           ) : (
             habits.map((habit: Habit) => (
               <div key={habit.id} className={`flex items-center justify-between p-3 ${themeConfig.bgTertiary} rounded-lg`}>
@@ -1648,7 +2034,7 @@ function ProfilePage({
                   <span className={themeConfig.text}>{habit.name}</span>
                 </div>
                 <div className={`text-sm ${themeConfig.textSecondary}`}>
-                  {habit.completions.filter(c => c.completed).length} completed
+                  {habit.completions.filter(c => c.completed).length} {text.completedCount}
                 </div>
               </div>
             ))
@@ -1669,6 +2055,7 @@ function HabitCard({
   onDelete,
   theme,
   themeConfig,
+  language,
 }: {
   habit: Habit;
   date: string;
@@ -1678,10 +2065,12 @@ function HabitCard({
   onDelete: (habitId: string) => void;
   theme: Theme;
   themeConfig: ThemeConfig;
+  language: Language;
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [currentValue, setCurrentValue] = useState(completion?.current || 0);
-  const [time, setTime] = useState(completion?.time || new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }));
+  const [time, setTime] = useState(completion?.time || getCurrentTimeString());
+  const text = translations[language];
 
   const percentage = Math.min((currentValue / habit.goal) * 100, 100);
 
@@ -1710,7 +2099,7 @@ function HabitCard({
             ></div>
           </div>
           <p className={`${themeConfig.textSecondary} text-xs mt-1`}>
-            {currentValue} / {habit.goal} {habit.unit}
+            {currentValue} / {habit.goal} {getUnitLabel(language, habit.unit)}
             {completion?.time && ` · ${completion.time}`}
           </p>
         </div>
@@ -1726,7 +2115,7 @@ function HabitCard({
               onChange={(e) => setCurrentValue(e.target.checked ? habit.goal : 0)}
               className="w-4 h-4 accent-green-500"
             />
-            Completed
+            {text.completedCheckbox}
           </label>
           <input
             type="time"
@@ -1778,6 +2167,7 @@ function AddHabitModal({
   onClose,
   theme,
   themeConfig,
+  language,
 }: {
   habit: NewHabitDraft;
   onChange: (habit: NewHabitDraft) => void;
@@ -1785,33 +2175,35 @@ function AddHabitModal({
   onClose: () => void;
   theme: Theme;
   themeConfig: ThemeConfig;
+  language: Language;
 }) {
   const icons = ['💻', '📚', '💪', '💧', '🌙', '🧘', '🏃', '🍎', '🎯', '⭐'];
   const categories = ['health', 'productivity', 'learning', 'fitness', 'wellness', 'finance', 'hobbies'];
   const units = ['min', 'hours', 'reps', 'km', 'liters', 'count', 'pages'];
+  const text = translations[language];
 
   return (
     <div className={`fixed inset-0 ${theme === 'dark' ? 'bg-black/50' : 'bg-white/50'} backdrop-blur-sm flex items-center justify-center p-4 z-50`}>
       <div className={`${themeConfig.card} rounded-2xl p-8 max-w-md w-full border ${themeConfig.border} max-h-[90vh] overflow-y-auto shadow-2xl`}>
-        <h2 className={`text-2xl font-bold ${themeConfig.text} mb-6`}>Add New Habit</h2>
+        <h2 className={`text-2xl font-bold ${themeConfig.text} mb-6`}>{text.addHabitTitle}</h2>
 
         <div className="space-y-4">
           <div>
             <label className={`block text-sm font-medium ${themeConfig.textSecondary} mb-2`}>
-              Habit Name
+              {text.habitName}
             </label>
             <input
               type="text"
               value={habit.name}
               onChange={(e) => onChange({ ...habit, name: e.target.value })}
-              placeholder="e.g., Morning Meditation"
+              placeholder={text.habitNamePlaceholder}
               className={`w-full px-4 py-2 ${themeConfig.input} rounded-lg ${themeConfig.text} placeholder-opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-500`}
             />
           </div>
 
           <div>
             <label className={`block text-sm font-medium ${themeConfig.textSecondary} mb-2`}>
-              Category
+              {text.category}
             </label>
             <select
               value={habit.category}
@@ -1820,7 +2212,7 @@ function AddHabitModal({
             >
               {categories.map((cat) => (
                 <option key={cat} value={cat}>
-                  {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                  {getCategoryLabel(language, cat)}
                 </option>
               ))}
             </select>
@@ -1829,7 +2221,7 @@ function AddHabitModal({
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className={`block text-sm font-medium ${themeConfig.textSecondary} mb-2`}>
-                Goal
+                {text.goal}
               </label>
               <input
                 type="number"
@@ -1842,7 +2234,7 @@ function AddHabitModal({
 
             <div>
               <label className={`block text-sm font-medium ${themeConfig.textSecondary} mb-2`}>
-                Unit
+                {text.unit}
               </label>
               <select
                 value={habit.unit}
@@ -1851,7 +2243,7 @@ function AddHabitModal({
               >
                 {units.map((unit) => (
                   <option key={unit} value={unit}>
-                    {unit}
+                    {getUnitLabel(language, unit)}
                   </option>
                 ))}
               </select>
@@ -1860,7 +2252,7 @@ function AddHabitModal({
 
           <div>
             <label className={`block text-sm font-medium ${themeConfig.textSecondary} mb-2`}>
-              Icon
+              {text.icon}
             </label>
             <div className="grid grid-cols-5 gap-2">
               {icons.map((icon) => (
@@ -1881,7 +2273,7 @@ function AddHabitModal({
 
           <div>
             <label className={`block text-sm font-medium ${themeConfig.textSecondary} mb-2`}>
-              Reminder Time (Optional)
+              {text.reminderTimeOptional}
             </label>
             <input
               type="time"
@@ -1896,13 +2288,13 @@ function AddHabitModal({
               onClick={onClose}
               className={`flex-1 px-4 py-2 ${themeConfig.bgTertiary} ${themeConfig.textSecondary} rounded-lg hover:opacity-80 transition`}
             >
-              Cancel
+              {text.cancel}
             </button>
             <button
               onClick={onAdd}
               className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:shadow-lg transition"
             >
-              Add Habit
+              {text.addHabit}
             </button>
           </div>
         </div>
