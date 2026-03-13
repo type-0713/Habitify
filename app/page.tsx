@@ -1917,8 +1917,11 @@ function ProfilePage({
     0
   );
 
-  const accountAgeDays = Math.floor(
-    (new Date(`${todayDate}T00:00:00`).getTime() - new Date(`${user.joinDate}T00:00:00`).getTime()) / MS_PER_DAY
+  const accountAgeDays = Math.max(
+    Math.floor(
+      (new Date(`${todayDate}T00:00:00`).getTime() - new Date(`${user.joinDate}T00:00:00`).getTime()) / MS_PER_DAY
+    ) + 1,
+    1
   );
 
   return (
