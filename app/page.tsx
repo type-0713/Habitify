@@ -1,10 +1,15 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
-import { Check, Plus, Flame, TrendingUp, Menu, LogOut, Home, ListTodo, BarChart3, Settings, Bell, User, Calendar, Clock, Edit2, Save, X, ChevronLeft, ChevronRight, Sun, Moon } from 'lucide-react';
+import Image from 'next/image';
+import { SignIn, SignedIn, SignedOut, useClerk, useUser } from '@clerk/nextjs';
+import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
+import { Check, Plus, Flame, Menu, LogOut, Home, ListTodo, BarChart3, Bell, User, Calendar, Edit2, Save, X, ChevronLeft, ChevronRight, Sun, Moon } from 'lucide-react';
 
 // Types
+type Theme = 'dark' | 'light';
+type Page = 'dashboard' | 'habits' | 'calendar' | 'stats' | 'profile';
+
 interface HabitCompletion {
   date: string;
   completed: boolean;
@@ -29,16 +34,32 @@ interface UserProfile {
   id: string;
   name: string;
   email: string;
-  password: string;
   avatar: string;
+  avatarUrl?: string;
   bio: string;
   joinDate: string;
-  theme: 'dark' | 'light';
 }
 
-interface AuthState {
-  isLoggedIn: boolean;
-  user: UserProfile | null;
+interface Metrics {
+  totalHabits: number;
+  completedToday: number;
+  weeklyCompletion: number;
+  currentStreak: number;
+  bestStreak: number;
+}
+
+interface NewHabitDraft {
+  name: string;
+  goal: string;
+  unit: string;
+  icon: string;
+  category: string;
+  reminderTime: string;
+}
+
+interface ProfileOverrides {
+  name?: string;
+  bio?: string;
 }
 
 // Theme Configuration
@@ -69,18 +90,24 @@ const themes = {
   },
 };
 
+type ThemeConfig = (typeof themes)['dark'];
+
+const MS_PER_DAY = 1000 * 60 * 60 * 24;
+
 // Utility Functions
-const getLocalStorage = (key: string, defaultValue: any = null) => {
+function getLocalStorage<T>(key: string, defaultValue: T): T;
+function getLocalStorage<T>(key: string, defaultValue?: T): T | null;
+function getLocalStorage<T>(key: string, defaultValue?: T) {
   if (typeof window === 'undefined') return defaultValue;
   try {
     const item = window.localStorage.getItem(key);
     return item ? JSON.parse(item) : defaultValue;
-  } catch (error) {
+  } catch {
     return defaultValue;
   }
-};
+}
 
-const setLocalStorage = (key: string, value: any) => {
+const setLocalStorage = <T,>(key: string, value: T) => {
   if (typeof window === 'undefined') return;
   try {
     window.localStorage.setItem(key, JSON.stringify(value));
@@ -89,10 +116,52 @@ const setLocalStorage = (key: string, value: any) => {
   }
 };
 
-const getTodayDate = () => {
-  const today = new Date();
-  return today.toISOString().split('T')[0];
+const playNotificationSound = (enabled: boolean, frequency: number = 880, durationSeconds: number = 0.15) => {
+  if (!enabled || typeof window === 'undefined') return;
+  const AudioContext = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+  if (!AudioContext) return;
+  try {
+    const context = new AudioContext();
+    const oscillator = context.createOscillator();
+    const gain = context.createGain();
+    oscillator.type = 'sine';
+    oscillator.frequency.value = frequency;
+    gain.gain.value = 0.05;
+    oscillator.connect(gain);
+    gain.connect(context.destination);
+    oscillator.start();
+    oscillator.stop(context.currentTime + durationSeconds);
+    oscillator.onended = () => {
+      context.close();
+    };
+  } catch (error) {
+    console.error('Error playing notification sound:', error);
+  }
 };
+
+const formatLocalDate = (date: Date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+const parseLocalDate = (dateString: string) => {
+  const [year, month, day] = dateString.split('-').map(Number);
+  return new Date(year, month - 1, day);
+};
+
+const getTodayDate = () => {
+  return formatLocalDate(new Date());
+};
+
+const getMonthKey = (date: Date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  return `${year}-${month}`;
+};
+
+const getMonthStart = (date: Date) => new Date(date.getFullYear(), date.getMonth(), 1);
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString + 'T00:00:00');
@@ -106,17 +175,18 @@ const getWeekDates = () => {
   for (let i = 0; i < 7; i++) {
     const date = new Date(firstDay);
     date.setDate(date.getDate() + i);
-    weekDates.push(date.toISOString().split('T')[0]);
+    weekDates.push(formatLocalDate(date));
   }
   return weekDates;
 };
 
+
 const getStreak = (habit: Habit): number => {
   let streak = 0;
-  let checkDate = new Date();
+  const checkDate = new Date();
   
   while (true) {
-    const dateStr = checkDate.toISOString().split('T')[0];
+    const dateStr = formatLocalDate(checkDate);
     const completion = habit.completions.find(c => c.date === dateStr);
     
     if (completion && completion.completed) {
@@ -162,22 +232,30 @@ const getRandomColor = () => {
   return colors[Math.floor(Math.random() * colors.length)];
 };
 
+const getInitials = (name: string) => {
+  const parts = name.trim().split(' ').filter(Boolean);
+  const initials = parts.slice(0, 2).map(part => part[0]).join('');
+  return initials.toUpperCase() || 'U';
+};
+
 // Main App Component
 export default function HabitTrackerApp() {
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
-  const [authState, setAuthState] = useState<AuthState>({
-    isLoggedIn: false,
-    user: null,
-  });
+  const { user, isLoaded, isSignedIn } = useUser();
+  const { signOut } = useClerk();
+  const [theme, setTheme] = useState<Theme>(() => getLocalStorage<Theme>('theme', 'dark') ?? 'dark');
+  const [profileOverrides, setProfileOverrides] = useState<ProfileOverrides>({});
+  const [resetNotice, setResetNotice] = useState<string | null>(null);
+  const [soundEnabled, setSoundEnabled] = useState(() => getLocalStorage<boolean>('sound_enabled', true) ?? true);
 
-  const [currentPage, setCurrentPage] = useState<'dashboard' | 'habits' | 'calendar' | 'stats' | 'profile'>('dashboard');
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [currentPage, setCurrentPage] = useState<Page>('dashboard');
+  const [sidebarOpen] = useState(true);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [habits, setHabits] = useState<Habit[]>([]);
   const [showAddHabit, setShowAddHabit] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string>(getTodayDate());
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
-  const [newHabit, setNewHabit] = useState({
+  const [newHabit, setNewHabit] = useState<NewHabitDraft>({
     name: '',
     goal: '',
     unit: 'min',
@@ -187,69 +265,114 @@ export default function HabitTrackerApp() {
   });
 
   const themeConfig = themes[theme];
+  const minMonth = getMonthStart(new Date());
 
-  // Load data on mount
-  useEffect(() => {
-    const savedTheme = getLocalStorage('theme', 'dark');
-    setTheme(savedTheme);
-
-    const savedAuth = getLocalStorage('auth_state');
-    if (savedAuth && savedAuth.isLoggedIn) {
-      setAuthState(savedAuth);
-      const savedHabits = getLocalStorage(`habits_${savedAuth.user.id}`, []);
-      setHabits(savedHabits);
+  const handleMonthChange = (date: Date) => {
+    const nextMonth = getMonthStart(date);
+    if (nextMonth < minMonth) {
+      setCurrentMonth(minMonth);
+      return;
     }
-  }, []);
+    setCurrentMonth(nextMonth);
+  };
+
+  // Monthly reset for local storage (habits + profile overrides).
+  useEffect(() => {
+    if (!isSignedIn || !user?.id) {
+      return;
+    }
+    const checkMonthlyReset = () => {
+      const now = new Date();
+      const monthKey = getMonthKey(now);
+      const resetKey = `monthly_reset_${user.id}`;
+      const lastReset = getLocalStorage<string>(resetKey, '');
+      if (lastReset !== monthKey) {
+        setHabits([]);
+        setProfileOverrides({});
+        setLocalStorage(`habits_${user.id}`, []);
+        setLocalStorage(`profile_${user.id}`, {});
+        setLocalStorage(resetKey, monthKey);
+        setSelectedDate(getTodayDate());
+        setCurrentMonth(getMonthStart(now));
+        const resetDateLabel = now.toLocaleDateString('uz-UZ', { day: 'numeric', month: 'long', year: 'numeric' });
+        setResetNotice(`Local data was cleared on ${resetDateLabel}.`);
+        playNotificationSound(soundEnabled, 740);
+      }
+    };
+    checkMonthlyReset();
+    const intervalId = window.setInterval(checkMonthlyReset, 1000 * 60 * 60);
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [isSignedIn, soundEnabled, user?.id]);
+
+  // Load user-specific data after auth is ready.
+  useEffect(() => {
+    const loadUserData = () => {
+      if (!isSignedIn || !user?.id) {
+        setHabits([]);
+        setProfileOverrides({});
+        return;
+      }
+      const savedHabits = getLocalStorage<Habit[]>(`habits_${user.id}`, []);
+      setHabits(savedHabits);
+      const savedProfile = getLocalStorage<ProfileOverrides>(`profile_${user.id}`, {});
+      setProfileOverrides(savedProfile || {});
+    };
+    loadUserData();
+  }, [isSignedIn, user?.id]);
 
   // Save theme
   useEffect(() => {
     setLocalStorage('theme', theme);
   }, [theme]);
 
-  // Save auth state
+  // Save sound preference
   useEffect(() => {
-    if (authState.isLoggedIn) {
-      setLocalStorage('auth_state', authState);
-    }
-  }, [authState]);
+    setLocalStorage('sound_enabled', soundEnabled);
+  }, [soundEnabled]);
 
   // Save habits
   useEffect(() => {
-    if (authState.isLoggedIn && authState.user) {
-      setLocalStorage(`habits_${authState.user.id}`, habits);
+    if (isSignedIn && user?.id) {
+      setLocalStorage(`habits_${user.id}`, habits);
     }
-  }, [habits, authState.isLoggedIn, authState.user]);
+  }, [habits, isSignedIn, user?.id]);
 
-  // Login Handler
-  const handleLogin = (email: string, password: string) => {
-    const allUsers = getLocalStorage('all_users', []);
-    const existingUser = allUsers.find((u: UserProfile) => u.email === email && u.password === password);
-
-    if (existingUser) {
-      setAuthState({
-        isLoggedIn: true,
-        user: existingUser,
-      });
-      const userHabits = getLocalStorage(`habits_${existingUser.id}`, []);
-      setHabits(userHabits);
-    } else {
-      alert('Invalid email or password!');
-    }
-  };
-
-  // Sign Up Handler
-  const handleSignUp = (name: string, email: string, password: string) => {
-    const allUsers = getLocalStorage('all_users', []);
-    if (allUsers.some((u: UserProfile) => u.email === email)) {
-      alert('Email already registered!');
+  // Missed-day alert (once per day).
+  useEffect(() => {
+    if (!isSignedIn || !user?.id || habits.length === 0) {
       return;
     }
+    const checkMissedDay = () => {
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayStr = formatLocalDate(yesterday);
+      const alertKey = `missed_alert_${user.id}`;
+      const lastAlert = getLocalStorage<string>(alertKey, '');
+      if (lastAlert === yesterdayStr) {
+        return;
+      }
+      const missed = habits.some(habit => {
+        if (habit.createdAt && habit.createdAt > yesterdayStr) {
+          return false;
+        }
+        const completion = habit.completions.find(c => c.date === yesterdayStr);
+        return !completion?.completed;
+      });
+      if (missed) {
+        playNotificationSound(soundEnabled, 660);
+        setLocalStorage(alertKey, yesterdayStr);
+      }
+    };
+    checkMissedDay();
+    const intervalId = window.setInterval(checkMissedDay, 1000 * 60 * 60);
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [habits, isSignedIn, soundEnabled, user?.id]);
 
-    const newUser: UserProfile = {
-      id: Date.now().toString(),
-      name,
-      email,
-      password,
+  /*
       avatar: '👤',
       bio: 'Building better habits daily!',
       joinDate: getTodayDate(),
@@ -267,13 +390,11 @@ export default function HabitTrackerApp() {
     setHabits([]);
     setLocalStorage(`habits_${newUser.id}`, []);
   };
+  */
 
   // Logout Handler
   const handleLogout = () => {
-    setAuthState({
-      isLoggedIn: false,
-      user: null,
-    });
+    void signOut();
     setCurrentPage('dashboard');
     setHabits([]);
   };
@@ -294,7 +415,7 @@ export default function HabitTrackerApp() {
         reminderTime: newHabit.reminderTime,
       };
 
-      setHabits([...habits, habit]);
+      setHabits((prev) => [...prev, habit]);
       setNewHabit({
         name: '',
         goal: '',
@@ -304,12 +425,13 @@ export default function HabitTrackerApp() {
         reminderTime: '09:00',
       });
       setShowAddHabit(false);
+      playNotificationSound(soundEnabled, 880);
     }
   };
 
   // Update Habit Completion
   const handleUpdateHabitCompletion = (habitId: string, date: string, current: number, time?: string) => {
-    setHabits(habits.map(h => {
+    setHabits((prev) => prev.map(h => {
       if (h.id === habitId) {
         const completions = [...h.completions];
         const existingIndex = completions.findIndex(c => c.date === date);
@@ -338,7 +460,7 @@ export default function HabitTrackerApp() {
 
   // Toggle Habit Completion
   const toggleHabitCompletion = (habitId: string, date: string) => {
-    setHabits(habits.map(h => {
+    setHabits((prev) => prev.map(h => {
       if (h.id === habitId) {
         const completions = [...h.completions];
         const existingIndex = completions.findIndex(c => c.date === date);
@@ -361,26 +483,22 @@ export default function HabitTrackerApp() {
 
   // Delete Habit
   const deleteHabit = (habitId: string) => {
-    setHabits(habits.filter(h => h.id !== habitId));
+    setHabits((prev) => prev.filter(h => h.id !== habitId));
   };
 
   // Update Profile
   const updateProfile = (updates: Partial<UserProfile>) => {
-    if (authState.user) {
-      const updatedUser = { ...authState.user, ...updates };
-      setAuthState({ ...authState, user: updatedUser });
-      
-      const allUsers = getLocalStorage('all_users', []);
-      const userIndex = allUsers.findIndex((u: UserProfile) => u.id === updatedUser.id);
-      if (userIndex >= 0) {
-        allUsers[userIndex] = updatedUser;
-        setLocalStorage('all_users', allUsers);
-      }
-    }
+    if (!isSignedIn || !user?.id) return;
+    const nextOverrides: ProfileOverrides = {
+      name: updates.name ?? profileOverrides.name,
+      bio: updates.bio ?? profileOverrides.bio,
+    };
+    setProfileOverrides(nextOverrides);
+    setLocalStorage(`profile_${user.id}`, nextOverrides);
   };
 
   // Calculate metrics
-  const calculateMetrics = (date: string = getTodayDate()) => {
+  const calculateMetrics = (date: string = getTodayDate()): Metrics => {
     const todaysHabits = habits.filter(h => {
       const completion = h.completions.find(c => c.date === date);
       return completion?.completed;
@@ -395,19 +513,62 @@ export default function HabitTrackerApp() {
     };
   };
 
-  if (!authState.isLoggedIn) {
-    return <AuthPage onLogin={handleLogin} onSignUp={handleSignUp} theme={theme} />;
+  if (!isLoaded) {
+    return null;
   }
 
+  const baseName = user?.fullName || user?.firstName || user?.username || 'User';
+  const displayName = profileOverrides.name ?? baseName;
+  const userProfile: UserProfile | null = user
+    ? {
+        id: user.id,
+        name: displayName,
+        email: user.primaryEmailAddress?.emailAddress ?? '',
+        avatar: getInitials(displayName),
+        avatarUrl: user.imageUrl || undefined,
+        bio: profileOverrides.bio ?? 'Building better habits daily!',
+        joinDate: user.createdAt
+          ? formatLocalDate(new Date(user.createdAt))
+          : getTodayDate(),
+      }
+    : null;
+
   return (
-    <div className={`flex h-screen ${themeConfig.bg} ${themeConfig.text} overflow-hidden`}>
+    <>
+      <SignedOut>
+        <AuthPage theme={theme} />
+      </SignedOut>
+      <SignedIn>
+        <div className={`flex h-screen ${themeConfig.bg} ${themeConfig.text} overflow-hidden`}>
+      {mobileSidebarOpen && (
+        <>
+          <div
+            className="fixed inset-0 bg-black/40 z-40 md:hidden"
+            onClick={() => setMobileSidebarOpen(false)}
+          />
+          <Sidebar
+            isOpen
+            variant="mobile"
+            currentPage={currentPage}
+            onPageChange={setCurrentPage}
+            onLogout={handleLogout}
+            user={userProfile!}
+            habitsCount={habits.length}
+            theme={theme}
+            onThemeChange={setTheme}
+            onClose={() => setMobileSidebarOpen(false)}
+          />
+        </>
+      )}
+
       {/* Sidebar */}
       <Sidebar
         isOpen={sidebarOpen}
+        variant="desktop"
         currentPage={currentPage}
         onPageChange={setCurrentPage}
         onLogout={handleLogout}
-        user={authState.user!}
+        user={userProfile!}
         habitsCount={habits.length}
         theme={theme}
         onThemeChange={setTheme}
@@ -416,11 +577,31 @@ export default function HabitTrackerApp() {
       {/* Main Content */}
       <main className="flex-1 overflow-auto">
         <Header
-          user={authState.user!}
-          onMenuClick={() => setSidebarOpen(!sidebarOpen)}
+          user={userProfile!}
+          onMenuClick={() => setMobileSidebarOpen(true)}
           metrics={calculateMetrics()}
           theme={theme}
+          soundEnabled={soundEnabled}
+          onSoundToggle={() => setSoundEnabled((prev) => !prev)}
         />
+
+        {resetNotice && (
+          <div className="px-6 md:px-8 pt-4">
+            <div className={`${themeConfig.card} rounded-xl p-4 border ${themeConfig.border} shadow-lg flex items-start justify-between gap-4`}>
+              <div className="min-w-0">
+                <p className={`${themeConfig.text} font-semibold`}>Oylik tozalash</p>
+                <p className={`${themeConfig.textSecondary} text-sm break-words`}>{resetNotice}</p>
+              </div>
+              <button
+                onClick={() => setResetNotice(null)}
+                className={`p-2 rounded-lg transition ${themeConfig.hover}`}
+                aria-label="Close notice"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className={`p-6 md:p-8 max-w-7xl mx-auto ${themeConfig.bgSecondary}`}>
           {currentPage === 'dashboard' && (
@@ -441,8 +622,6 @@ export default function HabitTrackerApp() {
             <HabitsPage
               habits={habits}
               selectedDate={getTodayDate()}
-              onToggleHabit={toggleHabitCompletion}
-              onUpdateProgress={handleUpdateHabitCompletion}
               onAddHabit={() => setShowAddHabit(true)}
               onDeleteHabit={deleteHabit}
               theme={theme}
@@ -454,11 +633,12 @@ export default function HabitTrackerApp() {
             <CalendarPage
               habits={habits}
               currentMonth={currentMonth}
-              onMonthChange={setCurrentMonth}
+              onMonthChange={handleMonthChange}
               onDateSelect={setSelectedDate}
               selectedDate={selectedDate}
               theme={theme}
               themeConfig={themeConfig}
+              minMonth={minMonth}
             />
           )}
 
@@ -468,7 +648,7 @@ export default function HabitTrackerApp() {
 
           {currentPage === 'profile' && (
             <ProfilePage
-              user={authState.user!}
+              user={userProfile!}
               habits={habits}
               onUpdate={updateProfile}
               theme={theme}
@@ -489,191 +669,17 @@ export default function HabitTrackerApp() {
           themeConfig={themeConfig}
         />
       )}
-    </div>
+        </div>
+      </SignedIn>
+    </>
   );
 }
 
 // Auth Page Component
-function AuthPage({ onLogin, onSignUp, theme }: { onLogin: (email: string, password: string) => void; onSignUp: (name: string, email: string, password: string) => void; theme: 'dark' | 'light' }) {
-  const [isSignUp, setIsSignUp] = useState(false);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const themeConfig = themes[theme];
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (isSignUp) {
-      if (name && email && password) {
-        onSignUp(name, email, password);
-      } else {
-        alert('Please fill all fields!');
-      }
-    } else {
-      if (email && password) {
-        onLogin(email, password);
-      } else {
-        alert('Please fill all fields!');
-      }
-    }
-  };
-
+function AuthPage({ theme }: { theme: Theme }) {
   return (
     <div className={`min-h-screen ${theme === 'dark' ? 'bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950' : 'bg-gradient-to-br from-blue-50 via-white to-purple-50'} flex items-center justify-center p-4`}>
-      <div className="w-full max-w-md">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mb-4 shadow-lg">
-            <Check className="w-8 h-8 text-white" />
-          </div>
-          <h1 className={`text-4xl font-bold ${themeConfig.text} mb-2`}>Habitify</h1>
-          <p className={`${themeConfig.textSecondary} text-lg`}>Build better habits, transform your life</p>
-        </div>
-
-        {/* Auth Card */}
-        <div className={`${themeConfig.card} backdrop-blur-xl rounded-3xl p-8 border ${themeConfig.border}`}>
-          <h2 className={`text-2xl font-bold ${themeConfig.text} mb-6`}>
-            {isSignUp ? 'Create Account' : 'Sign In'}
-          </h2>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {isSignUp && (
-              <div>
-                <label className={`block text-sm font-medium ${themeConfig.textSecondary} mb-2`}>
-                  Full Name
-                </label>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="John Doe"
-                  className={`w-full px-4 py-3 ${themeConfig.input} rounded-lg ${themeConfig.text} placeholder-opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition`}
-                />
-              </div>
-            )}
-
-            <div>
-              <label className={`block text-sm font-medium ${themeConfig.textSecondary} mb-2`}>
-                Email Address
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="your@email.com"
-                className={`w-full px-4 py-3 ${themeConfig.input} rounded-lg ${themeConfig.text} placeholder-opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition`}
-              />
-            </div>
-
-            <div>
-              <label className={`block text-sm font-medium ${themeConfig.textSecondary} mb-2`}>
-                Password
-              </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className={`w-full px-4 py-3 ${themeConfig.input} rounded-lg ${themeConfig.text} placeholder-opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition`}
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="w-full py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-blue-500/50 transition transform hover:scale-105 mt-6"
-            >
-              {isSignUp ? 'Create Account' : 'Sign In'}
-            </button>
-          </form>
-
-          <div className="mt-6 text-center">
-            <p className={`${themeConfig.textSecondary} text-sm`}>
-              {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
-              <button
-                onClick={() => {
-                  setIsSignUp(!isSignUp);
-                  setName('');
-                  setEmail('');
-                  setPassword('');
-                }}
-                className="text-blue-500 hover:text-blue-600 font-medium transition"
-              >
-                {isSignUp ? 'Sign In' : 'Sign Up'}
-              </button>
-            </p>
-          </div>
-
-          {/* Demo Credentials */}
-          {!isSignUp && (
-            <div className={`mt-6 pt-6 border-t ${themeConfig.border}`}>
-              <p className={`${themeConfig.textSecondary} text-xs mb-3`}>Demo Credentials:</p>
-              <div className="space-y-2 text-xs">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEmail('javohir@gmail.com');
-                    setPassword('demo123');
-                  }}
-                  className={`w-full text-left px-3 py-2 ${themeConfig.bgTertiary} hover:opacity-80 rounded text-sm transition`}
-                >
-                  📧 javohir@gmail.com / demo123
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEmail('john@example.com');
-                    setPassword('demo123');
-                  }}
-                  className={`w-full text-left px-3 py-2 ${themeConfig.bgTertiary} hover:opacity-80 rounded text-sm transition`}
-                >
-                  📧 john@example.com / demo123
-                </button>
-              </div>
-              <p className={`${themeConfig.textSecondary} text-xs mt-2 opacity-70`}>Click to fill, then sign in</p>
-            </div>
-          )}
-
-          {/* Auto-create Demo Accounts */}
-          {!isSignUp && (
-            <button
-              type="button"
-              onClick={() => {
-                const allUsers = getLocalStorage('all_users', []);
-                if (!allUsers.some((u: UserProfile) => u.email === 'javohir@gmail.com')) {
-                  const demoUsers = [
-                    {
-                      id: '1',
-                      name: 'Javohir',
-                      email: 'javohir@gmail.com',
-                      password: 'demo123',
-                      avatar: '👤',
-                      bio: 'Building better habits daily!',
-                      joinDate: getTodayDate(),
-                      theme: 'dark' as const,
-                    },
-                    {
-                      id: '2',
-                      name: 'John',
-                      email: 'john@example.com',
-                      password: 'demo123',
-                      avatar: '👤',
-                      bio: 'Habit tracking enthusiast!',
-                      joinDate: getTodayDate(),
-                      theme: 'dark' as const,
-                    },
-                  ];
-                  setLocalStorage('all_users', demoUsers);
-                  alert('Demo accounts created! Now you can sign in.');
-                }
-              }}
-              className="w-full mt-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg text-xs font-medium transition"
-            >
-              ✨ Create Demo Accounts
-            </button>
-          )}
-        </div>
-      </div>
+      <SignIn />
     </div>
   );
 }
@@ -688,38 +694,63 @@ function Sidebar({
   habitsCount,
   theme,
   onThemeChange,
+  variant = 'desktop',
+  onClose,
 }: {
   isOpen: boolean;
-  currentPage: string;
-  onPageChange: (page: any) => void;
+  currentPage: Page;
+  onPageChange: (page: Page) => void;
   onLogout: () => void;
   user: UserProfile;
   habitsCount: number;
-  theme: 'dark' | 'light';
-  onThemeChange: (theme: 'dark' | 'light') => void;
+  theme: Theme;
+  onThemeChange: (theme: Theme) => void;
+  variant?: 'desktop' | 'mobile';
+  onClose?: () => void;
 }) {
   const themeConfig = themes[theme];
-  const menuItems = [
+  const isMobile = variant === 'mobile';
+  const showLabels = isMobile ? true : isOpen;
+  const widthClass = isMobile ? 'w-64' : isOpen ? 'w-64' : 'w-20';
+  const containerClass = `${
+    isMobile ? 'flex md:hidden fixed inset-y-0 left-0 z-50' : 'hidden md:flex'
+  } ${widthClass} ${theme === 'dark' ? 'bg-slate-800/80 border-slate-700' : 'bg-white shadow-xl border-slate-200'} backdrop-blur-xl border-r transition-all duration-300 flex flex-col overflow-y-auto`;
+  const menuItems: { id: Page; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
     { id: 'dashboard', label: 'Dashboard', icon: Home },
     { id: 'habits', label: 'Habits', icon: ListTodo },
     { id: 'calendar', label: 'Calendar', icon: Calendar },
     { id: 'stats', label: 'Statistics', icon: BarChart3 },
     { id: 'profile', label: 'Profile', icon: User },
   ];
+  const handlePageChange = (page: Page) => {
+    onPageChange(page);
+    if (onClose) {
+      onClose();
+    }
+  };
 
   return (
     <aside
-      className={`${
-        isOpen ? 'w-64' : 'w-20'
-      } ${theme === 'dark' ? 'bg-slate-800/80 border-slate-700' : 'bg-white shadow-xl border-slate-200'} backdrop-blur-xl border-r transition-all duration-300 flex flex-col overflow-y-auto hidden md:flex`}
+      className={containerClass}
     >
       {/* Logo */}
       <div className={`p-6 border-b ${themeConfig.border}`}>
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0 shadow-lg">
-            <Check className="w-6 h-6 text-white" />
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0 shadow-lg">
+              <Check className="w-6 h-6 text-white" />
+            </div>
+            {showLabels && <h1 className={`text-xl font-bold ${themeConfig.text}`}>Habitify</h1>}
           </div>
-          {isOpen && <h1 className={`text-xl font-bold ${themeConfig.text}`}>Habitify</h1>}
+          {isMobile && onClose && (
+            <button
+              onClick={onClose}
+              className={`p-2 rounded-lg transition ${themeConfig.hover}`}
+              aria-label="Close menu"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          )}
         </div>
       </div>
 
@@ -728,7 +759,7 @@ function Sidebar({
         {menuItems.map((item) => (
           <button
             key={item.id}
-            onClick={() => onPageChange(item.id)}
+            onClick={() => handlePageChange(item.id)}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${
               currentPage === item.id
                 ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg'
@@ -736,8 +767,8 @@ function Sidebar({
             }`}
           >
             <item.icon className="w-5 h-5 flex-shrink-0" />
-            {isOpen && <span className="text-sm font-medium">{item.label}</span>}
-            {isOpen && item.id === 'habits' && habitsCount > 0 && (
+            {showLabels && <span className="text-sm font-medium">{item.label}</span>}
+            {showLabels && item.id === 'habits' && habitsCount > 0 && (
               <span className="ml-auto bg-blue-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                 {habitsCount}
               </span>
@@ -761,17 +792,28 @@ function Sidebar({
           ) : (
             <Moon className="w-4 h-4" />
           )}
-          {isOpen && <span className="text-xs font-medium">{theme === 'dark' ? 'Light' : 'Dark'}</span>}
+          {showLabels && <span className="text-xs font-medium">{theme === 'dark' ? 'Light' : 'Dark'}</span>}
         </button>
       </div>
 
       {/* User Profile */}
       <div className={`p-4 border-t ${themeConfig.border} space-y-4`}>
-        <div className={`flex items-center gap-3 ${!isOpen && 'justify-center'}`}>
+        <div className={`flex items-center gap-3 ${!showLabels && 'justify-center'}`}>
           <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-xl shadow-lg">
-            {user.avatar}
+            {user.avatarUrl ? (
+              <Image
+                src={user.avatarUrl}
+                alt={user.name}
+                width={40}
+                height={40}
+                sizes="40px"
+                className="w-full h-full rounded-full object-cover"
+              />
+            ) : (
+              <span>{user.avatar}</span>
+            )}
           </div>
-          {isOpen && (
+          {showLabels && (
             <div className="flex-1 min-w-0">
               <p className={`text-sm font-semibold ${themeConfig.text} truncate`}>{user.name}</p>
               <p className={`text-xs ${themeConfig.textSecondary} truncate`}>{user.email}</p>
@@ -780,11 +822,16 @@ function Sidebar({
         </div>
 
         <button
-          onClick={onLogout}
+          onClick={() => {
+            onLogout();
+            if (onClose) {
+              onClose();
+            }
+          }}
           className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-lg transition text-sm font-medium"
         >
           <LogOut className="w-4 h-4" />
-          {isOpen && 'Logout'}
+          {showLabels && 'Logout'}
         </button>
       </div>
     </aside>
@@ -797,11 +844,15 @@ function Header({
   onMenuClick,
   metrics,
   theme,
+  soundEnabled,
+  onSoundToggle,
 }: {
   user: UserProfile;
   onMenuClick: () => void;
-  metrics: any;
-  theme: 'dark' | 'light';
+  metrics: Metrics;
+  theme: Theme;
+  soundEnabled: boolean;
+  onSoundToggle: () => void;
 }) {
   const themeConfig = themes[theme];
 
@@ -817,7 +868,7 @@ function Header({
           </button>
           <div>
             <h2 className={`text-xl font-bold ${themeConfig.text}`}>
-              Good morning, {user.name}! 👋
+              Good morning, {user.name}!
             </h2>
             <p className={`${themeConfig.textSecondary} text-sm`}>
               {metrics.completedToday} / {metrics.totalHabits} habits completed today
@@ -826,14 +877,35 @@ function Header({
         </div>
 
         <div className="flex items-center gap-4">
-          <button className={`relative p-2 rounded-lg transition ${themeConfig.hover}`}>
+          <button
+            onClick={onSoundToggle}
+            aria-pressed={!soundEnabled}
+            className={`relative p-2 rounded-lg transition ${themeConfig.hover}`}
+            title={soundEnabled ? 'Sound on' : 'Sound off'}
+          >
             <Bell className="w-6 h-6" />
             {metrics.completedToday > 0 && (
               <span className="absolute top-1 right-1 w-2 h-2 bg-green-500 rounded-full"></span>
             )}
+            {!soundEnabled && (
+              <span className="absolute inset-0 flex items-center justify-center">
+                <span className="w-7 h-[2px] bg-red-500 rotate-45"></span>
+              </span>
+            )}
           </button>
           <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-lg shadow-lg">
-            {user.avatar}
+            {user.avatarUrl ? (
+              <Image
+                src={user.avatarUrl}
+                alt={user.name}
+                width={40}
+                height={40}
+                sizes="40px"
+                className="w-full h-full rounded-full object-cover"
+              />
+            ) : (
+              <span>{user.avatar}</span>
+            )}
           </div>
         </div>
       </div>
@@ -852,7 +924,17 @@ function DashboardPage({
   onDeleteHabit,
   theme,
   themeConfig,
-}: any) {
+}: {
+  habits: Habit[];
+  selectedDate: string;
+  metrics: Metrics;
+  onToggleHabit: (habitId: string, date: string) => void;
+  onUpdateProgress: (habitId: string, date: string, current: number, time?: string) => void;
+  onAddHabit: () => void;
+  onDeleteHabit: (habitId: string) => void;
+  theme: Theme;
+  themeConfig: ThemeConfig;
+}) {
   const weekDates = getWeekDates();
 
   return (
@@ -861,7 +943,7 @@ function DashboardPage({
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {/* Progress Card */}
         <div className={`${themeConfig.card} rounded-2xl p-6 border ${themeConfig.border} shadow-lg`}>
-          <h3 className={`${themeConfig.textSecondary} text-sm font-medium mb-4`}>Today's Progress</h3>
+          <h3 className={`${themeConfig.textSecondary} text-sm font-medium mb-4`}>Today&apos;s Progress</h3>
           <div className="flex items-center gap-4">
             <div className="relative w-24 h-24">
               <svg className="w-24 h-24 transform -rotate-90">
@@ -897,7 +979,7 @@ function DashboardPage({
                 </div>
               </div>
             </div>
-            <div>
+            <div className="min-w-0">
               <p className={`${themeConfig.text} font-semibold text-lg`}>{metrics.completedToday}/{metrics.totalHabits}</p>
               <p className={`${themeConfig.textSecondary} text-sm`}>Habits completed</p>
             </div>
@@ -940,7 +1022,7 @@ function DashboardPage({
 
       {/* Today's Habits */}
       <div>
-        <h3 className={`text-2xl font-bold ${themeConfig.text} mb-6`}>Today's Habits</h3>
+        <h3 className={`text-2xl font-bold ${themeConfig.text} mb-6`}>Today&apos;s Habits</h3>
         {habits.length === 0 ? (
           <div className={`${themeConfig.card} rounded-2xl p-12 border ${themeConfig.border} text-center shadow-lg`}>
             <Plus className={`w-12 h-12 ${themeConfig.textSecondary} mx-auto mb-4 opacity-50`} />
@@ -958,7 +1040,7 @@ function DashboardPage({
               const completion = habit.completions.find(c => c.date === selectedDate);
               return (
                 <HabitCard
-                  key={habit.id}
+                  key={`${habit.id}-${selectedDate}`}
                   habit={habit}
                   date={selectedDate}
                   completion={completion}
@@ -1017,13 +1099,18 @@ function DashboardPage({
 function HabitsPage({
   habits,
   selectedDate,
-  onToggleHabit,
-  onUpdateProgress,
   onAddHabit,
   onDeleteHabit,
   theme,
   themeConfig,
-}: any) {
+}: {
+  habits: Habit[];
+  selectedDate: string;
+  onAddHabit: () => void;
+  onDeleteHabit: (habitId: string) => void;
+  theme: Theme;
+  themeConfig: ThemeConfig;
+}) {
   return (
     <div className="max-w-6xl space-y-6">
       <div className="flex items-center justify-between">
@@ -1112,9 +1199,20 @@ function CalendarPage({
   selectedDate,
   theme,
   themeConfig,
-}: any) {
+  minMonth,
+}: {
+  habits: Habit[];
+  currentMonth: Date;
+  onMonthChange: (date: Date) => void;
+  onDateSelect: (date: string) => void;
+  selectedDate: string;
+  theme: Theme;
+  themeConfig: ThemeConfig;
+  minMonth: Date;
+}) {
   const year = currentMonth.getFullYear();
   const month = currentMonth.getMonth();
+  const atMinMonth = year === minMonth.getFullYear() && month === minMonth.getMonth();
   const firstDay = new Date(year, month, 1);
   const lastDay = new Date(year, month + 1, 0);
   const daysInMonth = lastDay.getDate();
@@ -1129,7 +1227,7 @@ function CalendarPage({
   }
 
   const getDateString = (day: number) => {
-    return new Date(year, month, day).toISOString().split('T')[0];
+    return formatLocalDate(new Date(year, month, day));
   };
 
   const getCompletionRate = (dateStr: string) => {
@@ -1147,8 +1245,15 @@ function CalendarPage({
           </h2>
           <div className="flex gap-2">
             <button
-              onClick={() => onMonthChange(new Date(year, month - 1))}
-              className={`p-2 rounded-lg transition ${themeConfig.hover}`}
+              onClick={() => {
+                if (!atMinMonth) {
+                  onMonthChange(new Date(year, month - 1));
+                }
+              }}
+              disabled={atMinMonth}
+              className={`p-2 rounded-lg transition ${
+                atMinMonth ? 'opacity-40 cursor-not-allowed' : themeConfig.hover
+              }`}
             >
               <ChevronLeft className={`w-5 h-5 ${themeConfig.textSecondary}`} />
             </button>
@@ -1162,16 +1267,16 @@ function CalendarPage({
         </div>
 
         {/* Weekdays Header */}
-        <div className="grid grid-cols-7 gap-2 mb-4">
+        <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-4">
           {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-            <div key={day} className={`text-center ${themeConfig.textSecondary} text-xs font-semibold py-2`}>
+            <div key={day} className={`text-center ${themeConfig.textSecondary} text-[10px] sm:text-xs font-semibold py-1 sm:py-2`}>
               {day}
             </div>
           ))}
         </div>
 
         {/* Calendar Days */}
-        <div className="grid grid-cols-7 gap-2">
+        <div className="grid grid-cols-7 gap-1 sm:gap-2">
           {days.map((day, index) => {
             if (day === null) {
               return <div key={`empty-${index}`} />;
@@ -1186,7 +1291,7 @@ function CalendarPage({
               <button
                 key={day}
                 onClick={() => onDateSelect(dateStr)}
-                className={`p-3 rounded-lg text-center transition relative ${
+                className={`p-2 sm:p-3 rounded-lg text-center transition relative flex flex-col items-center ${
                   isSelected
                     ? 'bg-blue-500/30 border border-blue-500/50'
                     : isToday
@@ -1194,13 +1299,20 @@ function CalendarPage({
                     : `${themeConfig.bgTertiary} border ${themeConfig.border} ${themeConfig.hover}`
                 }`}
               >
-                <div className={`${themeConfig.text} font-semibold text-sm`}>{day}</div>
+                <div className={`${themeConfig.text} font-semibold text-xs sm:text-sm`}>{day}</div>
                 {completionRate > 0 && (
-                  <div className={`text-xs ${themeConfig.textSecondary} mt-1`}>{completionRate}%</div>
+                  <>
+                    <div className={`hidden sm:block text-xs ${themeConfig.textSecondary} mt-1`}>{completionRate}%</div>
+                    <span
+                      className={`sm:hidden mt-1 w-1.5 h-1.5 rounded-full ${
+                        completionRate === 100 ? 'bg-green-500' : 'bg-blue-500'
+                      }`}
+                    />
+                  </>
                 )}
-                {completionRate === 100 && (
+                {/* {completionRate === 100 && (
                   <div className="text-lg absolute -top-1 -right-1">✓</div>
-                )}
+                )} */}
               </button>
             );
           })}
@@ -1210,7 +1322,7 @@ function CalendarPage({
       {/* Selected Date Details */}
       <div className={`${themeConfig.card} rounded-2xl p-6 border ${themeConfig.border} shadow-lg`}>
         <h3 className={`${themeConfig.text} font-bold mb-4`}>
-          {new Date(selectedDate).toLocaleDateString('en-US', {
+          {parseLocalDate(selectedDate).toLocaleDateString('en-US', {
             weekday: 'long',
             year: 'numeric',
             month: 'long',
@@ -1252,14 +1364,14 @@ function CalendarPage({
 }
 
 // Stats Page
-function StatsPage({ habits, metrics, theme, themeConfig }: any) {
+function StatsPage({ habits, metrics, theme, themeConfig }: { habits: Habit[]; metrics: Metrics; theme: Theme; themeConfig: ThemeConfig }) {
   const getMonthData = () => {
     const today = new Date();
     const data = [];
     for (let i = 29; i >= 0; i--) {
       const date = new Date(today);
       date.setDate(date.getDate() - i);
-      const dateStr = date.toISOString().split('T')[0];
+      const dateStr = formatLocalDate(date);
       const completed = habits.filter(h => h.completions.find(c => c.date === dateStr && c.completed)).length;
       data.push({
         date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
@@ -1398,9 +1510,16 @@ function ProfilePage({
   onUpdate,
   theme,
   themeConfig,
-}: any) {
+}: {
+  user: UserProfile;
+  habits: Habit[];
+  onUpdate: (user: UserProfile) => void;
+  theme: Theme;
+  themeConfig: ThemeConfig;
+}) {
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState(user);
+  const [todayDate] = useState(() => getTodayDate());
 
   const handleSave = () => {
     onUpdate(editData);
@@ -1412,25 +1531,40 @@ function ProfilePage({
     0
   );
 
+  const accountAgeDays = Math.floor(
+    (new Date(`${todayDate}T00:00:00`).getTime() - new Date(`${user.joinDate}T00:00:00`).getTime()) / MS_PER_DAY
+  );
+
   return (
     <div className="max-w-2xl space-y-6">
       {/* Profile Card */}
       <div className={`${themeConfig.card} rounded-2xl p-8 border ${themeConfig.border} shadow-lg`}>
-        <div className="flex items-start justify-between mb-6">
-          <div className="flex items-start gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
+          <div className="flex items-start gap-4 flex-1 min-w-0">
             <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-3xl shadow-lg">
-              {user.avatar}
+              {user.avatarUrl ? (
+                <Image
+                  src={user.avatarUrl}
+                  alt={user.name}
+                  width={64}
+                  height={64}
+                  sizes="64px"
+                  className="w-full h-full rounded-full object-cover"
+                />
+              ) : (
+                <span>{user.avatar}</span>
+              )}
             </div>
-            <div>
+            <div className="min-w-0">
               {isEditing ? (
                 <input
                   type="text"
                   value={editData.name}
                   onChange={(e) => setEditData({ ...editData, name: e.target.value })}
-                  className={`text-2xl font-bold ${themeConfig.text} bg-opacity-50 ${themeConfig.bgTertiary} px-2 py-1 rounded mb-2`}
+                  className={`text-2xl font-bold ${themeConfig.text} bg-opacity-50 ${themeConfig.bgTertiary} px-2 py-1 rounded mb-2 w-full sm:w-auto max-w-full`}
                 />
               ) : (
-                <h2 className={`text-2xl font-bold ${themeConfig.text}`}>{user.name}</h2>
+                <h2 className={`text-2xl font-bold ${themeConfig.text} break-words`}>{user.name}</h2>
               )}
               <p className={themeConfig.textSecondary}>{user.email}</p>
               <p className={`text-sm ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>Joined {formatDate(user.joinDate)}</p>
@@ -1438,7 +1572,7 @@ function ProfilePage({
           </div>
 
           {isEditing ? (
-            <div className="flex gap-2">
+            <div className="flex gap-2 sm:ml-4 self-start sm:self-auto">
               <button
                 onClick={handleSave}
                 className="p-2 bg-green-500/20 hover:bg-green-500/30 text-green-500 rounded-lg transition"
@@ -1458,7 +1592,7 @@ function ProfilePage({
           ) : (
             <button
               onClick={() => setIsEditing(true)}
-              className="p-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-500 rounded-lg transition"
+              className="p-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-500 rounded-lg transition self-start sm:self-auto"
             >
               <Edit2 className="w-5 h-5" />
             </button>
@@ -1494,7 +1628,7 @@ function ProfilePage({
         <div className={`${themeConfig.card} rounded-xl p-6 border ${themeConfig.border} shadow-lg`}>
           <p className={`${themeConfig.textSecondary} text-sm mb-2`}>Account Age</p>
           <p className={`text-3xl font-bold text-blue-500`}>
-            {Math.floor((Date.now() - new Date(user.joinDate).getTime()) / (1000 * 60 * 60 * 24))}
+            {accountAgeDays}
             <span className="text-sm ml-1">days</span>
           </p>
         </div>
@@ -1535,7 +1669,16 @@ function HabitCard({
   onDelete,
   theme,
   themeConfig,
-}: any) {
+}: {
+  habit: Habit;
+  date: string;
+  completion?: HabitCompletion;
+  onToggle: (habitId: string, date: string) => void;
+  onUpdate: (habitId: string, date: string, current: number, time?: string) => void;
+  onDelete: (habitId: string) => void;
+  theme: Theme;
+  themeConfig: ThemeConfig;
+}) {
   const [isEditing, setIsEditing] = useState(false);
   const [currentValue, setCurrentValue] = useState(completion?.current || 0);
   const [time, setTime] = useState(completion?.time || new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }));
@@ -1543,8 +1686,8 @@ function HabitCard({
   const percentage = Math.min((currentValue / habit.goal) * 100, 100);
 
   return (
-    <div className={`${themeConfig.card} rounded-xl p-4 border ${themeConfig.border} flex items-center justify-between hover:border-blue-500/50 transition shadow-lg`}>
-      <div className="flex items-center gap-4 flex-1">
+    <div className={`${themeConfig.card} rounded-xl p-4 border ${themeConfig.border} flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0 hover:border-blue-500/50 transition shadow-lg`}>
+      <div className="flex items-center gap-4 flex-1 w-full">
         <button
           onClick={() => onToggle(habit.id, date)}
           className={`flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center transition ${
@@ -1560,7 +1703,7 @@ function HabitCard({
             <span className="text-lg">{habit.icon}</span>
             <h4 className={`${themeConfig.text} font-semibold`}>{habit.name}</h4>
           </div>
-          <div className={`h-2 ${theme === 'dark' ? 'bg-slate-700/50' : 'bg-slate-200'} rounded-full overflow-hidden max-w-xs`}>
+          <div className={`h-2 ${theme === 'dark' ? 'bg-slate-700/50' : 'bg-slate-200'} rounded-full overflow-hidden w-full sm:max-w-xs`}>
             <div
               className={`h-full bg-gradient-to-r ${habit.color} transition-all`}
               style={{ width: `${percentage}%` }}
@@ -1575,15 +1718,16 @@ function HabitCard({
 
       {/* Edit Progress */}
       {isEditing ? (
-        <div className="flex gap-2 ml-4">
-          <input
-            type="number"
-            min="0"
-            max={habit.goal}
-            value={currentValue}
-            onChange={(e) => setCurrentValue(parseFloat(e.target.value) || 0)}
-            className={`w-16 px-2 py-1 ${themeConfig.input} ${themeConfig.text} rounded text-sm`}
-          />
+        <div className="hidden sm:flex gap-2 ml-4">
+          <label className={`flex items-center gap-2 px-2 py-1 ${themeConfig.input} ${themeConfig.text} rounded text-sm`}>
+            <input
+              type="checkbox"
+              checked={currentValue >= habit.goal}
+              onChange={(e) => setCurrentValue(e.target.checked ? habit.goal : 0)}
+              className="w-4 h-4 accent-green-500"
+            />
+            Completed
+          </label>
           <input
             type="time"
             value={time}
@@ -1607,7 +1751,7 @@ function HabitCard({
           </button>
         </div>
       ) : (
-        <div className="flex gap-2 ml-4">
+        <div className="hidden sm:flex gap-2 ml-4">
           <button
             onClick={() => setIsEditing(true)}
             className={`p-2 hover:bg-blue-500/20 rounded-lg transition text-blue-500`}
@@ -1634,7 +1778,14 @@ function AddHabitModal({
   onClose,
   theme,
   themeConfig,
-}: any) {
+}: {
+  habit: NewHabitDraft;
+  onChange: (habit: NewHabitDraft) => void;
+  onAdd: () => void;
+  onClose: () => void;
+  theme: Theme;
+  themeConfig: ThemeConfig;
+}) {
   const icons = ['💻', '📚', '💪', '💧', '🌙', '🧘', '🏃', '🍎', '🎯', '⭐'];
   const categories = ['health', 'productivity', 'learning', 'fitness', 'wellness', 'finance', 'hobbies'];
   const units = ['min', 'hours', 'reps', 'km', 'liters', 'count', 'pages'];
@@ -1774,3 +1925,4 @@ if (typeof window !== 'undefined') {
   `;
   document.head.appendChild(style);
 }
+
