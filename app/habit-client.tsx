@@ -1477,7 +1477,7 @@ function Sidebar({
       {/* User Profile */}
       <div className={`p-4 border-t ${themeConfig.border} space-y-4`}>
         <div className={`flex items-center gap-3 ${!showLabels && 'justify-center'}`}>
-          <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-cyan-500 rounded-full flex items-center justify-center text-base font-semibold shadow-lg overflow-hidden">
+          <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-cyan-500 rounded-full flex items-center justify-center text-base font-semibold shadow-lg overflow-hidden ring-2 ring-emerald-400/30 shrink-0">
             {user.avatarUrl ? (
               <Image
                 src={user.avatarUrl}
@@ -1574,7 +1574,7 @@ function Header({
               </span>
             )}
           </button>
-          <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-emerald-400 to-cyan-500 rounded-full flex items-center justify-center text-sm sm:text-lg font-semibold shadow-lg overflow-hidden">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-emerald-400 to-cyan-500 rounded-full flex items-center justify-center text-sm sm:text-lg font-semibold shadow-lg overflow-hidden ring-2 ring-emerald-400/30 shrink-0">
             {user.avatarUrl ? (
               <Image
                 src={user.avatarUrl}
@@ -2312,7 +2312,7 @@ function ProfilePage({
       <div className={`${themeConfig.card} rounded-2xl p-8 border ${themeConfig.border} shadow-lg`}>
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
           <div className="flex items-start gap-4 flex-1 min-w-0">
-            <div className="w-16 h-16 bg-gradient-to-br from-emerald-400 to-cyan-500 rounded-full flex items-center justify-center text-3xl shadow-lg">
+            <div className="w-16 h-16 bg-gradient-to-br from-emerald-400 to-cyan-500 rounded-full flex items-center justify-center text-3xl shadow-lg ring-2 ring-emerald-400/30 overflow-hidden">
               {user.avatarUrl ? (
                 <Image
                   src={user.avatarUrl}
