@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { ClerkProvider } from "@clerk/nextjs";
+import ClerkClientProvider from "./clerk-provider";
 import "./globals.css";
 
 const clerkEnabled = Boolean(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);
@@ -21,7 +21,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        {clerkEnabled ? <ClerkProvider>{children}</ClerkProvider> : children}
+        {clerkEnabled ? <ClerkClientProvider>{children}</ClerkClientProvider> : children}
       </body>
     </html>
   );
