@@ -1477,7 +1477,7 @@ function Sidebar({
       {/* User Profile */}
       <div className={`p-4 border-t ${themeConfig.border} space-y-4`}>
         <div className={`flex items-center gap-3 ${!showLabels && 'justify-center'}`}>
-          <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-cyan-500 rounded-full flex items-center justify-center text-xl shadow-lg">
+          <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-cyan-500 rounded-full flex items-center justify-center text-base font-semibold shadow-lg overflow-hidden">
             {user.avatarUrl ? (
               <Image
                 src={user.avatarUrl}
@@ -1488,7 +1488,7 @@ function Sidebar({
                 className="w-full h-full rounded-full object-cover"
               />
             ) : (
-              <span>{user.avatar}</span>
+              <span className="leading-none">{user.avatar}</span>
             )}
           </div>
           {showLabels && (
@@ -1539,25 +1539,25 @@ function Header({
 
   return (
     <header className={`${theme === 'dark' ? 'bg-slate-800/50 border-slate-700' : 'bg-white shadow-md border-slate-200'} backdrop-blur-xl border-b sticky top-0 z-40`}>
-      <div className="px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-4 flex-1">
+      <div className="px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
           <button
             onClick={onMenuClick}
-            className={`md:hidden p-2 rounded-lg transition ${themeConfig.hover}`}
+            className={`md:hidden p-2 rounded-lg transition ${themeConfig.hover} shrink-0`}
           >
             <Menu className="w-6 h-6" />
           </button>
-          <div>
-            <h2 className={`text-xl font-bold ${themeConfig.text}`}>
+          <div className="min-w-0">
+            <h2 className={`text-lg sm:text-xl font-bold ${themeConfig.text} leading-tight break-words`}>
               {getGreeting(language)}, {user.name}!
             </h2>
-            <p className={`${themeConfig.textSecondary} text-sm`}>
+            <p className={`${themeConfig.textSecondary} text-xs sm:text-sm`}>
               {metrics.completedToday} / {metrics.totalHabits} {text.habitsCompletedToday}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4 shrink-0">
           <button
             onClick={onSoundToggle}
             aria-pressed={!soundEnabled}
@@ -1574,7 +1574,7 @@ function Header({
               </span>
             )}
           </button>
-          <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-cyan-500 rounded-full flex items-center justify-center text-lg shadow-lg">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-emerald-400 to-cyan-500 rounded-full flex items-center justify-center text-sm sm:text-lg font-semibold shadow-lg overflow-hidden">
             {user.avatarUrl ? (
               <Image
                 src={user.avatarUrl}
@@ -1585,7 +1585,7 @@ function Header({
                 className="w-full h-full rounded-full object-cover"
               />
             ) : (
-              <span>{user.avatar}</span>
+              <span className="leading-none">{user.avatar}</span>
             )}
           </div>
         </div>
