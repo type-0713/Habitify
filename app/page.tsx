@@ -1,6 +1,6 @@
-import dynamic from 'next/dynamic';
+'use client';
 
-const HabitClientApp = dynamic(() => import('./habit-client'), { ssr: false });
+import HabitClientApp from './habit-client';
 
 function MissingClerkConfig() {
   return (
