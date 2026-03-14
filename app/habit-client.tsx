@@ -413,28 +413,28 @@ interface ProfileOverrides {
 // Theme Configuration
 const themes = {
   dark: {
-    bg: 'bg-[#0b0f14]',
-    bgSecondary: 'bg-[#0f1621]',
-    bgTertiary: 'bg-[#141e2b]',
-    border: 'border-[#1f2a3a]',
+    bg: 'bg-gradient-to-br from-[#0b1220] via-[#0c1424] to-[#111b2e]',
+    bgSecondary: 'bg-[#0f1624]',
+    bgTertiary: 'bg-[#121c2f]',
+    border: 'border-[#223049]',
     text: 'text-slate-100',
     textSecondary: 'text-slate-400',
-    card: 'bg-[#0f1624]/80',
-    input: 'bg-[#0f1621] border-[#223047] placeholder:text-slate-500',
-    hover: 'hover:bg-[#162232]',
-    gradient: 'from-emerald-500 to-cyan-700',
+    card: 'bg-[#0f1929]/85 shadow-[0_20px_60px_-35px_rgba(2,8,23,0.7)]',
+    input: 'bg-[#0f1a2b] border-[#263552] placeholder:text-slate-500',
+    hover: 'hover:bg-[#15233a]',
+    gradient: 'from-emerald-400 via-sky-500 to-indigo-500',
   },
   light: {
-    bg: 'bg-[#f8f6f1]',
-    bgSecondary: 'bg-[#fdfaf5]',
-    bgTertiary: 'bg-[#f3efe7]',
-    border: 'border-[#e6ded1]',
+    bg: 'bg-gradient-to-br from-[#f8f7ff] via-[#f5fbff] to-[#f3fff7]',
+    bgSecondary: 'bg-[#fdfcff]',
+    bgTertiary: 'bg-[#eef4ff]',
+    border: 'border-[#e1e7f3]',
     text: 'text-slate-900',
     textSecondary: 'text-slate-600',
-    card: 'bg-white/80 shadow-[0_18px_50px_-35px_rgba(15,23,42,0.25)]',
-    input: 'bg-white border-[#d8cbb7] placeholder:text-slate-400',
-    hover: 'hover:bg-[#f2eadc]',
-    gradient: 'from-emerald-500 to-cyan-600',
+    card: 'bg-white/90 shadow-[0_22px_60px_-35px_rgba(30,58,138,0.25)]',
+    input: 'bg-white border-[#d6deee] placeholder:text-slate-400',
+    hover: 'hover:bg-[#edf3ff]',
+    gradient: 'from-emerald-500 via-sky-500 to-indigo-500',
   },
 };
 
@@ -602,14 +602,14 @@ const getBestStreak = (habit: Habit): number => {
 
 const getRandomColor = () => {
   const colors = [
-    'from-emerald-400 to-emerald-600',
-    'from-cyan-400 to-cyan-600',
-    'from-teal-400 to-teal-600',
-    'from-amber-400 to-orange-500',
-    'from-rose-400 to-rose-600',
-    'from-lime-400 to-lime-600',
-    'from-sky-400 to-sky-600',
-    'from-fuchsia-400 to-fuchsia-600',
+    'from-emerald-400 via-sky-400 to-indigo-500',
+    'from-cyan-400 via-sky-500 to-indigo-500',
+    'from-teal-400 via-emerald-500 to-sky-500',
+    'from-amber-400 via-orange-500 to-rose-500',
+    'from-rose-400 via-pink-500 to-fuchsia-500',
+    'from-lime-400 via-emerald-500 to-teal-500',
+    'from-sky-400 via-blue-500 to-indigo-500',
+    'from-fuchsia-400 via-violet-500 to-indigo-500',
   ];
   return colors[Math.floor(Math.random() * colors.length)];
 };
@@ -1274,7 +1274,7 @@ function AuthPage({
               <div className="mt-6 space-y-4">
                 <button
                   onClick={() => handleProvider('email')}
-                  className="w-full rounded-xl px-4 py-3 bg-gradient-to-r from-emerald-500 to-cyan-600 text-white font-semibold tracking-wide shadow-lg shadow-emerald-500/20 hover:from-emerald-400 hover:to-cyan-500 transition"
+                  className="w-full rounded-xl px-4 py-3 bg-gradient-to-r from-emerald-500 via-sky-500 to-indigo-500 text-white font-semibold tracking-wide shadow-lg shadow-sky-500/20 hover:from-emerald-400 hover:to-indigo-400 transition"
                 >
                   {text.continueWithEmail}
                 </button>
@@ -1396,7 +1396,7 @@ function Sidebar({
       <div className={`p-6 border-b ${themeConfig.border}`}>
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-cyan-600 rounded-lg flex items-center justify-center flex-shrink-0 shadow-lg">
+            <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 via-sky-500 to-indigo-500 rounded-lg flex items-center justify-center flex-shrink-0 shadow-lg">
               <Check className="w-6 h-6 text-white" />
             </div>
             {showLabels && <h1 className={`text-xl font-bold ${themeConfig.text}`}>Habitify</h1>}
@@ -1421,7 +1421,7 @@ function Sidebar({
             onClick={() => handlePageChange(item.id)}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${
               currentPage === item.id
-                ? 'bg-gradient-to-r from-emerald-500 to-cyan-600 text-white shadow-lg'
+                ? 'bg-gradient-to-r from-emerald-500 via-sky-500 to-indigo-500 text-white shadow-lg'
                 : `${themeConfig.textSecondary} ${themeConfig.hover}`
             }`}
           >
@@ -1478,7 +1478,7 @@ function Sidebar({
       {/* User Profile */}
       <div className={`p-4 border-t ${themeConfig.border} space-y-4`}>
         <div className={`flex items-center gap-3 ${!showLabels && 'justify-center'}`}>
-          <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-cyan-500 rounded-full flex items-center justify-center text-base font-semibold shadow-lg overflow-hidden ring-2 ring-emerald-400/30 shrink-0">
+          <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 via-sky-400 to-indigo-500 rounded-full flex items-center justify-center text-base font-semibold shadow-lg overflow-hidden ring-2 ring-sky-400/30 shrink-0">
             {user.avatarUrl ? (
               <Image
                 src={user.avatarUrl}
@@ -1575,7 +1575,7 @@ function Header({
               </span>
             )}
           </button>
-          <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-emerald-400 to-cyan-500 rounded-full flex items-center justify-center text-sm sm:text-lg font-semibold shadow-lg overflow-hidden ring-2 ring-emerald-400/30 shrink-0">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-emerald-400 via-sky-400 to-indigo-500 rounded-full flex items-center justify-center text-sm sm:text-lg font-semibold shadow-lg overflow-hidden ring-2 ring-sky-400/30 shrink-0">
             {user.avatarUrl ? (
               <Image
                 src={user.avatarUrl}
@@ -1718,7 +1718,7 @@ function DashboardPage({
             <p className={`${themeConfig.textSecondary} mb-4`}>{text.noHabitsYet}</p>
             <button
               onClick={onAddHabit}
-              className="px-6 py-2 bg-gradient-to-r from-emerald-500 to-cyan-600 text-white rounded-lg hover:shadow-lg transition"
+              className="px-6 py-2 bg-gradient-to-r from-emerald-500 via-sky-500 to-indigo-500 text-white rounded-lg hover:shadow-lg transition"
             >
               {text.createFirstHabit}
             </button>
@@ -1839,7 +1839,7 @@ function HabitsPage({
           </div>
           <button
             onClick={onAddHabit}
-            className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-500 to-cyan-600 text-white rounded-full hover:shadow-lg transition"
+            className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-500 via-sky-500 to-indigo-500 text-white rounded-full hover:shadow-lg transition"
           >
             <Plus className="w-5 h-5" />
             {text.newHabit}
@@ -1853,7 +1853,7 @@ function HabitsPage({
           <p className={`${themeConfig.textSecondary} mb-4`}>{text.noHabitsCreated}</p>
           <button
             onClick={onAddHabit}
-            className="px-6 py-2 bg-gradient-to-r from-emerald-500 to-cyan-600 text-white rounded-lg hover:shadow-lg transition"
+            className="px-6 py-2 bg-gradient-to-r from-emerald-500 via-sky-500 to-indigo-500 text-white rounded-lg hover:shadow-lg transition"
           >
             {text.createYourFirstHabit}
           </button>
@@ -1864,7 +1864,7 @@ function HabitsPage({
           <p className={`${themeConfig.textSecondary} mb-4`}>{text.noHabitsFound}</p>
           <button
             onClick={() => setSearchQuery('')}
-            className="px-6 py-2 bg-gradient-to-r from-emerald-500 to-cyan-600 text-white rounded-lg hover:shadow-lg transition"
+            className="px-6 py-2 bg-gradient-to-r from-emerald-500 via-sky-500 to-indigo-500 text-white rounded-lg hover:shadow-lg transition"
           >
             {text.clearSearch}
           </button>
@@ -2356,7 +2356,7 @@ function ProfilePage({
       <div className={`${themeConfig.card} rounded-2xl p-8 border ${themeConfig.border} shadow-lg`}>
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
           <div className="flex items-start gap-4 flex-1 min-w-0">
-            <div className="w-16 h-16 bg-gradient-to-br from-emerald-400 to-cyan-500 rounded-full flex items-center justify-center text-3xl shadow-lg ring-2 ring-emerald-400/30 overflow-hidden">
+            <div className="w-16 h-16 bg-gradient-to-br from-emerald-400 via-sky-400 to-indigo-500 rounded-full flex items-center justify-center text-3xl shadow-lg ring-2 ring-sky-400/30 overflow-hidden">
               {user.avatarUrl ? (
                 <Image
                   src={user.avatarUrl}
@@ -2729,7 +2729,7 @@ function AddHabitModal({
             </button>
             <button
               onClick={onAdd}
-              className="flex-1 px-4 py-2 bg-gradient-to-r from-emerald-500 to-cyan-600 text-white rounded-lg hover:shadow-lg transition"
+              className="flex-1 px-4 py-2 bg-gradient-to-r from-emerald-500 via-sky-500 to-indigo-500 text-white rounded-lg hover:shadow-lg transition"
             >
               {text.addHabit}
             </button>
