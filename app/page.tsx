@@ -707,7 +707,10 @@ function ClerkHabitTrackerApp() {
   }, [habits, isSignedIn, soundEnabled, user?.id]);
 
   useEffect(() => {
-    setIsMounted(true);
+    const rafId = window.requestAnimationFrame(() => setIsMounted(true));
+    return () => {
+      window.cancelAnimationFrame(rafId);
+    };
   }, []);
 
   /*
@@ -1017,18 +1020,17 @@ function ClerkHabitTrackerApp() {
       </main>
 
       {/* Add Habit Modal */}
-        {showAddHabit && (
-          <AddHabitModal
-            habit={newHabit}
-            onChange={setNewHabit}
-            onAdd={handleAddHabit}
-            onClose={() => setShowAddHabit(false)}
-            theme={theme}
-            themeConfig={themeConfig}
-            language={language}
-          />
-        )}
-        </div>
+      {showAddHabit && (
+        <AddHabitModal
+          habit={newHabit}
+          onChange={setNewHabit}
+          onAdd={handleAddHabit}
+          onClose={() => setShowAddHabit(false)}
+          theme={theme}
+          themeConfig={themeConfig}
+          language={language}
+        />
+      )}
     </div>
   );
 }
