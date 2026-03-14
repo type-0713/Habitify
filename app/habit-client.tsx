@@ -2,9 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { ClerkProvider, SignIn, useClerk, useUser } from '@clerk/nextjs';
 import dynamic from 'next/dynamic';
-import { Check, Plus, Flame, Menu, LogOut, Home, ListTodo, BarChart3, Bell, User, Calendar, Edit2, Save, X, ChevronLeft, ChevronRight, Sun, Moon } from 'lucide-react';
+import { Check, Plus, Flame, Menu, LogOut, Home, ListTodo, BarChart3, Bell, User, Calendar, Edit2, Save, X, ChevronLeft, ChevronRight, Sun, Moon, Github, Apple, Chrome } from 'lucide-react';
 
 const ResponsiveContainer = dynamic(() => import('recharts').then((m) => m.ResponsiveContainer), { ssr: false });
 const BarChart = dynamic(() => import('recharts').then((m) => m.BarChart), { ssr: false });
@@ -23,6 +22,16 @@ const Area = dynamic(() => import('recharts').then((m) => m.Area), { ssr: false 
 type Theme = 'dark' | 'light';
 type Page = 'dashboard' | 'habits' | 'calendar' | 'stats' | 'profile';
 type Language = 'en' | 'ru' | 'uz';
+type AuthProvider = 'google' | 'apple' | 'github';
+
+interface AuthUser {
+  id: string;
+  name: string;
+  email: string;
+  provider: AuthProvider;
+  createdAt: string;
+  avatarUrl?: string;
+}
 
 const translations = {
   en: {
@@ -32,6 +41,16 @@ const translations = {
     calendar: 'Calendar',
     statistics: 'Statistics',
     profile: 'Profile',
+    signInTitle: 'Sign in to Habitify',
+    signInSubtitle: 'Choose a provider to continue',
+    nameLabel: 'Name',
+    emailLabel: 'Email',
+    namePlaceholder: 'Your name',
+    emailPlaceholder: 'you@example.com',
+    continueWithGoogle: 'Continue with Google',
+    continueWithApple: 'Continue with Apple',
+    continueWithGitHub: 'Continue with GitHub',
+    demoNote: 'This is a local demo login. No external auth is used.',
     light: 'Light',
     dark: 'Dark',
     logout: 'Logout',
@@ -96,6 +115,16 @@ const translations = {
     weekdaysShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
   },
   ru: {
+    signInTitle: 'Р’С…РѕРґ РІ Habitify',
+    signInSubtitle: 'Р’С‹Р±РµСЂРёС‚Рµ РїСЂРѕРІР°Р№РґРµСЂР° РґР»СЏ РІС…РѕРґР°',
+    nameLabel: 'РРјСЏ',
+    emailLabel: 'Email',
+    namePlaceholder: 'Р’Р°С€Рµ РёРјСЏ',
+    emailPlaceholder: 'you@example.com',
+    continueWithGoogle: 'Р’РѕР№С‚Рё С‡РµСЂРµР· Google',
+    continueWithApple: 'Р’РѕР№С‚Рё С‡РµСЂРµР· Apple',
+    continueWithGitHub: 'Р’РѕР№С‚Рё С‡РµСЂРµР· GitHub',
+    demoNote: 'Р­С‚Рѕ Р»РѕРєР°Р»СЊРЅС‹Р№ РґРµРјРѕ-вС…РѕРґ. Р’РЅРµС€РЅСЏСЏ Р°РІС‚РѕСЂРёР·Р°С†РёСЏ РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.',
     languageLabel: 'Язык',
     dashboard: 'Панель',
     habits: 'Привычки',
@@ -166,6 +195,16 @@ const translations = {
     weekdaysShort: ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'],
   },
   uz: {
+    signInTitle: 'Habitify ga kirish',
+    signInSubtitle: 'Davom etish uchun provayderni tanlang',
+    nameLabel: 'Ism',
+    emailLabel: 'Email',
+    namePlaceholder: 'Ismingiz',
+    emailPlaceholder: 'you@example.com',
+    continueWithGoogle: 'Google orqali davom etish',
+    continueWithApple: 'Apple orqali davom etish',
+    continueWithGitHub: 'GitHub orqali davom etish',
+    demoNote: 'Bu lokal demo kirish. Tashqi avtorizatsiya ishlatilmaydi.',
     languageLabel: 'Til',
     dashboard: 'Boshqaruv',
     habits: 'Odatlar',
@@ -558,18 +597,36 @@ const getInitials = (name: string) => {
   return initials.toUpperCase() || 'U';
 };
 
+const providerLabels: Record<AuthProvider, string> = {
+  google: 'Google',
+  apple: 'Apple',
+  github: 'GitHub',
+};
+
+const createAuthUser = (provider: AuthProvider, name: string, email: string): AuthUser => {
+  const trimmedName = name.trim();
+  const trimmedEmail = email.trim();
+  const displayName = trimmedName || `${providerLabels[provider]} User`;
+  const displayEmail = trimmedEmail || `${provider}@habitify.local`;
+  return {
+    id: `${provider}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+    name: displayName,
+    email: displayEmail,
+    provider,
+    createdAt: getTodayDate(),
+  };
+};
+
 // Main App Component
 export default function HabitClientApp() {
-  return (
-    <ClerkProvider>
-      <HabitTrackerApp />
-    </ClerkProvider>
-  );
+  return <HabitTrackerApp />;
 }
 
 function HabitTrackerApp() {
-  const { user, isLoaded, isSignedIn } = useUser();
-  const { signOut } = useClerk();
+  const [authUser, setAuthUser] = useState<AuthUser | null>(() => getLocalStorage<AuthUser | null>('auth_user', null));
+  const isLoaded = true;
+  const isSignedIn = Boolean(authUser);
+  const user = authUser;
   const [theme, setTheme] = useState<Theme>(() => getLocalStorage<Theme>('theme', 'dark') ?? 'dark');
   const [profileOverrides, setProfileOverrides] = useState<ProfileOverrides>({});
   const [resetNotice, setResetNotice] = useState<string | null>(null);
@@ -669,6 +726,11 @@ function HabitTrackerApp() {
     setLocalStorage('language', language);
   }, [language]);
 
+  // Save auth user
+  useEffect(() => {
+    setLocalStorage('auth_user', authUser);
+  }, [authUser]);
+
   // Save habits
   useEffect(() => {
     if (isSignedIn && user?.id) {
@@ -736,9 +798,16 @@ function HabitTrackerApp() {
   };
   */
 
+  const handleLogin = (provider: AuthProvider, name: string, email: string) => {
+    const nextUser = createAuthUser(provider, name, email);
+    setAuthUser(nextUser);
+    setCurrentPage('dashboard');
+  };
+
   // Logout Handler
   const handleLogout = () => {
-    void signOut();
+    setAuthUser(null);
+    setProfileOverrides({});
     setCurrentPage('dashboard');
     setHabits([]);
   };
@@ -861,24 +930,22 @@ function HabitTrackerApp() {
     return null;
   }
 
-  const baseName = user?.fullName || user?.firstName || user?.username || 'User';
+  const baseName = user?.name || 'User';
   const displayName = profileOverrides.name ?? baseName;
   const userProfile: UserProfile | null = user
     ? {
         id: user.id,
         name: displayName,
-        email: user.primaryEmailAddress?.emailAddress ?? '',
+        email: user.email ?? '',
         avatar: getInitials(displayName),
-        avatarUrl: user.imageUrl || undefined,
+        avatarUrl: user.avatarUrl || undefined,
         bio: profileOverrides.bio ?? 'Building better habits daily!',
-        joinDate: user.createdAt
-          ? formatLocalDate(new Date(user.createdAt))
-          : getTodayDate(),
+        joinDate: user.createdAt || getTodayDate(),
       }
     : null;
 
   if (!isSignedIn) {
-    return <AuthPage theme={theme} />;
+    return <AuthPage theme={theme} language={language} onLogin={handleLogin} />;
   }
 
   return (
@@ -1039,10 +1106,78 @@ function HabitTrackerApp() {
 }
 
 // Auth Page Component
-function AuthPage({ theme }: { theme: Theme }) {
+function AuthPage({
+  theme,
+  language,
+  onLogin,
+}: {
+  theme: Theme;
+  language: Language;
+  onLogin: (provider: AuthProvider, name: string, email: string) => void;
+}) {
+  const text = translations[language];
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+
+  const handleProvider = (provider: AuthProvider) => {
+    onLogin(provider, name, email);
+  };
+
   return (
-    <div className={`min-h-screen ${theme === 'dark' ? 'bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950' : 'bg-gradient-to-br from-blue-50 via-white to-purple-50'} flex items-center justify-center p-4`}>
-      <SignIn />
+    <div className={`min-h-screen ${theme === 'dark' ? 'bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950' : 'bg-gradient-to-br from-blue-50 via-white to-blue-100'} flex items-center justify-center p-4`}>
+      <div className={`${theme === 'dark' ? 'bg-slate-900/80 border-slate-800 text-slate-100' : 'bg-white border-slate-200 text-slate-900'} w-full max-w-md rounded-2xl border shadow-2xl p-8`}>
+        <h1 className="text-2xl font-bold mb-2">{text.signInTitle}</h1>
+        <p className={`text-sm mb-6 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{text.signInSubtitle}</p>
+
+        <div className="space-y-4">
+          <div>
+            <label className={`block text-xs mb-2 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{text.nameLabel}</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder={text.namePlaceholder}
+              className={`w-full px-4 py-2 rounded-lg ${theme === 'dark' ? 'bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-500' : 'bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400'} border focus:outline-none focus:ring-2 focus:ring-blue-500`}
+            />
+          </div>
+          <div>
+            <label className={`block text-xs mb-2 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{text.emailLabel}</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder={text.emailPlaceholder}
+              className={`w-full px-4 py-2 rounded-lg ${theme === 'dark' ? 'bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-500' : 'bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400'} border focus:outline-none focus:ring-2 focus:ring-blue-500`}
+            />
+          </div>
+        </div>
+
+        <div className="mt-6 space-y-3">
+          <button
+            onClick={() => handleProvider('google')}
+            className={`w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg border ${theme === 'dark' ? 'border-slate-700 bg-slate-800 hover:bg-slate-700' : 'border-slate-200 bg-white hover:bg-slate-50'} transition`}
+          >
+            <Chrome className="w-4 h-4" />
+            {text.continueWithGoogle}
+          </button>
+          <button
+            onClick={() => handleProvider('apple')}
+            className={`w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg border ${theme === 'dark' ? 'border-slate-700 bg-slate-800 hover:bg-slate-700' : 'border-slate-200 bg-white hover:bg-slate-50'} transition`}
+          >
+            <Apple className="w-4 h-4" />
+            {text.continueWithApple}
+          </button>
+          <button
+            onClick={() => handleProvider('github')}
+            className={`w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg border ${theme === 'dark' ? 'border-slate-700 bg-slate-800 hover:bg-slate-700' : 'border-slate-200 bg-white hover:bg-slate-50'} transition`}
+          >
+            <Github className="w-4 h-4" />
+            {text.continueWithGitHub}
+          </button>
+        </div>
+
+        <p className={`text-xs mt-6 ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>{text.demoNote}</p>
+      </div>
     </div>
   );
 }
