@@ -11,6 +11,7 @@ import {
   signInWithPopup,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  updateProfile,
   signOut,
 } from 'firebase/auth';
 import { firebaseAuth } from './lib/firebase';
@@ -852,7 +853,7 @@ function HabitTrackerApp() {
           if (err.code === 'auth/user-not-found') {
           const credential = await createUserWithEmailAndPassword(firebaseAuth, email, password);
           if (name) {
-            await credential.user.updateProfile({ displayName: name });
+            await updateProfile(credential.user, { displayName: name });
           }
           } else {
             throw error;
@@ -971,7 +972,7 @@ function HabitTrackerApp() {
   };
 
   // Update Profile
-  const updateProfile = (updates: Partial<UserProfile>) => {
+  const updateProfileState = (updates: Partial<UserProfile>) => {
     if (!isSignedIn || !user?.id) return;
     const nextOverrides: ProfileOverrides = {
       name: updates.name ?? profileOverrides.name,
@@ -1156,7 +1157,7 @@ function HabitTrackerApp() {
             <ProfilePage
               user={userProfile!}
               habits={habits}
-              onUpdate={updateProfile}
+              onUpdate={updateProfileState}
               theme={theme}
               themeConfig={themeConfig}
               language={language}
