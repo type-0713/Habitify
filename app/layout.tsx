@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 
+const clerkEnabled = Boolean(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);
 
 export const metadata: Metadata = {
   title: "Habitify",
@@ -20,9 +21,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        <ClerkProvider>
-          {children}
-        </ClerkProvider>
+        {clerkEnabled ? <ClerkProvider>{children}</ClerkProvider> : children}
       </body>
     </html>
   );

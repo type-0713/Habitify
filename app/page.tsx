@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { SignIn, useClerk, useUser } from '@clerk/nextjs';
-import { Show } from '@clerk/nextjs';
 import dynamic from 'next/dynamic';
 import { Check, Plus, Flame, Menu, LogOut, Home, ListTodo, BarChart3, Bell, User, Calendar, Edit2, Save, X, ChevronLeft, ChevronRight, Sun, Moon } from 'lucide-react';
 
@@ -19,6 +18,7 @@ const CartesianGrid = dynamic(() => import('recharts').then((m) => m.CartesianGr
 const Tooltip = dynamic(() => import('recharts').then((m) => m.Tooltip), { ssr: false });
 const AreaChart = dynamic(() => import('recharts').then((m) => m.AreaChart), { ssr: false });
 const Area = dynamic(() => import('recharts').then((m) => m.Area), { ssr: false });
+const clerkEnabled = Boolean(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);
 
 // Types
 type Theme = 'dark' | 'light';
@@ -561,6 +561,10 @@ const getInitials = (name: string) => {
 
 // Main App Component
 export default function HabitTrackerApp() {
+  return clerkEnabled ? <ClerkHabitTrackerApp /> : <MissingClerkConfig />;
+}
+
+function ClerkHabitTrackerApp() {
   const { user, isLoaded, isSignedIn } = useUser();
   const { signOut } = useClerk();
   const [theme, setTheme] = useState<Theme>(() => getLocalStorage<Theme>('theme', 'dark') ?? 'dark');
@@ -867,13 +871,12 @@ export default function HabitTrackerApp() {
       }
     : null;
 
+  if (!isSignedIn) {
+    return <AuthPage theme={theme} />;
+  }
+
   return (
-    <>
-      <Show when="signed-out">
-        <AuthPage theme={theme} />
-      </Show>
-      <Show when="signed-in">
-        <div className={`flex h-screen ${themeConfig.bg} ${themeConfig.text} overflow-hidden`}>
+    <div className={`flex h-screen ${themeConfig.bg} ${themeConfig.text} overflow-hidden`}>
       {mobileSidebarOpen && (
         <>
           <div
@@ -1026,8 +1029,7 @@ export default function HabitTrackerApp() {
           />
         )}
         </div>
-      </Show>
-    </>
+    </div>
   );
 }
 
@@ -1036,6 +1038,24 @@ function AuthPage({ theme }: { theme: Theme }) {
   return (
     <div className={`min-h-screen ${theme === 'dark' ? 'bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950' : 'bg-gradient-to-br from-blue-50 via-white to-purple-50'} flex items-center justify-center p-4`}>
       <SignIn />
+    </div>
+  );
+}
+
+function MissingClerkConfig() {
+  return (
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center p-6">
+      <div className="max-w-xl w-full bg-slate-900/80 border border-slate-800 rounded-2xl p-8 shadow-xl">
+        <h1 className="text-2xl font-bold mb-3">Clerk configuration missing</h1>
+        <p className="text-sm text-slate-300 mb-6">
+          Set <span className="font-semibold">{'NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY'}</span> and
+          <span className="font-semibold">{' CLERK_SECRET_KEY'}</span> in your Vercel project environment variables,
+          then redeploy.
+        </p>
+        <div className="text-xs text-slate-400">
+          This message is shown to prevent a 500 error when auth keys are not configured.
+        </div>
+      </div>
     </div>
   );
 }
