@@ -2208,6 +2208,16 @@ function StatsPage({
           {isMounted ? (
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
+                <defs>
+                  <linearGradient id="pieGradientA" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#34d399" />
+                    <stop offset="100%" stopColor="#06b6d4" />
+                  </linearGradient>
+                  <linearGradient id="pieGradientB" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#f59e0b" />
+                    <stop offset="100%" stopColor="#ef4444" />
+                  </linearGradient>
+                </defs>
                 <Pie
                   data={[
                     { name: text.completed, value: habits.filter(h => getStreak(h) > 0).length },
@@ -2220,8 +2230,8 @@ function StatsPage({
                   paddingAngle={5}
                   dataKey="value"
                 >
-                  <Cell fill="#3b82f6" />
-                  <Cell fill={theme === 'dark' ? '#475569' : '#cbd5e1'} />
+                  <Cell fill="url(#pieGradientA)" />
+                  <Cell fill="url(#pieGradientB)" />
                 </Pie>
               </PieChart>
             </ResponsiveContainer>
