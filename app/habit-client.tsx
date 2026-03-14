@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
-import { Check, Plus, Flame, Menu, LogOut, Home, ListTodo, BarChart3, Bell, User, Calendar, Edit2, Save, X, ChevronLeft, ChevronRight, Sun, Moon, Github, Apple, Chrome } from 'lucide-react';
+import { Check, Plus, Flame, Menu, LogOut, Home, ListTodo, BarChart3, Bell, User, Calendar, Edit2, Save, X, ChevronLeft, ChevronRight, Sun, Moon, Github, Apple, Chrome, AtSign } from 'lucide-react';
 
 const ResponsiveContainer = dynamic(() => import('recharts').then((m) => m.ResponsiveContainer), { ssr: false });
 const BarChart = dynamic(() => import('recharts').then((m) => m.BarChart), { ssr: false });
@@ -1135,64 +1135,115 @@ function AuthPage({
   };
 
   return (
-    <div className={`min-h-screen ${theme === 'dark' ? 'bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950' : 'bg-gradient-to-br from-blue-50 via-white to-blue-100'} flex items-center justify-center p-4`}>
-      <div className={`${theme === 'dark' ? 'bg-slate-900/80 border-slate-800 text-slate-100' : 'bg-white border-slate-200 text-slate-900'} w-full max-w-md rounded-2xl border shadow-2xl p-8`}>
-        <h1 className="text-2xl font-bold mb-2">{text.signInTitle}</h1>
-        <p className={`text-sm mb-6 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{text.signInSubtitle}</p>
+    <div className={`relative min-h-screen overflow-hidden ${theme === 'dark' ? 'bg-slate-950 text-slate-100' : 'bg-amber-50 text-slate-900'} flex items-center justify-center p-6`}>
+      <div className={`pointer-events-none absolute -top-32 left-1/2 h-80 w-80 -translate-x-1/2 rounded-full blur-3xl ${theme === 'dark' ? 'bg-amber-500/20' : 'bg-amber-200/70'}`} />
+      <div className={`pointer-events-none absolute -bottom-40 right-10 h-80 w-80 rounded-full blur-3xl ${theme === 'dark' ? 'bg-emerald-500/20' : 'bg-emerald-200/70'}`} />
 
-        <div className="space-y-4">
-          <div>
-            <label className={`block text-xs mb-2 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{text.nameLabel}</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder={text.namePlaceholder}
-              className={`w-full px-4 py-2 rounded-lg ${theme === 'dark' ? 'bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-500' : 'bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400'} border focus:outline-none focus:ring-2 focus:ring-blue-500`}
-            />
-          </div>
-          <div>
-            <label className={`block text-xs mb-2 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{text.emailLabel}</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder={text.emailPlaceholder}
-              className={`w-full px-4 py-2 rounded-lg ${theme === 'dark' ? 'bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-500' : 'bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400'} border focus:outline-none focus:ring-2 focus:ring-blue-500`}
-            />
+      <div className="relative w-full max-w-5xl">
+        <div className={`${theme === 'dark' ? 'bg-slate-900/70 border-slate-800' : 'bg-white/80 border-amber-100'} rounded-3xl border shadow-[0_30px_80px_-40px_rgba(15,23,42,0.6)] overflow-hidden backdrop-blur-xl`}>
+          <div className="grid gap-0 md:grid-cols-[1.25fr_1fr]">
+            <div className="p-8 md:p-10">
+              <div className="flex items-center gap-3 mb-8">
+                <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center shadow-lg">
+                  <Check className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <p className={`text-xs uppercase tracking-[0.32em] ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Habitify</p>
+                  <p className={`text-sm ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>Small habits. Big momentum.</p>
+                </div>
+              </div>
+
+              <h1 className="text-3xl md:text-4xl font-bold" style={{ fontFamily: "'Fraunces', 'Space Grotesk', serif" }}>
+                {text.signInTitle}
+              </h1>
+              <p className={`mt-2 text-sm ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>{text.signInSubtitle}</p>
+
+              <div className="mt-8 grid gap-4">
+                <div>
+                  <label className={`block text-xs mb-2 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{text.nameLabel}</label>
+                  <div className="relative">
+                    <User className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`} />
+                    <input
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder={text.namePlaceholder}
+                      className={`w-full pl-10 pr-4 py-2.5 rounded-xl ${theme === 'dark' ? 'bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-500' : 'bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400'} border focus:outline-none focus:ring-2 focus:ring-emerald-400`}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className={`block text-xs mb-2 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{text.emailLabel}</label>
+                  <div className="relative">
+                    <AtSign className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`} />
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder={text.emailPlaceholder}
+                      className={`w-full pl-10 pr-4 py-2.5 rounded-xl ${theme === 'dark' ? 'bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-500' : 'bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400'} border focus:outline-none focus:ring-2 focus:ring-emerald-400`}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6 space-y-4">
+                <button
+                  onClick={() => handleProvider('local')}
+                  className="w-full rounded-xl px-4 py-3 bg-gradient-to-r from-emerald-500 to-cyan-600 text-white font-semibold tracking-wide shadow-lg shadow-emerald-500/20 hover:from-emerald-400 hover:to-cyan-500 transition"
+                >
+                  {text.continueButton}
+                </button>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <button
+                    onClick={() => handleProvider('google')}
+                    className={`w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl border ${theme === 'dark' ? 'border-slate-700 bg-slate-800 hover:bg-slate-700' : 'border-slate-200 bg-white hover:bg-amber-50'} transition`}
+                  >
+                    <Chrome className="w-4 h-4" />
+                    <span className="text-xs">{text.continueWithGoogle}</span>
+                  </button>
+                  <button
+                    onClick={() => handleProvider('apple')}
+                    className={`w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl border ${theme === 'dark' ? 'border-slate-700 bg-slate-800 hover:bg-slate-700' : 'border-slate-200 bg-white hover:bg-amber-50'} transition`}
+                  >
+                    <Apple className="w-4 h-4" />
+                    <span className="text-xs">{text.continueWithApple}</span>
+                  </button>
+                  <button
+                    onClick={() => handleProvider('github')}
+                    className={`w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl border ${theme === 'dark' ? 'border-slate-700 bg-slate-800 hover:bg-slate-700' : 'border-slate-200 bg-white hover:bg-amber-50'} transition`}
+                  >
+                    <Github className="w-4 h-4" />
+                    <span className="text-xs">{text.continueWithGitHub}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className={`relative hidden md:flex flex-col justify-between p-10 ${theme === 'dark' ? 'bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800' : 'bg-gradient-to-br from-amber-100 via-white to-emerald-50'}`}>
+              <div className={`absolute inset-0 ${theme === 'dark' ? 'bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.15),_transparent_55%)]' : 'bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.25),_transparent_55%)]'}`} />
+              <div className="relative">
+                <h2 className="text-xl font-semibold mb-3" style={{ fontFamily: "'Fraunces', 'Space Grotesk', serif" }}>Daily clarity</h2>
+                <p className={`${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>
+                  Track habits with a calm, focused dashboard. Your progress stays local and fast.
+                </p>
+              </div>
+              <div className="relative grid gap-4">
+                {[
+                  { label: text.habitsCompleted, value: '12' },
+                  { label: text.currentStreak, value: '5' },
+                  { label: text.bestStreakLabel, value: '18' },
+                ].map((item) => (
+                  <div key={item.label} className={`${theme === 'dark' ? 'bg-slate-800/70 border-slate-700' : 'bg-white/70 border-amber-100'} rounded-2xl border p-4`}>
+                    <p className={`text-xs ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{item.label}</p>
+                    <p className="text-2xl font-bold">{item.value}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
-
-        <div className="mt-6 space-y-3">
-          <button
-            onClick={() => handleProvider('local')}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-500 transition"
-          >
-            {text.continueButton}
-          </button>
-          <button
-            onClick={() => handleProvider('google')}
-            className={`w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg border ${theme === 'dark' ? 'border-slate-700 bg-slate-800 hover:bg-slate-700' : 'border-slate-200 bg-white hover:bg-slate-50'} transition`}
-          >
-            <Chrome className="w-4 h-4" />
-            {text.continueWithGoogle}
-          </button>
-          <button
-            onClick={() => handleProvider('apple')}
-            className={`w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg border ${theme === 'dark' ? 'border-slate-700 bg-slate-800 hover:bg-slate-700' : 'border-slate-200 bg-white hover:bg-slate-50'} transition`}
-          >
-            <Apple className="w-4 h-4" />
-            {text.continueWithApple}
-          </button>
-          <button
-            onClick={() => handleProvider('github')}
-            className={`w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg border ${theme === 'dark' ? 'border-slate-700 bg-slate-800 hover:bg-slate-700' : 'border-slate-200 bg-white hover:bg-slate-50'} transition`}
-          >
-            <Github className="w-4 h-4" />
-            {text.continueWithGitHub}
-          </button>
-        </div>
-
       </div>
     </div>
   );
