@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { SignIn, SignedIn, SignedOut, useClerk, useUser } from '@clerk/nextjs';
+import { SignIn, useClerk, useUser } from '@clerk/nextjs';
+import { Show } from '@clerk/nextjs';
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import { Check, Plus, Flame, Menu, LogOut, Home, ListTodo, BarChart3, Bell, User, Calendar, Edit2, Save, X, ChevronLeft, ChevronRight, Sun, Moon } from 'lucide-react';
 
@@ -838,10 +839,10 @@ export default function HabitTrackerApp() {
 
   return (
     <>
-      <SignedOut>
+      <Show when="signed-out">
         <AuthPage theme={theme} />
-      </SignedOut>
-      <SignedIn>
+      </Show>
+      <Show when="signed-in">
         <div className={`flex h-screen ${themeConfig.bg} ${themeConfig.text} overflow-hidden`}>
       {mobileSidebarOpen && (
         <>
@@ -986,7 +987,7 @@ export default function HabitTrackerApp() {
           />
         )}
         </div>
-      </SignedIn>
+      </Show>
     </>
   );
 }
