@@ -3,7 +3,18 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
-import { Check, Plus, Flame, Menu, LogOut, Home, ListTodo, BarChart3, Bell, User, Calendar, Edit2, Save, X, ChevronLeft, ChevronRight, Sun, Moon, Github, Apple, Chrome, AtSign } from 'lucide-react';
+import {
+  GoogleAuthProvider,
+  GithubAuthProvider,
+  OAuthProvider,
+  onAuthStateChanged,
+  signInWithPopup,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+} from 'firebase/auth';
+import { firebaseAuth } from './lib/firebase';
+import { Check, Plus, Flame, Menu, LogOut, Home, ListTodo, BarChart3, Bell, User, Calendar, Edit2, Save, X, ChevronLeft, ChevronRight, Sun, Moon, Github, Apple, Chrome, Mail, LockKeyhole } from 'lucide-react';
 
 const ResponsiveContainer = dynamic(() => import('recharts').then((m) => m.ResponsiveContainer), { ssr: false });
 const BarChart = dynamic(() => import('recharts').then((m) => m.BarChart), { ssr: false });
@@ -22,7 +33,7 @@ const Area = dynamic(() => import('recharts').then((m) => m.Area), { ssr: false 
 type Theme = 'dark' | 'light';
 type Page = 'dashboard' | 'habits' | 'calendar' | 'stats' | 'profile';
 type Language = 'en' | 'ru' | 'uz';
-type AuthProvider = 'google' | 'apple' | 'github' | 'local';
+type AuthProvider = 'google' | 'apple' | 'github' | 'email';
 
 interface AuthUser {
   id: string;
@@ -50,8 +61,10 @@ const translations = {
     continueWithGoogle: 'Continue with Google',
     continueWithApple: 'Continue with Apple',
     continueWithGitHub: 'Continue with GitHub',
-    continueButton: 'Continue',
-    demoNote: 'This is a local demo login. No external auth is used.',
+    continueWithEmail: 'Continue with Email',
+    passwordLabel: 'Password',
+    passwordPlaceholder: 'Create a password',
+    authErrorMissingFields: 'Enter email and password to continue.',
     light: 'Light',
     dark: 'Dark',
     logout: 'Logout',
@@ -125,8 +138,10 @@ const translations = {
     continueWithGoogle: 'Р’РѕР№С‚Рё С‡РµСЂРµР· Google',
     continueWithApple: 'Р’РѕР№С‚Рё С‡РµСЂРµР· Apple',
     continueWithGitHub: 'Р’РѕР№С‚Рё С‡РµСЂРµР· GitHub',
-    continueButton: 'Продолжить',
-    demoNote: 'Р­С‚Рѕ Р»РѕРєР°Р»СЊРЅС‹Р№ РґРµРјРѕ-вС…РѕРґ. Р’РЅРµС€РЅСЏСЏ Р°РІС‚РѕСЂРёР·Р°С†РёСЏ РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.',
+    continueWithEmail: 'Продолжить с Email',
+    passwordLabel: 'Пароль',
+    passwordPlaceholder: 'Придумайте пароль',
+    authErrorMissingFields: 'Введите email и пароль.',
     languageLabel: 'Язык',
     dashboard: 'Панель',
     habits: 'Привычки',
@@ -206,8 +221,10 @@ const translations = {
     continueWithGoogle: 'Google orqali davom etish',
     continueWithApple: 'Apple orqali davom etish',
     continueWithGitHub: 'GitHub orqali davom etish',
-    continueButton: 'Davom etish',
-    demoNote: 'Bu lokal demo kirish. Tashqi avtorizatsiya ishlatilmaydi.',
+    continueWithEmail: 'Email bilan davom etish',
+    passwordLabel: 'Parol',
+    passwordPlaceholder: 'Parol yarating',
+    authErrorMissingFields: 'Email va parolni kiriting.',
     languageLabel: 'Til',
     dashboard: 'Boshqaruv',
     habits: 'Odatlar',
@@ -601,25 +618,13 @@ const getInitials = (name: string) => {
   return initials.toUpperCase() || 'U';
 };
 
-const providerLabels: Record<AuthProvider, string> = {
-  google: 'Google',
-  apple: 'Apple',
-  github: 'GitHub',
-  local: 'Local',
-};
-
-const createAuthUser = (provider: AuthProvider, name: string, email: string): AuthUser => {
-  const trimmedName = name.trim();
-  const trimmedEmail = email.trim();
-  const displayName = trimmedName || `${providerLabels[provider]} User`;
-  const displayEmail = trimmedEmail || `${provider}@habitify.local`;
-  return {
-    id: `${provider}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-    name: displayName,
-    email: displayEmail,
-    provider,
-    createdAt: getTodayDate(),
-  };
+const getAuthErrorMessage = (code: string, fallback: string) => {
+  if (code === 'auth/wrong-password') return 'Incorrect password.';
+  if (code === 'auth/user-not-found') return 'No account found for this email.';
+  if (code === 'auth/invalid-email') return 'Enter a valid email address.';
+  if (code === 'auth/email-already-in-use') return 'Email is already in use.';
+  if (code === 'auth/popup-closed-by-user') return 'Popup closed. Try again.';
+  return fallback;
 };
 
 // Main App Component
@@ -628,8 +633,10 @@ export default function HabitClientApp() {
 }
 
 function HabitTrackerApp() {
-  const [authUser, setAuthUser] = useState<AuthUser | null>(() => getLocalStorage<AuthUser | null>('auth_user', null));
-  const isLoaded = true;
+  const [authUser, setAuthUser] = useState<AuthUser | null>(null);
+  const [authReady, setAuthReady] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+  const isLoaded = authReady;
   const isSignedIn = Boolean(authUser);
   const user = authUser;
   const [theme, setTheme] = useState<Theme>(() => getLocalStorage<Theme>('theme', 'dark') ?? 'dark');
@@ -731,10 +738,37 @@ function HabitTrackerApp() {
     setLocalStorage('language', language);
   }, [language]);
 
-  // Save auth user
   useEffect(() => {
-    setLocalStorage('auth_user', authUser);
-  }, [authUser]);
+    const unsubscribe = onAuthStateChanged(firebaseAuth, (firebaseUser) => {
+      if (!firebaseUser) {
+        setAuthUser(null);
+        setAuthReady(true);
+        return;
+      }
+      const createdAt = firebaseUser.metadata?.creationTime
+        ? formatLocalDate(new Date(firebaseUser.metadata.creationTime))
+        : getTodayDate();
+      const providerId = firebaseUser.providerData[0]?.providerId ?? 'email';
+      const provider: AuthProvider =
+        providerId === 'google.com'
+          ? 'google'
+          : providerId === 'github.com'
+          ? 'github'
+          : providerId === 'apple.com'
+          ? 'apple'
+          : 'email';
+      setAuthUser({
+        id: firebaseUser.uid,
+        name: firebaseUser.displayName || 'User',
+        email: firebaseUser.email || '',
+        provider,
+        createdAt,
+        avatarUrl: firebaseUser.photoURL || undefined,
+      });
+      setAuthReady(true);
+    });
+    return () => unsubscribe();
+  }, []);
 
   // Save habits
   useEffect(() => {
@@ -803,15 +837,47 @@ function HabitTrackerApp() {
   };
   */
 
-  const handleLogin = (provider: AuthProvider, name: string, email: string) => {
-    const nextUser = createAuthUser(provider, name, email);
-    setAuthUser(nextUser);
-    setCurrentPage('dashboard');
+  const handleLogin = async (provider: AuthProvider, name: string, email: string, password: string) => {
+    setAuthError(null);
+    try {
+      if (provider === 'email') {
+        if (!email || !password) {
+          setAuthError(translations[language].authErrorMissingFields);
+          return;
+        }
+        try {
+          await signInWithEmailAndPassword(firebaseAuth, email, password);
+        } catch (error) {
+          const err = error as { code?: string; message?: string };
+          if (err.code === 'auth/user-not-found') {
+          const credential = await createUserWithEmailAndPassword(firebaseAuth, email, password);
+          if (name) {
+            await credential.user.updateProfile({ displayName: name });
+          }
+          } else {
+            throw error;
+          }
+        }
+      } else {
+        const providerInstance =
+          provider === 'google'
+            ? new GoogleAuthProvider()
+            : provider === 'github'
+            ? new GithubAuthProvider()
+            : new OAuthProvider('apple.com');
+        await signInWithPopup(firebaseAuth, providerInstance);
+      }
+      setCurrentPage('dashboard');
+    } catch (error) {
+      const err = error as { code?: string; message?: string };
+      const fallback = err.message || 'Authentication failed.';
+      setAuthError(getAuthErrorMessage(err.code || '', fallback));
+    }
   };
 
   // Logout Handler
   const handleLogout = () => {
-    setAuthUser(null);
+    void signOut(firebaseAuth);
     setProfileOverrides({});
     setCurrentPage('dashboard');
     setHabits([]);
@@ -956,7 +1022,7 @@ function HabitTrackerApp() {
     : null;
 
   if (!isSignedIn) {
-    return <AuthPage theme={theme} language={language} onLogin={handleLogin} />;
+    return <AuthPage theme={theme} language={language} onLogin={handleLogin} authError={authError} />;
   }
 
   return (
@@ -1121,17 +1187,20 @@ function AuthPage({
   theme,
   language,
   onLogin,
+  authError,
 }: {
   theme: Theme;
   language: Language;
-  onLogin: (provider: AuthProvider, name: string, email: string) => void;
+  onLogin: (provider: AuthProvider, name: string, email: string, password: string) => void;
+  authError: string | null;
 }) {
   const text = translations[language];
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   const handleProvider = (provider: AuthProvider) => {
-    onLogin(provider, name, email);
+    onLogin(provider, name, email, password);
   };
 
   return (
@@ -1175,7 +1244,7 @@ function AuthPage({
                 <div>
                   <label className={`block text-xs mb-2 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{text.emailLabel}</label>
                   <div className="relative">
-                    <AtSign className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`} />
+                    <Mail className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`} />
                     <input
                       type="email"
                       value={email}
@@ -1185,15 +1254,33 @@ function AuthPage({
                     />
                   </div>
                 </div>
+                <div>
+                  <label className={`block text-xs mb-2 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{text.passwordLabel}</label>
+                  <div className="relative">
+                    <LockKeyhole className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`} />
+                    <input
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder={text.passwordPlaceholder}
+                      className={`w-full pl-10 pr-4 py-2.5 rounded-xl ${theme === 'dark' ? 'bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-500' : 'bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400'} border focus:outline-none focus:ring-2 focus:ring-emerald-400`}
+                    />
+                  </div>
+                </div>
               </div>
 
               <div className="mt-6 space-y-4">
                 <button
-                  onClick={() => handleProvider('local')}
+                  onClick={() => handleProvider('email')}
                   className="w-full rounded-xl px-4 py-3 bg-gradient-to-r from-emerald-500 to-cyan-600 text-white font-semibold tracking-wide shadow-lg shadow-emerald-500/20 hover:from-emerald-400 hover:to-cyan-500 transition"
                 >
-                  {text.continueButton}
+                  {text.continueWithEmail}
                 </button>
+                {authError && (
+                  <div className={`text-xs px-3 py-2 rounded-lg ${theme === 'dark' ? 'bg-rose-500/10 text-rose-300 border border-rose-500/20' : 'bg-rose-50 text-rose-600 border border-rose-200'}`}>
+                    {authError}
+                  </div>
+                )}
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <button
