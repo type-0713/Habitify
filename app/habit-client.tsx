@@ -385,6 +385,7 @@ interface NewHabitDraft {
 
 interface ProfileOverrides {
   name?: string;
+  email?: string;
   bio?: string;
 }
 
@@ -904,6 +905,7 @@ function HabitTrackerApp() {
     if (!isSignedIn || !user?.id) return;
     const nextOverrides: ProfileOverrides = {
       name: updates.name ?? profileOverrides.name,
+      email: updates.email ?? profileOverrides.email,
       bio: updates.bio ?? profileOverrides.bio,
     };
     setProfileOverrides(nextOverrides);
@@ -932,11 +934,12 @@ function HabitTrackerApp() {
 
   const baseName = user?.name || 'User';
   const displayName = profileOverrides.name ?? baseName;
+  const displayEmail = profileOverrides.email ?? (user?.email ?? '');
   const userProfile: UserProfile | null = user
     ? {
         id: user.id,
         name: displayName,
-        email: user.email ?? '',
+        email: displayEmail,
         avatar: getInitials(displayName),
         avatarUrl: user.avatarUrl || undefined,
         bio: profileOverrides.bio ?? 'Building better habits daily!',
@@ -1176,7 +1179,6 @@ function AuthPage({
           </button>
         </div>
 
-        <p className={`text-xs mt-6 ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>{text.demoNote}</p>
       </div>
     </div>
   );
@@ -2173,16 +2175,24 @@ function ProfilePage({
             </div>
             <div className="min-w-0">
               {isEditing ? (
-                <input
-                  type="text"
-                  value={editData.name}
-                  onChange={(e) => setEditData({ ...editData, name: e.target.value })}
-                  className={`text-2xl font-bold ${themeConfig.text} bg-opacity-50 ${themeConfig.bgTertiary} px-2 py-1 rounded mb-2 w-full sm:w-auto max-w-full`}
-                />
+                <div className="space-y-2">
+                  <input
+                    type="text"
+                    value={editData.name}
+                    onChange={(e) => setEditData({ ...editData, name: e.target.value })}
+                    className={`text-2xl font-bold ${themeConfig.text} bg-opacity-50 ${themeConfig.bgTertiary} px-2 py-1 rounded w-full sm:w-auto max-w-full`}
+                  />
+                  <input
+                    type="email"
+                    value={editData.email}
+                    onChange={(e) => setEditData({ ...editData, email: e.target.value })}
+                    className={`text-sm ${themeConfig.text} ${themeConfig.bgTertiary} px-2 py-1 rounded w-full sm:w-auto max-w-full`}
+                  />
+                </div>
               ) : (
                 <h2 className={`text-2xl font-bold ${themeConfig.text} break-words`}>{user.name}</h2>
               )}
-              <p className={themeConfig.textSecondary}>{user.email}</p>
+              {!isEditing && <p className={themeConfig.textSecondary}>{user.email}</p>}
               <p className={`text-sm ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>{text.joined} {formatDate(user.joinDate, locale)}</p>
             </div>
           </div>
