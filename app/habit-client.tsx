@@ -127,7 +127,7 @@ const translations = {
     monthlyResetTitle: 'Monthly reset',
     resetNoticePrefix: 'Local data was cleared on',
     closeNotice: 'Close notice',
-    weekdaysShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+    weekdaysShort: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
   },
   ru: {
     signInTitle: 'Р’С…РѕРґ РІ Habitify',
@@ -210,7 +210,7 @@ const translations = {
     monthlyResetTitle: 'Ежемесячная очистка',
     resetNoticePrefix: 'Локальные данные очищены',
     closeNotice: 'Закрыть уведомление',
-    weekdaysShort: ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'],
+    weekdaysShort: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
   },
   uz: {
     signInTitle: 'Habitify ga kirish',
@@ -293,7 +293,7 @@ const translations = {
     monthlyResetTitle: 'Oylik tozalash',
     resetNoticePrefix: "Lokal ma'lumotlar tozalandi",
     closeNotice: 'Bildirishnomani yopish',
-    weekdaysShort: ['Ya', 'Du', 'Se', 'Ch', 'Pa', 'Ju', 'Sh'],
+    weekdaysShort: ['Du', 'Se', 'Ch', 'Pa', 'Ju', 'Sh', 'Ya'],
   },
 };
 
@@ -552,7 +552,8 @@ const formatDate = (dateString: string, locale: string) => {
 
 const getWeekDates = () => {
   const today = new Date();
-  const firstDay = new Date(today.setDate(today.getDate() - today.getDay()));
+  const mondayOffset = (today.getDay() + 6) % 7;
+  const firstDay = new Date(today.setDate(today.getDate() - mondayOffset));
   const weekDates = [];
   for (let i = 0; i < 7; i++) {
     const date = new Date(firstDay);
