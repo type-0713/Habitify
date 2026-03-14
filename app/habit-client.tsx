@@ -2137,6 +2137,16 @@ function StatsPage({
     return data;
   };
 
+  const completedCount = habits.filter(h => getStreak(h) > 0).length;
+  const activeCount = habits.filter(h => getStreak(h) === 0).length;
+  const pieData =
+    completedCount + activeCount > 0
+      ? [
+          { name: text.completed, value: completedCount },
+          { name: text.active, value: activeCount },
+        ]
+      : [{ name: text.completed, value: 1 }];
+
   return (
     <div className="max-w-6xl space-y-8">
       <h2 className={`text-3xl font-bold ${themeConfig.text}`}>{text.statisticsTitle}</h2>
@@ -2219,19 +2229,23 @@ function StatsPage({
                   </linearGradient>
                 </defs>
                 <Pie
-                  data={[
-                    { name: text.completed, value: habits.filter(h => getStreak(h) > 0).length },
-                    { name: text.active, value: habits.filter(h => getStreak(h) === 0).length },
-                  ]}
+                  data={pieData}
                   cx="50%"
                   cy="50%"
                   innerRadius={60}
                   outerRadius={100}
-                  paddingAngle={5}
+                  paddingAngle={pieData.length > 1 ? 6 : 0}
+                  cornerRadius={8}
+                  stroke={theme === 'dark' ? '#0b0f14' : '#f8f6f1'}
+                  strokeWidth={2}
                   dataKey="value"
                 >
-                  <Cell fill="url(#pieGradientA)" />
-                  <Cell fill="url(#pieGradientB)" />
+                  {pieData.map((_, index) => (
+                    <Cell
+                      key={`slice-${index}`}
+                      fill={index === 0 ? 'url(#pieGradientA)' : 'url(#pieGradientB)'}
+                    />
+                  ))}
                 </Pie>
               </PieChart>
             </ResponsiveContainer>
