@@ -2253,6 +2253,7 @@ function StatsPage({
                   outerRadius={100}
                   paddingAngle={pieData.length > 1 ? 6 : 0}
                   cornerRadius={8}
+                  fill="url(#pieGradientA)"
                   stroke={theme === 'dark' ? '#0b0f14' : '#f8f6f1'}
                   strokeWidth={2}
                   filter="url(#pieGlow)"
