@@ -395,28 +395,28 @@ interface ProfileOverrides {
 // Theme Configuration
 const themes = {
   dark: {
-    bg: 'bg-slate-950',
-    bgSecondary: 'bg-slate-900',
-    bgTertiary: 'bg-slate-800',
-    border: 'border-slate-700',
+    bg: 'bg-[#0b0f14]',
+    bgSecondary: 'bg-[#0f1621]',
+    bgTertiary: 'bg-[#141e2b]',
+    border: 'border-[#1f2a3a]',
     text: 'text-slate-100',
     textSecondary: 'text-slate-400',
-    card: 'bg-slate-800/50',
-    input: 'bg-slate-700/50 border-slate-600',
-    hover: 'hover:bg-slate-700/50',
-    gradient: 'from-blue-600 to-purple-700',
+    card: 'bg-[#0f1624]/80',
+    input: 'bg-[#0f1621] border-[#223047] placeholder:text-slate-500',
+    hover: 'hover:bg-[#162232]',
+    gradient: 'from-emerald-500 to-cyan-700',
   },
   light: {
-    bg: 'bg-white',
-    bgSecondary: 'bg-slate-50',
-    bgTertiary: 'bg-slate-100',
-    border: 'border-slate-200',
+    bg: 'bg-[#f8f6f1]',
+    bgSecondary: 'bg-[#fdfaf5]',
+    bgTertiary: 'bg-[#f3efe7]',
+    border: 'border-[#e6ded1]',
     text: 'text-slate-900',
     textSecondary: 'text-slate-600',
-    card: 'bg-white shadow-lg',
-    input: 'bg-slate-50 border-slate-300',
-    hover: 'hover:bg-slate-100',
-    gradient: 'from-blue-500 to-purple-600',
+    card: 'bg-white/80 shadow-[0_18px_50px_-35px_rgba(15,23,42,0.25)]',
+    input: 'bg-white border-[#d8cbb7] placeholder:text-slate-400',
+    hover: 'hover:bg-[#f2eadc]',
+    gradient: 'from-emerald-500 to-cyan-600',
   },
 };
 
@@ -583,14 +583,14 @@ const getBestStreak = (habit: Habit): number => {
 
 const getRandomColor = () => {
   const colors = [
-    'from-green-400 to-green-600',
-    'from-blue-400 to-blue-600',
-    'from-red-400 to-red-600',
+    'from-emerald-400 to-emerald-600',
     'from-cyan-400 to-cyan-600',
-    'from-purple-400 to-purple-600',
-    'from-yellow-400 to-yellow-600',
-    'from-pink-400 to-pink-600',
-    'from-indigo-400 to-indigo-600',
+    'from-teal-400 to-teal-600',
+    'from-amber-400 to-orange-500',
+    'from-rose-400 to-rose-600',
+    'from-lime-400 to-lime-600',
+    'from-sky-400 to-sky-600',
+    'from-fuchsia-400 to-fuchsia-600',
   ];
   return colors[Math.floor(Math.random() * colors.length)];
 };
@@ -1307,7 +1307,7 @@ function Sidebar({
       <div className={`p-6 border-b ${themeConfig.border}`}>
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0 shadow-lg">
+            <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-cyan-600 rounded-lg flex items-center justify-center flex-shrink-0 shadow-lg">
               <Check className="w-6 h-6 text-white" />
             </div>
             {showLabels && <h1 className={`text-xl font-bold ${themeConfig.text}`}>Habitify</h1>}
@@ -1332,14 +1332,14 @@ function Sidebar({
             onClick={() => handlePageChange(item.id)}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${
               currentPage === item.id
-                ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg'
+                ? 'bg-gradient-to-r from-emerald-500 to-cyan-600 text-white shadow-lg'
                 : `${themeConfig.textSecondary} ${themeConfig.hover}`
             }`}
           >
             <item.icon className="w-5 h-5 flex-shrink-0" />
             {showLabels && <span className="text-sm font-medium">{item.label}</span>}
             {showLabels && item.id === 'habits' && habitsCount > 0 && (
-              <span className="ml-auto bg-blue-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+              <span className="ml-auto bg-emerald-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                 {habitsCount}
               </span>
             )}
@@ -1376,7 +1376,7 @@ function Sidebar({
               onClick={() => onLanguageChange(lang)}
               className={`px-2 py-1 rounded-lg text-xs font-medium transition ${
                 language === lang
-                  ? 'bg-blue-500 text-white shadow'
+                  ? 'bg-emerald-500 text-white shadow'
                   : `${themeConfig.bgTertiary} ${themeConfig.textSecondary} hover:opacity-80`
               }`}
             >
@@ -1389,7 +1389,7 @@ function Sidebar({
       {/* User Profile */}
       <div className={`p-4 border-t ${themeConfig.border} space-y-4`}>
         <div className={`flex items-center gap-3 ${!showLabels && 'justify-center'}`}>
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-xl shadow-lg">
+          <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-cyan-500 rounded-full flex items-center justify-center text-xl shadow-lg">
             {user.avatarUrl ? (
               <Image
                 src={user.avatarUrl}
@@ -1486,7 +1486,7 @@ function Header({
               </span>
             )}
           </button>
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-lg shadow-lg">
+          <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-cyan-500 rounded-full flex items-center justify-center text-lg shadow-lg">
             {user.avatarUrl ? (
               <Image
                 src={user.avatarUrl}
@@ -1609,13 +1609,13 @@ function DashboardPage({
         </div>
 
         {/* Add Habit Card */}
-        <div className={`${theme === 'dark' ? 'bg-blue-500/20 border-blue-500/30' : 'bg-blue-50 border-blue-200'} ${themeConfig.card} rounded-2xl p-6 border flex items-center justify-center cursor-pointer hover:border-blue-500/50 transition shadow-lg`}>
+        <div className={`${theme === 'dark' ? 'bg-emerald-500/20 border-emerald-500/30' : 'bg-emerald-50 border-emerald-200'} ${themeConfig.card} rounded-2xl p-6 border flex items-center justify-center cursor-pointer hover:border-emerald-500/50 transition shadow-lg`}>
           <button
             onClick={onAddHabit}
             className="flex flex-col items-center gap-2 text-center"
           >
-            <Plus className={`w-8 h-8 ${theme === 'dark' ? 'text-blue-400' : 'text-blue-600'}`} />
-            <span className={`text-sm font-semibold ${theme === 'dark' ? 'text-blue-400' : 'text-blue-600'}`}>{text.addNewHabit}</span>
+            <Plus className={`w-8 h-8 ${theme === 'dark' ? 'text-emerald-400' : 'text-emerald-600'}`} />
+            <span className={`text-sm font-semibold ${theme === 'dark' ? 'text-emerald-400' : 'text-emerald-600'}`}>{text.addNewHabit}</span>
           </button>
         </div>
       </div>
@@ -1629,7 +1629,7 @@ function DashboardPage({
             <p className={`${themeConfig.textSecondary} mb-4`}>{text.noHabitsYet}</p>
             <button
               onClick={onAddHabit}
-              className="px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:shadow-lg transition"
+              className="px-6 py-2 bg-gradient-to-r from-emerald-500 to-cyan-600 text-white rounded-lg hover:shadow-lg transition"
             >
               {text.createFirstHabit}
             </button>
@@ -1745,12 +1745,12 @@ function HabitsPage({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={text.searchPlaceholder}
-              className={`w-full sm:w-72 px-4 py-2 rounded-full ${themeConfig.input} ${themeConfig.text} placeholder:opacity-60 focus:outline-none focus:ring-2 focus:ring-blue-500`}
+              className={`w-full sm:w-72 px-4 py-2 rounded-full ${themeConfig.input} ${themeConfig.text} placeholder:opacity-60 focus:outline-none focus:ring-2 focus:ring-emerald-400`}
             />
           </div>
           <button
             onClick={onAddHabit}
-            className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full hover:shadow-lg transition"
+            className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-500 to-cyan-600 text-white rounded-full hover:shadow-lg transition"
           >
             <Plus className="w-5 h-5" />
             {text.newHabit}
@@ -1764,7 +1764,7 @@ function HabitsPage({
           <p className={`${themeConfig.textSecondary} mb-4`}>{text.noHabitsCreated}</p>
           <button
             onClick={onAddHabit}
-            className="px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:shadow-lg transition"
+            className="px-6 py-2 bg-gradient-to-r from-emerald-500 to-cyan-600 text-white rounded-lg hover:shadow-lg transition"
           >
             {text.createYourFirstHabit}
           </button>
@@ -1775,7 +1775,7 @@ function HabitsPage({
           <p className={`${themeConfig.textSecondary} mb-4`}>{text.noHabitsFound}</p>
           <button
             onClick={() => setSearchQuery('')}
-            className="px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:shadow-lg transition"
+            className="px-6 py-2 bg-gradient-to-r from-emerald-500 to-cyan-600 text-white rounded-lg hover:shadow-lg transition"
           >
             {text.clearSearch}
           </button>
@@ -1787,7 +1787,7 @@ function HabitsPage({
             return (
               <div
                 key={habit.id}
-                className={`${themeConfig.card} rounded-xl p-4 border ${themeConfig.border} hover:border-blue-500/50 transition shadow-lg`}
+                className={`${themeConfig.card} rounded-xl p-4 border ${themeConfig.border} hover:border-emerald-500/50 transition shadow-lg`}
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-start gap-3">
@@ -1943,7 +1943,7 @@ function CalendarPage({
                 onClick={() => onDateSelect(dateStr)}
                 className={`p-2 sm:p-3 rounded-lg text-center transition relative flex flex-col items-center ${
                   isSelected
-                    ? 'bg-blue-500/30 border border-blue-500/50'
+                    ? 'bg-emerald-500/30 border border-emerald-500/50'
                     : isToday
                     ? theme === 'dark' ? 'bg-green-500/20 border border-green-500/30' : 'bg-green-100 border border-green-300'
                     : `${themeConfig.bgTertiary} border ${themeConfig.border} ${themeConfig.hover}`
@@ -1955,7 +1955,7 @@ function CalendarPage({
                     <div className={`hidden sm:block text-xs ${themeConfig.textSecondary} mt-1`}>{completionRate}%</div>
                     <span
                       className={`sm:hidden mt-1 w-1.5 h-1.5 rounded-full ${
-                        completionRate === 100 ? 'bg-green-500' : 'bg-blue-500'
+                        completionRate === 100 ? 'bg-green-500' : 'bg-emerald-500'
                       }`}
                     />
                   </>
@@ -2167,7 +2167,7 @@ function StatsPage({
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-lg font-bold text-blue-500">{completionRate}%</p>
+                  <p className="text-lg font-bold text-emerald-500">{completionRate}%</p>
                 </div>
               </div>
             );
@@ -2224,7 +2224,7 @@ function ProfilePage({
       <div className={`${themeConfig.card} rounded-2xl p-8 border ${themeConfig.border} shadow-lg`}>
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
           <div className="flex items-start gap-4 flex-1 min-w-0">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-3xl shadow-lg">
+            <div className="w-16 h-16 bg-gradient-to-br from-emerald-400 to-cyan-500 rounded-full flex items-center justify-center text-3xl shadow-lg">
               {user.avatarUrl ? (
                 <Image
                   src={user.avatarUrl}
@@ -2283,7 +2283,7 @@ function ProfilePage({
           ) : (
             <button
               onClick={() => setIsEditing(true)}
-              className="p-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-500 rounded-lg transition self-start sm:self-auto"
+              className="p-2 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-500 rounded-lg transition self-start sm:self-auto"
             >
               <Edit2 className="w-5 h-5" />
             </button>
@@ -2297,7 +2297,7 @@ function ProfilePage({
             <textarea
               value={editData.bio}
               onChange={(e) => setEditData({ ...editData, bio: e.target.value })}
-              className={`w-full px-4 py-2 ${themeConfig.input} rounded-lg ${themeConfig.text} focus:outline-none focus:ring-2 focus:ring-blue-500`}
+              className={`w-full px-4 py-2 ${themeConfig.input} rounded-lg ${themeConfig.text} focus:outline-none focus:ring-2 focus:ring-emerald-400`}
               rows={3}
             />
           ) : (
@@ -2318,7 +2318,7 @@ function ProfilePage({
         </div>
         <div className={`${themeConfig.card} rounded-xl p-6 border ${themeConfig.border} shadow-lg`}>
           <p className={`${themeConfig.textSecondary} text-sm mb-2`}>{text.accountAge}</p>
-          <p className={`text-3xl font-bold text-blue-500`}>
+          <p className={`text-3xl font-bold text-emerald-500`}>
             {accountAgeDays}
             <span className="text-sm ml-1">{text.days}</span>
           </p>
@@ -2380,14 +2380,14 @@ function HabitCard({
   const percentage = Math.min((currentValue / habit.goal) * 100, 100);
 
   return (
-    <div className={`${themeConfig.card} rounded-xl p-4 border ${themeConfig.border} flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0 hover:border-blue-500/50 transition shadow-lg`}>
+    <div className={`${themeConfig.card} rounded-xl p-4 border ${themeConfig.border} flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0 hover:border-emerald-500/50 transition shadow-lg`}>
       <div className="flex items-center gap-4 flex-1 w-full">
         <button
           onClick={() => onToggle(habit.id, date)}
           className={`flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center transition ${
             completion?.completed
               ? 'bg-green-500/20 text-green-500'
-              : `${themeConfig.bgTertiary} ${themeConfig.textSecondary} hover:bg-blue-500/20`
+              : `${themeConfig.bgTertiary} ${themeConfig.textSecondary} hover:bg-emerald-500/20`
           }`}
         >
           {completion?.completed && <Check className="w-6 h-6" />}
@@ -2448,7 +2448,7 @@ function HabitCard({
         <div className="hidden sm:flex gap-2 ml-4">
           <button
             onClick={() => setIsEditing(true)}
-            className={`p-2 hover:bg-blue-500/20 rounded-lg transition text-blue-500`}
+            className={`p-2 hover:bg-emerald-500/20 rounded-lg transition text-emerald-500`}
           >
             <Edit2 className="w-4 h-4" />
           </button>
@@ -2502,7 +2502,7 @@ function AddHabitModal({
               value={habit.name}
               onChange={(e) => onChange({ ...habit, name: e.target.value })}
               placeholder={text.habitNamePlaceholder}
-              className={`w-full px-4 py-2 ${themeConfig.input} rounded-lg ${themeConfig.text} placeholder-opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-500`}
+              className={`w-full px-4 py-2 ${themeConfig.input} rounded-lg ${themeConfig.text} placeholder-opacity-50 focus:outline-none focus:ring-2 focus:ring-emerald-400`}
             />
           </div>
 
@@ -2513,7 +2513,7 @@ function AddHabitModal({
             <select
               value={habit.category}
               onChange={(e) => onChange({ ...habit, category: e.target.value })}
-              className={`w-full px-4 py-2 ${themeConfig.input} rounded-lg ${themeConfig.text} focus:outline-none focus:ring-2 focus:ring-blue-500`}
+              className={`w-full px-4 py-2 ${themeConfig.input} rounded-lg ${themeConfig.text} focus:outline-none focus:ring-2 focus:ring-emerald-400`}
             >
               {categories.map((cat) => (
                 <option key={cat} value={cat}>
@@ -2533,7 +2533,7 @@ function AddHabitModal({
                 value={habit.goal}
                 onChange={(e) => onChange({ ...habit, goal: e.target.value })}
                 placeholder="30"
-                className={`w-full px-4 py-2 ${themeConfig.input} rounded-lg ${themeConfig.text} placeholder-opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                className={`w-full px-4 py-2 ${themeConfig.input} rounded-lg ${themeConfig.text} placeholder-opacity-50 focus:outline-none focus:ring-2 focus:ring-emerald-400`}
               />
             </div>
 
@@ -2544,7 +2544,7 @@ function AddHabitModal({
               <select
                 value={habit.unit}
                 onChange={(e) => onChange({ ...habit, unit: e.target.value })}
-                className={`w-full px-4 py-2 ${themeConfig.input} rounded-lg ${themeConfig.text} focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                className={`w-full px-4 py-2 ${themeConfig.input} rounded-lg ${themeConfig.text} focus:outline-none focus:ring-2 focus:ring-emerald-400`}
               >
                 {units.map((unit) => (
                   <option key={unit} value={unit}>
@@ -2566,7 +2566,7 @@ function AddHabitModal({
                   onClick={() => onChange({ ...habit, icon })}
                   className={`p-3 rounded-lg text-xl transition ${
                     habit.icon === icon
-                      ? 'bg-blue-500/30 border border-blue-500/50'
+                      ? 'bg-emerald-500/30 border border-emerald-500/50'
                       : `${themeConfig.bgTertiary} border ${themeConfig.border} ${themeConfig.hover}`
                   }`}
                 >
@@ -2584,7 +2584,7 @@ function AddHabitModal({
               type="time"
               value={habit.reminderTime}
               onChange={(e) => onChange({ ...habit, reminderTime: e.target.value })}
-              className={`w-full px-4 py-2 ${themeConfig.input} rounded-lg ${themeConfig.text} focus:outline-none focus:ring-2 focus:ring-blue-500`}
+              className={`w-full px-4 py-2 ${themeConfig.input} rounded-lg ${themeConfig.text} focus:outline-none focus:ring-2 focus:ring-emerald-400`}
             />
           </div>
 
@@ -2597,7 +2597,7 @@ function AddHabitModal({
             </button>
             <button
               onClick={onAdd}
-              className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:shadow-lg transition"
+              className="flex-1 px-4 py-2 bg-gradient-to-r from-emerald-500 to-cyan-600 text-white rounded-lg hover:shadow-lg transition"
             >
               {text.addHabit}
             </button>
