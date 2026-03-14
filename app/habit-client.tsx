@@ -928,6 +928,10 @@ function HabitTrackerApp() {
     };
   };
 
+  if (!isMounted) {
+    return <div className="min-h-screen bg-slate-950" />;
+  }
+
   if (!isLoaded) {
     return null;
   }
