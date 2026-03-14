@@ -22,7 +22,7 @@ const Area = dynamic(() => import('recharts').then((m) => m.Area), { ssr: false 
 type Theme = 'dark' | 'light';
 type Page = 'dashboard' | 'habits' | 'calendar' | 'stats' | 'profile';
 type Language = 'en' | 'ru' | 'uz';
-type AuthProvider = 'google' | 'apple' | 'github';
+type AuthProvider = 'google' | 'apple' | 'github' | 'local';
 
 interface AuthUser {
   id: string;
@@ -50,6 +50,7 @@ const translations = {
     continueWithGoogle: 'Continue with Google',
     continueWithApple: 'Continue with Apple',
     continueWithGitHub: 'Continue with GitHub',
+    continueButton: 'Continue',
     demoNote: 'This is a local demo login. No external auth is used.',
     light: 'Light',
     dark: 'Dark',
@@ -124,6 +125,7 @@ const translations = {
     continueWithGoogle: 'Р’РѕР№С‚Рё С‡РµСЂРµР· Google',
     continueWithApple: 'Р’РѕР№С‚Рё С‡РµСЂРµР· Apple',
     continueWithGitHub: 'Р’РѕР№С‚Рё С‡РµСЂРµР· GitHub',
+    continueButton: 'Продолжить',
     demoNote: 'Р­С‚Рѕ Р»РѕРєР°Р»СЊРЅС‹Р№ РґРµРјРѕ-вС…РѕРґ. Р’РЅРµС€РЅСЏСЏ Р°РІС‚РѕСЂРёР·Р°С†РёСЏ РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.',
     languageLabel: 'Язык',
     dashboard: 'Панель',
@@ -204,6 +206,7 @@ const translations = {
     continueWithGoogle: 'Google orqali davom etish',
     continueWithApple: 'Apple orqali davom etish',
     continueWithGitHub: 'GitHub orqali davom etish',
+    continueButton: 'Davom etish',
     demoNote: 'Bu lokal demo kirish. Tashqi avtorizatsiya ishlatilmaydi.',
     languageLabel: 'Til',
     dashboard: 'Boshqaruv',
@@ -602,6 +605,7 @@ const providerLabels: Record<AuthProvider, string> = {
   google: 'Google',
   apple: 'Apple',
   github: 'GitHub',
+  local: 'Local',
 };
 
 const createAuthUser = (provider: AuthProvider, name: string, email: string): AuthUser => {
@@ -1160,6 +1164,12 @@ function AuthPage({
         </div>
 
         <div className="mt-6 space-y-3">
+          <button
+            onClick={() => handleProvider('local')}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-500 transition"
+          >
+            {text.continueButton}
+          </button>
           <button
             onClick={() => handleProvider('google')}
             className={`w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg border ${theme === 'dark' ? 'border-slate-700 bg-slate-800 hover:bg-slate-700' : 'border-slate-200 bg-white hover:bg-slate-50'} transition`}
