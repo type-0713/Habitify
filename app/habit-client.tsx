@@ -2146,6 +2146,12 @@ function StatsPage({
           { name: text.active, value: activeCount },
         ]
       : [{ name: text.completed, value: 1 }];
+  const pieGradientA = theme === 'dark'
+    ? { start: '#34d399', end: '#22d3ee' }
+    : { start: '#10b981', end: '#06b6d4' };
+  const pieGradientB = theme === 'dark'
+    ? { start: '#f59e0b', end: '#f43f5e' }
+    : { start: '#f97316', end: '#ef4444' };
 
   return (
     <div className="max-w-6xl space-y-8">
@@ -2220,12 +2226,12 @@ function StatsPage({
               <PieChart>
                 <defs>
                   <linearGradient id="pieGradientA" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#34d399" />
-                    <stop offset="100%" stopColor="#06b6d4" />
+                    <stop offset="0%" stopColor={pieGradientA.start} />
+                    <stop offset="100%" stopColor={pieGradientA.end} />
                   </linearGradient>
                   <linearGradient id="pieGradientB" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#f59e0b" />
-                    <stop offset="100%" stopColor="#ef4444" />
+                    <stop offset="0%" stopColor={pieGradientB.start} />
+                    <stop offset="100%" stopColor={pieGradientB.end} />
                   </linearGradient>
                 </defs>
                 <Pie
