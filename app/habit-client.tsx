@@ -2147,11 +2147,11 @@ function StatsPage({
         ]
       : [{ name: text.completed, value: 1 }];
   const pieGradientA = theme === 'dark'
-    ? { start: '#34d399', end: '#22d3ee' }
-    : { start: '#10b981', end: '#06b6d4' };
+    ? { start: '#34d399', mid: '#22d3ee', end: '#60a5fa' }
+    : { start: '#10b981', mid: '#06b6d4', end: '#3b82f6' };
   const pieGradientB = theme === 'dark'
-    ? { start: '#f59e0b', end: '#f43f5e' }
-    : { start: '#f97316', end: '#ef4444' };
+    ? { start: '#f59e0b', mid: '#fb7185', end: '#ec4899' }
+    : { start: '#f97316', mid: '#f43f5e', end: '#ec4899' };
 
   return (
     <div className="max-w-6xl space-y-8">
@@ -2227,12 +2227,23 @@ function StatsPage({
                 <defs>
                   <linearGradient id="pieGradientA" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" stopColor={pieGradientA.start} />
+                    <stop offset="55%" stopColor={pieGradientA.mid} />
                     <stop offset="100%" stopColor={pieGradientA.end} />
                   </linearGradient>
                   <linearGradient id="pieGradientB" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" stopColor={pieGradientB.start} />
+                    <stop offset="55%" stopColor={pieGradientB.mid} />
                     <stop offset="100%" stopColor={pieGradientB.end} />
                   </linearGradient>
+                  <filter id="pieGlow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feDropShadow
+                      dx="0"
+                      dy="10"
+                      stdDeviation="10"
+                      floodColor={theme === 'dark' ? '#0b1220' : '#cbd5f5'}
+                      floodOpacity={theme === 'dark' ? 0.35 : 0.35}
+                    />
+                  </filter>
                 </defs>
                 <Pie
                   data={pieData}
@@ -2244,6 +2255,7 @@ function StatsPage({
                   cornerRadius={8}
                   stroke={theme === 'dark' ? '#0b0f14' : '#f8f6f1'}
                   strokeWidth={2}
+                  filter="url(#pieGlow)"
                   dataKey="value"
                 >
                   {pieData.map((_, index) => (
