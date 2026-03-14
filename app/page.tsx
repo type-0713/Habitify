@@ -44,6 +44,10 @@ const translations = {
     thisWeekOverview: 'This Week Overview',
     allHabits: 'All Habits',
     newHabit: 'New Habit',
+    searchHabits: 'Search habits',
+    searchPlaceholder: 'Search by name or category',
+    noHabitsFound: 'No habits match your search.',
+    clearSearch: 'Clear search',
     noHabitsCreated: 'No habits created yet. Start building better habits today!',
     createYourFirstHabit: 'Create Your First Habit',
     category: 'Category',
@@ -110,6 +114,10 @@ const translations = {
     thisWeekOverview: 'Обзор недели',
     allHabits: 'Все привычки',
     newHabit: 'Новая привычка',
+    searchHabits: 'Поиск привычек',
+    searchPlaceholder: 'Поиск по названию или категории',
+    noHabitsFound: 'Ничего не найдено по вашему запросу.',
+    clearSearch: 'Очистить поиск',
     noHabitsCreated: 'Привычек еще нет. Начните сегодня!',
     createYourFirstHabit: 'Создать первую привычку',
     category: 'Категория',
@@ -176,6 +184,10 @@ const translations = {
     thisWeekOverview: "Haftalik ko'rinish",
     allHabits: 'Barcha odatlar',
     newHabit: 'Yangi odat',
+    searchHabits: 'Odatlarni qidirish',
+    searchPlaceholder: "Nomi yoki kategoriya bo'yicha qidiring",
+    noHabitsFound: 'Qidiruv bo‘yicha hech narsa topilmadi.',
+    clearSearch: 'Qidiruvni tozalash',
     noHabitsCreated: "Hali odatlar yo'q. Bugun boshlang!",
     createYourFirstHabit: 'Birinchi odatni yaratish',
     category: 'Kategoriya',
@@ -543,6 +555,7 @@ export default function HabitTrackerApp() {
   const [resetNotice, setResetNotice] = useState<string | null>(null);
   const [soundEnabled, setSoundEnabled] = useState(() => getLocalStorage<boolean>('sound_enabled', true) ?? true);
   const [language, setLanguage] = useState<Language>(() => normalizeLanguage(getLocalStorage<string>('language', 'en')));
+  const [isMounted, setIsMounted] = useState(false);
 
   const [currentPage, setCurrentPage] = useState<Page>('dashboard');
   const [sidebarOpen] = useState(true);
@@ -675,6 +688,10 @@ export default function HabitTrackerApp() {
       window.clearInterval(intervalId);
     };
   }, [habits, isSignedIn, soundEnabled, user?.id]);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   /*
       avatar: '👤',
@@ -926,6 +943,7 @@ export default function HabitTrackerApp() {
               themeConfig={themeConfig}
               language={language}
               locale={locale}
+              isMounted={isMounted}
             />
           )}
 
@@ -957,7 +975,15 @@ export default function HabitTrackerApp() {
           )}
 
           {currentPage === 'stats' && (
-            <StatsPage habits={habits} metrics={calculateMetrics()} theme={theme} themeConfig={themeConfig} language={language} locale={locale} />
+            <StatsPage
+              habits={habits}
+              metrics={calculateMetrics()}
+              theme={theme}
+              themeConfig={themeConfig}
+              language={language}
+              locale={locale}
+              isMounted={isMounted}
+            />
           )}
 
           {currentPage === 'profile' && (
@@ -1271,6 +1297,7 @@ function DashboardPage({
   themeConfig,
   language,
   locale,
+  isMounted,
 }: {
   habits: Habit[];
   selectedDate: string;
@@ -1283,6 +1310,7 @@ function DashboardPage({
   themeConfig: ThemeConfig;
   language: Language;
   locale: string;
+  isMounted: boolean;
 }) {
   const weekDates = getWeekDates();
   const text = translations[language];
@@ -1411,35 +1439,39 @@ function DashboardPage({
       {habits.length > 0 && (
         <div className={`${themeConfig.card} rounded-2xl p-6 border ${themeConfig.border} shadow-lg`}>
           <h3 className={`${themeConfig.text} font-bold mb-6`}>{text.thisWeekOverview}</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart
-              data={weekDates.map((date: string) => ({
-                day: parseLocalDate(date).toLocaleDateString(locale, { weekday: 'short' }),
-                completed: habits.filter(
-                  h => h.completions.find(c => c.date === date && c.completed)
-                ).length,
-              }))}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? 'rgba(100, 116, 139, 0.2)' : 'rgba(200, 200, 200, 0.2)'} />
-              <XAxis dataKey="day" stroke={theme === 'dark' ? 'rgba(148, 163, 184, 0.5)' : 'rgba(100, 100, 100, 0.5)'} />
-              <YAxis stroke={theme === 'dark' ? 'rgba(148, 163, 184, 0.5)' : 'rgba(100, 100, 100, 0.5)'} />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: theme === 'dark' ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.95)',
-                  border: theme === 'dark' ? '1px solid rgba(100, 116, 139, 0.5)' : '1px solid rgba(200, 200, 200, 0.5)',
-                  borderRadius: '8px',
-                  color: theme === 'dark' ? '#e2e8f0' : '#1f2937',
-                }}
-              />
-              <Bar dataKey="completed" fill="url(#colorGradient)" radius={[8, 8, 0, 0]} />
-              <defs>
-                <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#3b82f6" />
-                  <stop offset="100%" stopColor="#a855f7" />
-                </linearGradient>
-              </defs>
-            </BarChart>
-          </ResponsiveContainer>
+          {isMounted ? (
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart
+                data={weekDates.map((date: string) => ({
+                  day: parseLocalDate(date).toLocaleDateString(locale, { weekday: 'short' }),
+                  completed: habits.filter(
+                    h => h.completions.find(c => c.date === date && c.completed)
+                  ).length,
+                }))}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? 'rgba(100, 116, 139, 0.2)' : 'rgba(200, 200, 200, 0.2)'} />
+                <XAxis dataKey="day" stroke={theme === 'dark' ? 'rgba(148, 163, 184, 0.5)' : 'rgba(100, 100, 100, 0.5)'} />
+                <YAxis stroke={theme === 'dark' ? 'rgba(148, 163, 184, 0.5)' : 'rgba(100, 100, 100, 0.5)'} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: theme === 'dark' ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+                    border: theme === 'dark' ? '1px solid rgba(100, 116, 139, 0.5)' : '1px solid rgba(200, 200, 200, 0.5)',
+                    borderRadius: '8px',
+                    color: theme === 'dark' ? '#e2e8f0' : '#1f2937',
+                  }}
+                />
+                <Bar dataKey="completed" fill="url(#colorGradient)" radius={[8, 8, 0, 0]} />
+                <defs>
+                  <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#3b82f6" />
+                    <stop offset="100%" stopColor="#a855f7" />
+                  </linearGradient>
+                </defs>
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="h-[300px]" />
+          )}
         </div>
       )}
     </div>
@@ -1465,17 +1497,43 @@ function HabitsPage({
   language: Language;
 }) {
   const text = translations[language];
+  const [searchQuery, setSearchQuery] = useState('');
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+  const filteredHabits = normalizedQuery
+    ? habits.filter((habit) => {
+        const name = habit.name.toLowerCase();
+        const category = habit.category.toLowerCase();
+        const categoryLabel = getCategoryLabel(language, habit.category).toLowerCase();
+        return (
+          name.includes(normalizedQuery) ||
+          category.includes(normalizedQuery) ||
+          categoryLabel.includes(normalizedQuery)
+        );
+      })
+    : habits;
   return (
     <div className="max-w-6xl space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h2 className={`text-3xl font-bold ${themeConfig.text}`}>{text.allHabits}</h2>
-        <button
-          onClick={onAddHabit}
-          className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full hover:shadow-lg transition"
-        >
-          <Plus className="w-5 h-5" />
-          {text.newHabit}
-        </button>
+        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+          <div className="flex-1 sm:flex-none">
+            <label className={`block text-xs mb-2 ${themeConfig.textSecondary}`}>{text.searchHabits}</label>
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={text.searchPlaceholder}
+              className={`w-full sm:w-72 px-4 py-2 rounded-full ${themeConfig.input} ${themeConfig.text} placeholder:opacity-60 focus:outline-none focus:ring-2 focus:ring-blue-500`}
+            />
+          </div>
+          <button
+            onClick={onAddHabit}
+            className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full hover:shadow-lg transition"
+          >
+            <Plus className="w-5 h-5" />
+            {text.newHabit}
+          </button>
+        </div>
       </div>
 
       {habits.length === 0 ? (
@@ -1489,9 +1547,20 @@ function HabitsPage({
             {text.createYourFirstHabit}
           </button>
         </div>
+      ) : filteredHabits.length === 0 ? (
+        <div className={`${themeConfig.card} rounded-2xl p-12 border ${themeConfig.border} text-center shadow-lg`}>
+          <ListTodo className={`w-12 h-12 ${themeConfig.textSecondary} mx-auto mb-4 opacity-50`} />
+          <p className={`${themeConfig.textSecondary} mb-4`}>{text.noHabitsFound}</p>
+          <button
+            onClick={() => setSearchQuery('')}
+            className="px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:shadow-lg transition"
+          >
+            {text.clearSearch}
+          </button>
+        </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {habits.map((habit: Habit) => {
+          {filteredHabits.map((habit: Habit) => {
             const completion = habit.completions.find(c => c.date === selectedDate);
             return (
               <div
@@ -1730,6 +1799,7 @@ function StatsPage({
   themeConfig,
   language,
   locale,
+  isMounted,
 }: {
   habits: Habit[];
   metrics: Metrics;
@@ -1737,6 +1807,7 @@ function StatsPage({
   themeConfig: ThemeConfig;
   language: Language;
   locale: string;
+  isMounted: boolean;
 }) {
   const text = translations[language];
   const getMonthData = () => {
@@ -1782,62 +1853,70 @@ function StatsPage({
         {/* 30-Day Trend */}
         <div className={`${themeConfig.card} rounded-xl p-6 border ${themeConfig.border} shadow-lg`}>
           <h3 className={`${themeConfig.text} font-bold mb-6`}>{text.trend30Days}</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={getMonthData()}>
-              <defs>
-                <linearGradient id="colorCompleted" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8} />
-                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? 'rgba(100, 116, 139, 0.2)' : 'rgba(200, 200, 200, 0.2)'} />
-              <XAxis
-                dataKey="date"
-                stroke={theme === 'dark' ? 'rgba(148, 163, 184, 0.5)' : 'rgba(100, 100, 100, 0.5)'}
-                tick={{ fontSize: 12 }}
-              />
-              <YAxis stroke={theme === 'dark' ? 'rgba(148, 163, 184, 0.5)' : 'rgba(100, 100, 100, 0.5)'} />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: theme === 'dark' ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.95)',
-                  border: theme === 'dark' ? '1px solid rgba(100, 116, 139, 0.5)' : '1px solid rgba(200, 200, 200, 0.5)',
-                  borderRadius: '8px',
-                  color: theme === 'dark' ? '#e2e8f0' : '#1f2937',
-                }}
-              />
-              <Area
-                type="monotone"
-                dataKey="completed"
-                stroke="#3b82f6"
-                fillOpacity={1}
-                fill="url(#colorCompleted)"
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+          {isMounted ? (
+            <ResponsiveContainer width="100%" height={300}>
+              <AreaChart data={getMonthData()}>
+                <defs>
+                  <linearGradient id="colorCompleted" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8} />
+                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? 'rgba(100, 116, 139, 0.2)' : 'rgba(200, 200, 200, 0.2)'} />
+                <XAxis
+                  dataKey="date"
+                  stroke={theme === 'dark' ? 'rgba(148, 163, 184, 0.5)' : 'rgba(100, 100, 100, 0.5)'}
+                  tick={{ fontSize: 12 }}
+                />
+                <YAxis stroke={theme === 'dark' ? 'rgba(148, 163, 184, 0.5)' : 'rgba(100, 100, 100, 0.5)'} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: theme === 'dark' ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+                    border: theme === 'dark' ? '1px solid rgba(100, 116, 139, 0.5)' : '1px solid rgba(200, 200, 200, 0.5)',
+                    borderRadius: '8px',
+                    color: theme === 'dark' ? '#e2e8f0' : '#1f2937',
+                  }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="completed"
+                  stroke="#3b82f6"
+                  fillOpacity={1}
+                  fill="url(#colorCompleted)"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="h-[300px]" />
+          )}
         </div>
 
         {/* Habit Distribution */}
         <div className={`${themeConfig.card} rounded-xl p-6 border ${themeConfig.border} shadow-lg`}>
           <h3 className={`${themeConfig.text} font-bold mb-6`}>{text.habitDistribution}</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={[
-                  { name: text.completed, value: habits.filter(h => getStreak(h) > 0).length },
-                  { name: text.active, value: habits.filter(h => getStreak(h) === 0).length },
-                ]}
-                cx="50%"
-                cy="50%"
-                innerRadius={60}
-                outerRadius={100}
-                paddingAngle={5}
-                dataKey="value"
-              >
-                <Cell fill="#3b82f6" />
-                <Cell fill={theme === 'dark' ? '#475569' : '#cbd5e1'} />
-              </Pie>
-            </PieChart>
-          </ResponsiveContainer>
+          {isMounted ? (
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={[
+                    { name: text.completed, value: habits.filter(h => getStreak(h) > 0).length },
+                    { name: text.active, value: habits.filter(h => getStreak(h) === 0).length },
+                  ]}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={100}
+                  paddingAngle={5}
+                  dataKey="value"
+                >
+                  <Cell fill="#3b82f6" />
+                  <Cell fill={theme === 'dark' ? '#475569' : '#cbd5e1'} />
+                </Pie>
+              </PieChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="h-[300px]" />
+          )}
         </div>
       </div>
 
@@ -2313,4 +2392,3 @@ if (typeof window !== 'undefined') {
   `;
   document.head.appendChild(style);
 }
-
