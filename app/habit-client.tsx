@@ -130,7 +130,7 @@ const translations = {
     monthlyResetTitle: 'Monthly reset',
     resetNoticePrefix: 'Local data was cleared on',
     closeNotice: 'Close notice',
-    weekdaysShort: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+    weekdaysShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
   },
   ru: {
     signInTitle: 'Р вЂ™РЎвЂ¦Р С•Р Т‘ Р Р† Habitify',
@@ -216,7 +216,7 @@ const translations = {
     monthlyResetTitle: 'Р•Р¶РµРјРµСЃСЏС‡РЅР°СЏ РѕС‡РёСЃС‚РєР°',
     resetNoticePrefix: 'Р›РѕРєР°Р»СЊРЅС‹Рµ РґР°РЅРЅС‹Рµ РѕС‡РёС‰РµРЅС‹',
     closeNotice: 'Р—Р°РєСЂС‹С‚СЊ СѓРІРµРґРѕРјР»РµРЅРёРµ',
-    weekdaysShort: ['РџРЅ', 'Р’С‚', 'РЎСЂ', 'Р§С‚', 'РџС‚', 'РЎР±', 'Р’СЃ'],
+    weekdaysShort: ['Р’СЃ', 'РџРЅ', 'Р’С‚', 'РЎСЂ', 'Р§С‚', 'РџС‚', 'РЎР±'],
   },
   uz: {
     signInTitle: 'Habitify ga kirish',
@@ -302,7 +302,7 @@ const translations = {
     monthlyResetTitle: 'Oylik tozalash',
     resetNoticePrefix: "Lokal ma'lumotlar tozalandi",
     closeNotice: 'Bildirishnomani yopish',
-    weekdaysShort: ['Du', 'Se', 'Ch', 'Pa', 'Ju', 'Sh', 'Ya'],
+    weekdaysShort: ['Ya', 'Du', 'Se', 'Ch', 'Pa', 'Ju', 'Sh'],
   },
 };
 
@@ -464,6 +464,19 @@ const getLocale = (language: Language) => {
   return 'en-US';
 };
 
+const getWeekStartIndex = (language: Language) => {
+  return language === 'en' ? 0 : 1;
+};
+
+const getWeekdayLabels = (language: Language) => {
+  const labels = translations[language].weekdaysShort;
+  const weekStartIndex = getWeekStartIndex(language);
+  if (weekStartIndex === 0) {
+    return labels;
+  }
+  return [...labels.slice(1), labels[0]];
+};
+
 const getCategoryLabel = (language: Language, category: string) => {
   return categoryLabels[language][category] ?? category;
 };
@@ -559,10 +572,11 @@ const formatDate = (dateString: string, locale: string) => {
   return date.toLocaleDateString(locale, { weekday: 'short', month: 'short', day: 'numeric' });
 };
 
-const getWeekDates = () => {
+const getWeekDates = (weekStartIndex: number) => {
   const today = new Date();
-  const mondayOffset = (today.getDay() + 6) % 7;
-  const firstDay = new Date(today.setDate(today.getDate() - mondayOffset));
+  const offset = (today.getDay() - weekStartIndex + 7) % 7;
+  const firstDay = new Date(today);
+  firstDay.setDate(today.getDate() - offset);
   const weekDates = [];
   for (let i = 0; i < 7; i++) {
     const date = new Date(firstDay);
@@ -1713,7 +1727,7 @@ function DashboardPage({
   isMounted: boolean;
   isMobile: boolean;
 }) {
-  const weekDates = getWeekDates();
+  const weekDates = getWeekDates(getWeekStartIndex(language));
   const text = translations[language];
 
   return (
@@ -2042,11 +2056,12 @@ function CalendarPage({
   const month = currentMonth.getMonth();
   const atMinMonth = year === minMonth.getFullYear() && month === minMonth.getMonth();
   const text = translations[language];
+  const weekStartIndex = getWeekStartIndex(language);
+  const weekdayLabels = getWeekdayLabels(language);
   const firstDay = new Date(year, month, 1);
   const lastDay = new Date(year, month + 1, 0);
   const daysInMonth = lastDay.getDate();
-  // Align with Monday-first weekday header.
-  const startingDayOfWeek = (firstDay.getDay() + 6) % 7;
+  const startingDayOfWeek = (firstDay.getDay() - weekStartIndex + 7) % 7;
 
   const days = [];
   for (let i = 0; i < startingDayOfWeek; i++) {
@@ -2098,7 +2113,7 @@ function CalendarPage({
 
         {/* Weekdays Header */}
         <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-4">
-          {text.weekdaysShort.map((day) => (
+          {weekdayLabels.map((day) => (
             <div key={day} className={`text-center ${themeConfig.textSecondary} text-[10px] sm:text-xs font-semibold py-1 sm:py-2`}>
               {day}
             </div>
