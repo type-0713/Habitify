@@ -130,7 +130,7 @@ const translations = {
     monthlyResetTitle: 'Monthly reset',
     resetNoticePrefix: 'Local data was cleared on',
     closeNotice: 'Close notice',
-    weekdaysShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+    weekdaysShort: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
   },
   ru: {
     signInTitle: 'Р вЂ™РЎвЂ¦Р С•Р Т‘ Р Р† Habitify',
@@ -216,7 +216,7 @@ const translations = {
     monthlyResetTitle: 'Р•Р¶РµРјРµСЃСЏС‡РЅР°СЏ РѕС‡РёСЃС‚РєР°',
     resetNoticePrefix: 'Р›РѕРєР°Р»СЊРЅС‹Рµ РґР°РЅРЅС‹Рµ РѕС‡РёС‰РµРЅС‹',
     closeNotice: 'Р—Р°РєСЂС‹С‚СЊ СѓРІРµРґРѕРјР»РµРЅРёРµ',
-    weekdaysShort: ['Р’СЃ', 'РџРЅ', 'Р’С‚', 'РЎСЂ', 'Р§С‚', 'РџС‚', 'РЎР±'],
+    weekdaysShort: ['РџРЅ', 'Р’С‚', 'РЎСЂ', 'Р§С‚', 'РџС‚', 'РЎР±', 'Р’СЃ'],
   },
   uz: {
     signInTitle: 'Habitify ga kirish',
@@ -302,7 +302,7 @@ const translations = {
     monthlyResetTitle: 'Oylik tozalash',
     resetNoticePrefix: "Lokal ma'lumotlar tozalandi",
     closeNotice: 'Bildirishnomani yopish',
-    weekdaysShort: ['Ya', 'Du', 'Se', 'Ch', 'Pa', 'Ju', 'Sh'],
+    weekdaysShort: ['Du', 'Se', 'Ch', 'Pa', 'Ju', 'Sh', 'Ya'],
   },
 };
 
@@ -464,17 +464,12 @@ const getLocale = (language: Language) => {
   return 'en-US';
 };
 
-const getWeekStartIndex = (language: Language) => {
-  return language === 'en' ? 0 : 1;
+const getWeekStartIndex = (_language: Language) => {
+  return 1;
 };
 
 const getWeekdayLabels = (language: Language) => {
-  const labels = translations[language].weekdaysShort;
-  const weekStartIndex = getWeekStartIndex(language);
-  if (weekStartIndex === 0) {
-    return labels;
-  }
-  return [...labels.slice(1), labels[0]];
+  return translations[language].weekdaysShort;
 };
 
 const getCategoryLabel = (language: Language, category: string) => {
