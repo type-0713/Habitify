@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
@@ -71,6 +71,8 @@ const translations = {
     logout: 'Logout',
     soundOn: 'Sound on',
     soundOff: 'Sound off',
+    reminderTitle: 'Habit reminder',
+    reminderBody: 'You still have {count} habits to complete today.',
     greetingMorning: 'Good morning',
     greetingAfternoon: 'Good afternoon',
     greetingEvening: 'Good evening',
@@ -131,88 +133,90 @@ const translations = {
     weekdaysShort: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
   },
   ru: {
-    signInTitle: 'Р’С…РѕРґ РІ Habitify',
-    signInSubtitle: 'Р’С‹Р±РµСЂРёС‚Рµ РїСЂРѕРІР°Р№РґРµСЂР° РґР»СЏ РІС…РѕРґР°',
-    nameLabel: 'РРјСЏ',
+    signInTitle: 'Р вЂ™РЎвЂ¦Р С•Р Т‘ Р Р† Habitify',
+    signInSubtitle: 'Р вЂ™РЎвЂ№Р В±Р ВµРЎР‚Р С‘РЎвЂљР Вµ Р С—РЎР‚Р С•Р Р†Р В°Р в„–Р Т‘Р ВµРЎР‚Р В° Р Т‘Р В»РЎРЏ Р Р†РЎвЂ¦Р С•Р Т‘Р В°',
+    nameLabel: 'Р ВР СРЎРЏ',
     emailLabel: 'Email',
-    namePlaceholder: 'Р’Р°С€Рµ РёРјСЏ',
+    namePlaceholder: 'Р вЂ™Р В°РЎв‚¬Р Вµ Р С‘Р СРЎРЏ',
     emailPlaceholder: 'you@example.com',
-    continueWithGoogle: 'Р’РѕР№С‚Рё С‡РµСЂРµР· Google',
-    continueWithApple: 'Р’РѕР№С‚Рё С‡РµСЂРµР· Apple',
-    continueWithGitHub: 'Р’РѕР№С‚Рё С‡РµСЂРµР· GitHub',
-    continueWithEmail: 'Продолжить с Email',
-    passwordLabel: 'Пароль',
-    passwordPlaceholder: 'Придумайте пароль',
-    authErrorMissingFields: 'Введите email и пароль.',
-    languageLabel: 'Язык',
-    dashboard: 'Панель',
-    habits: 'Привычки',
-    calendar: 'Календарь',
-    statistics: 'Статистика',
-    profile: 'Профиль',
-    light: 'Светлая',
-    dark: 'Темная',
-    logout: 'Выйти',
-    soundOn: 'Звук вкл.',
-    soundOff: 'Звук выкл.',
-    greetingMorning: 'Доброе утро',
-    greetingAfternoon: 'Добрый день',
-    greetingEvening: 'Добрый вечер',
-    habitsCompletedToday: 'привычек выполнено сегодня',
-    todaysProgress: 'Прогресс за сегодня',
-    complete: 'Выполнено',
-    habitsCompleted: 'Привычек выполнено',
-    currentStreak: 'Текущая серия',
-    days: 'дней',
-    best: 'Лучшее',
-    totalHabits: 'Всего привычек',
-    activeHabits: 'Активные привычки',
-    addNewHabit: 'Добавить привычку',
-    todaysHabits: 'Привычки сегодня',
-    noHabitsYet: 'Пока нет привычек. Создайте первую привычку!',
-    createFirstHabit: 'Создать первую привычку',
-    thisWeekOverview: 'Обзор недели',
-    allHabits: 'Все привычки',
-    newHabit: 'Новая привычка',
-    searchHabits: 'Поиск привычек',
-    searchPlaceholder: 'Поиск по названию или категории',
-    noHabitsFound: 'Ничего не найдено по вашему запросу.',
-    clearSearch: 'Очистить поиск',
-    noHabitsCreated: 'Привычек еще нет. Начните сегодня!',
-    createYourFirstHabit: 'Создать первую привычку',
-    category: 'Категория',
-    goal: 'Цель',
-    streak: 'Серия',
-    bestStreakLabel: 'Лучшая серия',
-    statisticsTitle: 'Статистика',
-    completedToday: 'Выполнено сегодня',
-    trend30Days: 'Тренд за 30 дней',
-    habitDistribution: 'Распределение привычек',
-    completed: 'Выполнено',
-    active: 'Активные',
-    habitsPerformance: 'Эффективность привычек',
-    completion: 'Выполнение',
-    bio: 'О себе',
-    joined: 'Присоединился',
-    totalCompleted: 'Всего выполнено',
-    accountAge: 'Возраст аккаунта',
-    yourHabits: 'Ваши привычки',
-    noHabitsYetShort: 'Пока нет привычек',
-    completedCount: 'выполнено',
-    completedCheckbox: 'Выполнено',
-    addHabitTitle: 'Добавить привычку',
-    habitName: 'Название привычки',
-    habitNamePlaceholder: 'например, Утренняя медитация',
-    unit: 'Ед. измерения',
-    icon: 'Иконка',
-    reminderTimeOptional: 'Время напоминания (необязательно)',
-    cancel: 'Отмена',
-    saveChanges: 'Сохранить',
-    addHabit: 'Добавить',
-    monthlyResetTitle: 'Ежемесячная очистка',
-    resetNoticePrefix: 'Локальные данные очищены',
-    closeNotice: 'Закрыть уведомление',
-    weekdaysShort: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
+    continueWithGoogle: 'Р вЂ™Р С•Р в„–РЎвЂљР С‘ РЎвЂЎР ВµРЎР‚Р ВµР В· Google',
+    continueWithApple: 'Р вЂ™Р С•Р в„–РЎвЂљР С‘ РЎвЂЎР ВµРЎР‚Р ВµР В· Apple',
+    continueWithGitHub: 'Р вЂ™Р С•Р в„–РЎвЂљР С‘ РЎвЂЎР ВµРЎР‚Р ВµР В· GitHub',
+    continueWithEmail: 'РџСЂРѕРґРѕР»Р¶РёС‚СЊ СЃ Email',
+    passwordLabel: 'РџР°СЂРѕР»СЊ',
+    passwordPlaceholder: 'РџСЂРёРґСѓРјР°Р№С‚Рµ РїР°СЂРѕР»СЊ',
+    authErrorMissingFields: 'Р’РІРµРґРёС‚Рµ email Рё РїР°СЂРѕР»СЊ.',
+    languageLabel: 'РЇР·С‹Рє',
+    dashboard: 'РџР°РЅРµР»СЊ',
+    habits: 'РџСЂРёРІС‹С‡РєРё',
+    calendar: 'РљР°Р»РµРЅРґР°СЂСЊ',
+    statistics: 'РЎС‚Р°С‚РёСЃС‚РёРєР°',
+    profile: 'РџСЂРѕС„РёР»СЊ',
+    light: 'РЎРІРµС‚Р»Р°СЏ',
+    dark: 'РўРµРјРЅР°СЏ',
+    logout: 'Р’С‹Р№С‚Рё',
+    soundOn: 'Р—РІСѓРє РІРєР».',
+    soundOff: 'Р—РІСѓРє РІС‹РєР».',
+    reminderTitle: 'Напоминание',
+    reminderBody: 'Сегодня осталось выполнить: {count}.',
+    greetingMorning: 'Р”РѕР±СЂРѕРµ СѓС‚СЂРѕ',
+    greetingAfternoon: 'Р”РѕР±СЂС‹Р№ РґРµРЅСЊ',
+    greetingEvening: 'Р”РѕР±СЂС‹Р№ РІРµС‡РµСЂ',
+    habitsCompletedToday: 'РїСЂРёРІС‹С‡РµРє РІС‹РїРѕР»РЅРµРЅРѕ СЃРµРіРѕРґРЅСЏ',
+    todaysProgress: 'РџСЂРѕРіСЂРµСЃСЃ Р·Р° СЃРµРіРѕРґРЅСЏ',
+    complete: 'Р’С‹РїРѕР»РЅРµРЅРѕ',
+    habitsCompleted: 'РџСЂРёРІС‹С‡РµРє РІС‹РїРѕР»РЅРµРЅРѕ',
+    currentStreak: 'РўРµРєСѓС‰Р°СЏ СЃРµСЂРёСЏ',
+    days: 'РґРЅРµР№',
+    best: 'Р›СѓС‡С€РµРµ',
+    totalHabits: 'Р’СЃРµРіРѕ РїСЂРёРІС‹С‡РµРє',
+    activeHabits: 'РђРєС‚РёРІРЅС‹Рµ РїСЂРёРІС‹С‡РєРё',
+    addNewHabit: 'Р”РѕР±Р°РІРёС‚СЊ РїСЂРёРІС‹С‡РєСѓ',
+    todaysHabits: 'РџСЂРёРІС‹С‡РєРё СЃРµРіРѕРґРЅСЏ',
+    noHabitsYet: 'РџРѕРєР° РЅРµС‚ РїСЂРёРІС‹С‡РµРє. РЎРѕР·РґР°Р№С‚Рµ РїРµСЂРІСѓСЋ РїСЂРёРІС‹С‡РєСѓ!',
+    createFirstHabit: 'РЎРѕР·РґР°С‚СЊ РїРµСЂРІСѓСЋ РїСЂРёРІС‹С‡РєСѓ',
+    thisWeekOverview: 'РћР±Р·РѕСЂ РЅРµРґРµР»Рё',
+    allHabits: 'Р’СЃРµ РїСЂРёРІС‹С‡РєРё',
+    newHabit: 'РќРѕРІР°СЏ РїСЂРёРІС‹С‡РєР°',
+    searchHabits: 'РџРѕРёСЃРє РїСЂРёРІС‹С‡РµРє',
+    searchPlaceholder: 'РџРѕРёСЃРє РїРѕ РЅР°Р·РІР°РЅРёСЋ РёР»Рё РєР°С‚РµРіРѕСЂРёРё',
+    noHabitsFound: 'РќРёС‡РµРіРѕ РЅРµ РЅР°Р№РґРµРЅРѕ РїРѕ РІР°С€РµРјСѓ Р·Р°РїСЂРѕСЃСѓ.',
+    clearSearch: 'РћС‡РёСЃС‚РёС‚СЊ РїРѕРёСЃРє',
+    noHabitsCreated: 'РџСЂРёРІС‹С‡РµРє РµС‰Рµ РЅРµС‚. РќР°С‡РЅРёС‚Рµ СЃРµРіРѕРґРЅСЏ!',
+    createYourFirstHabit: 'РЎРѕР·РґР°С‚СЊ РїРµСЂРІСѓСЋ РїСЂРёРІС‹С‡РєСѓ',
+    category: 'РљР°С‚РµРіРѕСЂРёСЏ',
+    goal: 'Р¦РµР»СЊ',
+    streak: 'РЎРµСЂРёСЏ',
+    bestStreakLabel: 'Р›СѓС‡С€Р°СЏ СЃРµСЂРёСЏ',
+    statisticsTitle: 'РЎС‚Р°С‚РёСЃС‚РёРєР°',
+    completedToday: 'Р’С‹РїРѕР»РЅРµРЅРѕ СЃРµРіРѕРґРЅСЏ',
+    trend30Days: 'РўСЂРµРЅРґ Р·Р° 30 РґРЅРµР№',
+    habitDistribution: 'Р Р°СЃРїСЂРµРґРµР»РµРЅРёРµ РїСЂРёРІС‹С‡РµРє',
+    completed: 'Р’С‹РїРѕР»РЅРµРЅРѕ',
+    active: 'РђРєС‚РёРІРЅС‹Рµ',
+    habitsPerformance: 'Р­С„С„РµРєС‚РёРІРЅРѕСЃС‚СЊ РїСЂРёРІС‹С‡РµРє',
+    completion: 'Р’С‹РїРѕР»РЅРµРЅРёРµ',
+    bio: 'Рћ СЃРµР±Рµ',
+    joined: 'РџСЂРёСЃРѕРµРґРёРЅРёР»СЃСЏ',
+    totalCompleted: 'Р’СЃРµРіРѕ РІС‹РїРѕР»РЅРµРЅРѕ',
+    accountAge: 'Р’РѕР·СЂР°СЃС‚ Р°РєРєР°СѓРЅС‚Р°',
+    yourHabits: 'Р’Р°С€Рё РїСЂРёРІС‹С‡РєРё',
+    noHabitsYetShort: 'РџРѕРєР° РЅРµС‚ РїСЂРёРІС‹С‡РµРє',
+    completedCount: 'РІС‹РїРѕР»РЅРµРЅРѕ',
+    completedCheckbox: 'Р’С‹РїРѕР»РЅРµРЅРѕ',
+    addHabitTitle: 'Р”РѕР±Р°РІРёС‚СЊ РїСЂРёРІС‹С‡РєСѓ',
+    habitName: 'РќР°Р·РІР°РЅРёРµ РїСЂРёРІС‹С‡РєРё',
+    habitNamePlaceholder: 'РЅР°РїСЂРёРјРµСЂ, РЈС‚СЂРµРЅРЅСЏСЏ РјРµРґРёС‚Р°С†РёСЏ',
+    unit: 'Р•Рґ. РёР·РјРµСЂРµРЅРёСЏ',
+    icon: 'РРєРѕРЅРєР°',
+    reminderTimeOptional: 'Р’СЂРµРјСЏ РЅР°РїРѕРјРёРЅР°РЅРёСЏ (РЅРµРѕР±СЏР·Р°С‚РµР»СЊРЅРѕ)',
+    cancel: 'РћС‚РјРµРЅР°',
+    saveChanges: 'РЎРѕС…СЂР°РЅРёС‚СЊ',
+    addHabit: 'Р”РѕР±Р°РІРёС‚СЊ',
+    monthlyResetTitle: 'Р•Р¶РµРјРµСЃСЏС‡РЅР°СЏ РѕС‡РёСЃС‚РєР°',
+    resetNoticePrefix: 'Р›РѕРєР°Р»СЊРЅС‹Рµ РґР°РЅРЅС‹Рµ РѕС‡РёС‰РµРЅС‹',
+    closeNotice: 'Р—Р°РєСЂС‹С‚СЊ СѓРІРµРґРѕРјР»РµРЅРёРµ',
+    weekdaysShort: ['РџРЅ', 'Р’С‚', 'РЎСЂ', 'Р§С‚', 'РџС‚', 'РЎР±', 'Р’СЃ'],
   },
   uz: {
     signInTitle: 'Habitify ga kirish',
@@ -239,6 +243,8 @@ const translations = {
     logout: 'Chiqish',
     soundOn: 'Ovoz yoqilgan',
     soundOff: "Ovoz o'chirilgan",
+    reminderTitle: 'Eslatma',
+    reminderBody: 'Bugun {count} ta odat bajarilmay qoldi.',
     greetingMorning: 'Xayrli tong',
     greetingAfternoon: 'Xayrli kun',
     greetingEvening: 'Xayrli kech',
@@ -260,7 +266,7 @@ const translations = {
     newHabit: 'Yangi odat',
     searchHabits: 'Odatlarni qidirish',
     searchPlaceholder: "Nomi yoki kategoriya bo'yicha qidiring",
-    noHabitsFound: 'Qidiruv bo‘yicha hech narsa topilmadi.',
+    noHabitsFound: 'Qidiruv boвЂyicha hech narsa topilmadi.',
     clearSearch: 'Qidiruvni tozalash',
     noHabitsCreated: "Hali odatlar yo'q. Bugun boshlang!",
     createYourFirstHabit: 'Birinchi odatni yaratish',
@@ -311,13 +317,13 @@ const categoryLabels: Record<Language, Record<string, string>> = {
     hobbies: 'Hobbies',
   },
   ru: {
-    health: 'Здоровье',
-    productivity: 'Продуктивность',
-    learning: 'Обучение',
-    fitness: 'Фитнес',
-    wellness: 'Самочувствие',
-    finance: 'Финансы',
-    hobbies: 'Хобби',
+    health: 'Р—РґРѕСЂРѕРІСЊРµ',
+    productivity: 'РџСЂРѕРґСѓРєС‚РёРІРЅРѕСЃС‚СЊ',
+    learning: 'РћР±СѓС‡РµРЅРёРµ',
+    fitness: 'Р¤РёС‚РЅРµСЃ',
+    wellness: 'РЎР°РјРѕС‡СѓРІСЃС‚РІРёРµ',
+    finance: 'Р¤РёРЅР°РЅСЃС‹',
+    hobbies: 'РҐРѕР±Р±Рё',
   },
   uz: {
     health: "Sog'liq",
@@ -341,13 +347,13 @@ const unitLabels: Record<Language, Record<string, string>> = {
     pages: 'pages',
   },
   ru: {
-    min: 'мин',
-    hours: 'ч',
-    reps: 'повт.',
-    km: 'км',
-    liters: 'л',
-    count: 'раз',
-    pages: 'стр.',
+    min: 'РјРёРЅ',
+    hours: 'С‡',
+    reps: 'РїРѕРІС‚.',
+    km: 'РєРј',
+    liters: 'Р»',
+    count: 'СЂР°Р·',
+    pages: 'СЃС‚СЂ.',
   },
   uz: {
     min: 'daq',
@@ -644,9 +650,10 @@ function HabitTrackerApp() {
   const isLoaded = authReady;
   const isSignedIn = Boolean(authUser);
   const user = authUser;
-  const [theme, setTheme] = useState<Theme>(() => getLocalStorage<Theme>('theme', 'dark') ?? 'dark');
+  const [theme, setTheme] = useState<Theme>(() => getLocalStorage<Theme>('theme', 'light') ?? 'light');
   const [profileOverrides, setProfileOverrides] = useState<ProfileOverrides>({});
   const [resetNotice, setResetNotice] = useState<string | null>(null);
+  const [reminderToast, setReminderToast] = useState<{ title: string; message: string } | null>(null);
   const [soundEnabled, setSoundEnabled] = useState(() => getLocalStorage<boolean>('sound_enabled', true) ?? true);
   const [language, setLanguage] = useState<Language>(() => normalizeLanguage(getLocalStorage<string>('language', 'en')));
   const [isMounted, setIsMounted] = useState(false);
@@ -664,7 +671,7 @@ function HabitTrackerApp() {
     name: '',
     goal: '',
     unit: 'min',
-    icon: '⭐',
+    icon: 'в­ђ',
     category: 'health',
     reminderTime: '09:00',
   });
@@ -793,38 +800,58 @@ function HabitTrackerApp() {
     }
   }, [habits, isSignedIn, user?.id]);
 
-  // Missed-day alert (once per day).
+  // Daily reminder after 14:00 if any habit is still incomplete.
   useEffect(() => {
-    if (!isSignedIn || !user?.id || habits.length === 0) {
+    if (!isSignedIn || !user?.id || habits.length === 0 || !soundEnabled) {
       return;
     }
-    const checkMissedDay = () => {
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-      const yesterdayStr = formatLocalDate(yesterday);
-      const alertKey = `missed_alert_${user.id}`;
+
+    const alertKey = `daily_reminder_${user.id}`;
+
+    const checkReminder = () => {
+      if (!soundEnabled) return;
+
+      const now = new Date();
+      if (now.getHours() < 14) return;
+
+      const todayStr = getTodayDate();
       const lastAlert = getLocalStorage<string>(alertKey, '');
-      if (lastAlert === yesterdayStr) {
+      if (lastAlert === todayStr) return;
+
+      const activeHabits = habits.filter((habit) => !habit.createdAt || habit.createdAt <= todayStr);
+      if (activeHabits.length === 0) {
         return;
       }
-      const missed = habits.some(habit => {
-        if (habit.createdAt && habit.createdAt > yesterdayStr) {
-          return false;
-        }
-        const completion = habit.completions.find(c => c.date === yesterdayStr);
-        return !completion?.completed;
-      });
-      if (missed) {
-        playNotificationSound(soundEnabled, 660);
-        setLocalStorage(alertKey, yesterdayStr);
+
+      const incomplete = activeHabits.filter(
+        (habit) => !habit.completions.find((c) => c.date === todayStr && c.completed)
+      );
+
+      if (incomplete.length === 0) {
+        return;
       }
+
+      const message = text.reminderBody.replace('{count}', String(incomplete.length));
+      setReminderToast({ title: text.reminderTitle, message });
+      playNotificationSound(soundEnabled, 660);
+      setLocalStorage(alertKey, todayStr);
+      window.setTimeout(() => {
+        setReminderToast(null);
+      }, 10000);
     };
-    checkMissedDay();
-    const intervalId = window.setInterval(checkMissedDay, 1000 * 60 * 60);
+
+    checkReminder();
+    const intervalId = window.setInterval(checkReminder, 1000 * 60);
     return () => {
       window.clearInterval(intervalId);
     };
-  }, [habits, isSignedIn, soundEnabled, user?.id]);
+  }, [habits, isSignedIn, soundEnabled, text.reminderBody, text.reminderTitle, user?.id]);
+
+  useEffect(() => {
+    if (!soundEnabled) {
+      setReminderToast(null);
+    }
+  }, [soundEnabled]);
 
   useEffect(() => {
     const rafId = window.requestAnimationFrame(() => setIsMounted(true));
@@ -847,7 +874,7 @@ function HabitTrackerApp() {
   }, []);
 
   /*
-      avatar: '👤',
+      avatar: 'рџ‘¤',
       bio: 'Building better habits daily!',
       joinDate: getTodayDate(),
       theme: 'dark',
@@ -933,7 +960,7 @@ function HabitTrackerApp() {
         name: '',
         goal: '',
         unit: 'min',
-        icon: '⭐',
+        icon: 'в­ђ',
         category: 'health',
         reminderTime: '09:00',
       });
@@ -1231,6 +1258,16 @@ function HabitTrackerApp() {
           theme={theme}
           themeConfig={themeConfig}
           language={language}
+        />
+      )}
+
+      {reminderToast && (
+        <ReminderToast
+          theme={theme}
+          themeConfig={themeConfig}
+          title={reminderToast.title}
+          message={reminderToast.message}
+          onClose={() => setReminderToast(null)}
         />
       )}
     </div>
@@ -2104,7 +2141,7 @@ function CalendarPage({
                   </>
                 )}
                 {/* {completionRate === 100 && (
-                  <div className="text-lg absolute -top-1 -right-1">✓</div>
+                  <div className="text-lg absolute -top-1 -right-1">вњ“</div>
                 )} */}
               </button>
             );
@@ -2145,7 +2182,7 @@ function CalendarPage({
                 </div>
                 <p className={`${themeConfig.textSecondary} text-xs mt-2`}>
                   {completion?.current || 0} / {habit.goal} {getUnitLabel(language, habit.unit)}
-                  {completion?.time && ` · ${completion.time}`}
+                  {completion?.time && ` В· ${completion.time}`}
                 </p>
               </div>
             );
@@ -2689,7 +2726,7 @@ function HabitCard({
           </div>
           <p className={`${themeConfig.textSecondary} text-xs mt-1`}>
             {currentValue} / {habit.goal} {getUnitLabel(language, habit.unit)}
-            {completion?.time && ` · ${completion.time}`}
+            {completion?.time && ` В· ${completion.time}`}
           </p>
         </div>
       </div>
@@ -2748,6 +2785,47 @@ function HabitCard({
   );
 }
 
+function ReminderToast({
+  theme,
+  themeConfig,
+  title,
+  message,
+  onClose,
+}: {
+  theme: Theme;
+  themeConfig: ThemeConfig;
+  title: string;
+  message: string;
+  onClose: () => void;
+}) {
+  return (
+    <div className="fixed bottom-4 left-1/2 z-50 w-[calc(100%-2rem)] -translate-x-1/2 sm:bottom-6 sm:right-6 sm:left-auto sm:translate-x-0 sm:w-auto">
+      <div className={`${themeConfig.card} rounded-2xl border ${themeConfig.border} p-4 sm:p-5 shadow-2xl backdrop-blur-xl max-w-sm`}>
+        <div className="flex items-start gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 via-sky-500 to-indigo-500 flex items-center justify-center text-white shadow-lg shrink-0">
+            <Bell className="w-5 h-5" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className={`text-sm font-semibold ${themeConfig.text}`}>{title}</p>
+            <p className={`text-xs sm:text-sm ${themeConfig.textSecondary} mt-1`}>{message}</p>
+          </div>
+          <button
+            onClick={onClose}
+            className={`p-1.5 rounded-lg transition ${themeConfig.hover}`}
+            aria-label="Close"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+        <div className="mt-3 flex items-center gap-2 text-xs text-slate-500">
+          <Image src="/icon.png" alt="Habitify" width={18} height={18} className="rounded-md" />
+          <span className={themeConfig.textSecondary}>Habitify</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // Add Habit Modal
 function AddHabitModal({
   habit,
@@ -2766,7 +2844,7 @@ function AddHabitModal({
   themeConfig: ThemeConfig;
   language: Language;
 }) {
-  const icons = ['💻', '📚', '💪', '💧', '🌙', '🧘', '🏃', '🍎', '🎯', '⭐'];
+  const icons = ['рџ’»', 'рџ“љ', 'рџ’Є', 'рџ’§', 'рџЊ™', 'рџ§', 'рџЏѓ', 'рџЌЋ', 'рџЋЇ', 'в­ђ'];
   const categories = ['health', 'productivity', 'learning', 'fitness', 'wellness', 'finance', 'hobbies'];
   const units = ['min', 'hours', 'reps', 'km', 'liters', 'count', 'pages'];
   const text = translations[language];
@@ -2893,3 +2971,9 @@ function AddHabitModal({
 }
 
 // Animation styles live in app/globals.css to avoid module-level side effects.
+
+
+
+
+
+
