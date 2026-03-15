@@ -1955,7 +1955,8 @@ function CalendarPage({
   const firstDay = new Date(year, month, 1);
   const lastDay = new Date(year, month + 1, 0);
   const daysInMonth = lastDay.getDate();
-  const startingDayOfWeek = firstDay.getDay();
+  // Align with Monday-first weekday header.
+  const startingDayOfWeek = (firstDay.getDay() + 6) % 7;
 
   const days = [];
   for (let i = 0; i < startingDayOfWeek; i++) {
