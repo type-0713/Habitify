@@ -123,6 +123,7 @@ const translations = {
     icon: 'Icon',
     reminderTimeOptional: 'Reminder Time (Optional)',
     cancel: 'Cancel',
+    saveChanges: 'Save changes',
     addHabit: 'Add Habit',
     monthlyResetTitle: 'Monthly reset',
     resetNoticePrefix: 'Local data was cleared on',
@@ -206,6 +207,7 @@ const translations = {
     icon: 'Иконка',
     reminderTimeOptional: 'Время напоминания (необязательно)',
     cancel: 'Отмена',
+    saveChanges: 'Сохранить',
     addHabit: 'Добавить',
     monthlyResetTitle: 'Ежемесячная очистка',
     resetNoticePrefix: 'Локальные данные очищены',
@@ -289,6 +291,7 @@ const translations = {
     icon: 'Ikonka',
     reminderTimeOptional: 'Eslatma vaqti (ixtiyoriy)',
     cancel: 'Bekor qilish',
+    saveChanges: 'Saqlash',
     addHabit: "Qo'shish",
     monthlyResetTitle: 'Oylik tozalash',
     resetNoticePrefix: "Lokal ma'lumotlar tozalandi",
@@ -1212,6 +1215,7 @@ function HabitTrackerApp() {
               themeConfig={themeConfig}
               language={language}
               locale={locale}
+              isMobile={isMobile}
             />
           )}
         </div>
@@ -2369,6 +2373,7 @@ function ProfilePage({
   themeConfig,
   language,
   locale,
+  isMobile,
 }: {
   user: UserProfile;
   habits: Habit[];
@@ -2377,16 +2382,40 @@ function ProfilePage({
   themeConfig: ThemeConfig;
   language: Language;
   locale: string;
+  isMobile: boolean;
 }) {
   const [isEditing, setIsEditing] = useState(false);
+  const [isMobileEditOpen, setIsMobileEditOpen] = useState(false);
   const [editData, setEditData] = useState(user);
   const [todayDate] = useState(() => getTodayDate());
   const text = translations[language];
 
+  useEffect(() => {
+    setEditData(user);
+  }, [user]);
+
   const handleSave = () => {
     onUpdate(editData);
     setIsEditing(false);
+    setIsMobileEditOpen(false);
   };
+
+  const handleCancel = () => {
+    setEditData(user);
+    setIsEditing(false);
+    setIsMobileEditOpen(false);
+  };
+
+  const openEditor = () => {
+    setEditData(user);
+    if (isMobile) {
+      setIsMobileEditOpen(true);
+    } else {
+      setIsEditing(true);
+    }
+  };
+
+  const showInlineEdit = isEditing && !isMobile;
 
   const totalCompleted = habits.reduce(
     (sum: number, h: Habit) => sum + h.completions.filter(c => c.completed).length,
@@ -2406,7 +2435,7 @@ function ProfilePage({
       <div className={`${themeConfig.card} rounded-2xl p-8 border ${themeConfig.border} shadow-lg`}>
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
           <div className="flex items-start gap-4 flex-1 min-w-0">
-            <div className="w-16 h-16 bg-gradient-to-br from-emerald-400 via-sky-400 to-indigo-500 rounded-full flex items-center justify-center text-3xl shadow-lg ring-2 ring-sky-400/30 overflow-hidden">
+            <div className="w-16 h-16 shrink-0 bg-gradient-to-br from-emerald-400 via-sky-400 to-indigo-500 rounded-full flex items-center justify-center text-3xl shadow-lg ring-2 ring-sky-400/30 overflow-hidden">
               {user.avatarUrl ? (
                 <Image
                   src={user.avatarUrl}
@@ -2421,7 +2450,7 @@ function ProfilePage({
               )}
             </div>
             <div className="min-w-0">
-              {isEditing ? (
+              {showInlineEdit ? (
                 <div className="space-y-2">
                   <input
                     type="text"
@@ -2439,12 +2468,12 @@ function ProfilePage({
               ) : (
                 <h2 className={`text-2xl font-bold ${themeConfig.text} break-words`}>{user.name}</h2>
               )}
-              {!isEditing && <p className={themeConfig.textSecondary}>{user.email}</p>}
+              {!showInlineEdit && <p className={themeConfig.textSecondary}>{user.email}</p>}
               <p className={`text-sm ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>{text.joined} {formatDate(user.joinDate, locale)}</p>
             </div>
           </div>
 
-          {isEditing ? (
+          {showInlineEdit ? (
             <div className="flex gap-2 sm:ml-4 self-start sm:self-auto">
               <button
                 onClick={handleSave}
@@ -2453,10 +2482,7 @@ function ProfilePage({
                 <Save className="w-5 h-5" />
               </button>
               <button
-                onClick={() => {
-                  setEditData(user);
-                  setIsEditing(false);
-                }}
+                onClick={handleCancel}
                 className="p-2 bg-red-500/20 hover:bg-red-500/30 text-red-500 rounded-lg transition"
               >
                 <X className="w-5 h-5" />
@@ -2464,7 +2490,7 @@ function ProfilePage({
             </div>
           ) : (
             <button
-              onClick={() => setIsEditing(true)}
+              onClick={openEditor}
               className="p-2 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-500 rounded-lg transition self-start sm:self-auto"
             >
               <Edit2 className="w-5 h-5" />
@@ -2475,7 +2501,7 @@ function ProfilePage({
         {/* Bio */}
         <div>
           <label className={`block text-sm ${themeConfig.textSecondary} mb-2`}>{text.bio}</label>
-          {isEditing ? (
+          {showInlineEdit ? (
             <textarea
               value={editData.bio}
               onChange={(e) => setEditData({ ...editData, bio: e.target.value })}
@@ -2528,6 +2554,69 @@ function ProfilePage({
           )}
         </div>
       </div>
+
+      {isMobile && isMobileEditOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className={`${themeConfig.card} w-full max-w-md rounded-2xl border ${themeConfig.border} p-6 shadow-2xl max-h-[90vh] overflow-y-auto`}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className={`${themeConfig.text} text-lg font-bold`}>{text.profile}</h3>
+              <button
+                onClick={handleCancel}
+                className={`p-2 rounded-lg transition ${themeConfig.hover}`}
+                aria-label={text.cancel}
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className={`block text-sm ${themeConfig.textSecondary} mb-2`}>{text.nameLabel}</label>
+                <input
+                  type="text"
+                  value={editData.name}
+                  onChange={(e) => setEditData({ ...editData, name: e.target.value })}
+                  className={`w-full px-4 py-2 ${themeConfig.input} rounded-lg ${themeConfig.text} focus:outline-none focus:ring-2 focus:ring-emerald-400`}
+                />
+              </div>
+              <div>
+                <label className={`block text-sm ${themeConfig.textSecondary} mb-2`}>{text.emailLabel}</label>
+                <input
+                  type="email"
+                  value={editData.email}
+                  onChange={(e) => setEditData({ ...editData, email: e.target.value })}
+                  className={`w-full px-4 py-2 ${themeConfig.input} rounded-lg ${themeConfig.text} focus:outline-none focus:ring-2 focus:ring-emerald-400`}
+                />
+              </div>
+              <div>
+                <label className={`block text-sm ${themeConfig.textSecondary} mb-2`}>{text.bio}</label>
+                <textarea
+                  value={editData.bio}
+                  onChange={(e) => setEditData({ ...editData, bio: e.target.value })}
+                  className={`w-full px-4 py-2 ${themeConfig.input} rounded-lg ${themeConfig.text} focus:outline-none focus:ring-2 focus:ring-emerald-400`}
+                  rows={4}
+                />
+              </div>
+            </div>
+
+            <div className="mt-6 flex gap-3">
+              <button
+                onClick={handleCancel}
+                className={`flex-1 px-4 py-2 ${themeConfig.bgTertiary} ${themeConfig.textSecondary} rounded-lg hover:opacity-80 transition`}
+              >
+                {text.cancel}
+              </button>
+              <button
+                onClick={handleSave}
+                className="flex-1 px-4 py-2 bg-gradient-to-r from-emerald-500 via-sky-500 to-indigo-500 text-white rounded-lg hover:shadow-lg transition"
+              >
+                <Save className="w-4 h-4 inline-block mr-2" />
+                {text.saveChanges}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
