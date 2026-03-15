@@ -5,9 +5,12 @@ export const metadata: Metadata = {
   title: "Habitify",
   description: "Habit tracking dashboard for daily progress",
   icons: {
-    icon: "/icon.png",
-    shortcut: "/icon.png",
-    apple: "/icon.png",
+    icon: [
+      { url: "/icon.png", type: "image/png", sizes: "32x32" },
+      { url: "/icon.png", type: "image/png", sizes: "192x192" },
+    ],
+    shortcut: [{ url: "/icon.png", type: "image/png" }],
+    apple: [{ url: "/icon.png", type: "image/png", sizes: "180x180" }],
   },
   manifest: "/manifest.webmanifest",
 };
