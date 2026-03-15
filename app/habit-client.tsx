@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
@@ -133,90 +133,90 @@ const translations = {
     weekdaysShort: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
   },
   ru: {
-    signInTitle: 'Р вЂ™РЎвЂ¦Р С•Р Т‘ Р Р† Habitify',
-    signInSubtitle: 'Р вЂ™РЎвЂ№Р В±Р ВµРЎР‚Р С‘РЎвЂљР Вµ Р С—РЎР‚Р С•Р Р†Р В°Р в„–Р Т‘Р ВµРЎР‚Р В° Р Т‘Р В»РЎРЏ Р Р†РЎвЂ¦Р С•Р Т‘Р В°',
-    nameLabel: 'Р ВР СРЎРЏ',
+    signInTitle: 'Р’С…РѕРґ РІ Habitify',
+    signInSubtitle: 'Р’С‹Р±РµСЂРёС‚Рµ РїСЂРѕРІР°Р№РґРµСЂР° РґР»СЏ РІС…РѕРґР°',
+    nameLabel: 'РРјСЏ',
     emailLabel: 'Email',
-    namePlaceholder: 'Р вЂ™Р В°РЎв‚¬Р Вµ Р С‘Р СРЎРЏ',
+    namePlaceholder: 'Р’Р°С€Рµ РёРјСЏ',
     emailPlaceholder: 'you@example.com',
-    continueWithGoogle: 'Р вЂ™Р С•Р в„–РЎвЂљР С‘ РЎвЂЎР ВµРЎР‚Р ВµР В· Google',
-    continueWithApple: 'Р вЂ™Р С•Р в„–РЎвЂљР С‘ РЎвЂЎР ВµРЎР‚Р ВµР В· Apple',
-    continueWithGitHub: 'Р вЂ™Р С•Р в„–РЎвЂљР С‘ РЎвЂЎР ВµРЎР‚Р ВµР В· GitHub',
-    continueWithEmail: 'РџСЂРѕРґРѕР»Р¶РёС‚СЊ СЃ Email',
-    passwordLabel: 'РџР°СЂРѕР»СЊ',
-    passwordPlaceholder: 'РџСЂРёРґСѓРјР°Р№С‚Рµ РїР°СЂРѕР»СЊ',
-    authErrorMissingFields: 'Р’РІРµРґРёС‚Рµ email Рё РїР°СЂРѕР»СЊ.',
-    languageLabel: 'РЇР·С‹Рє',
-    dashboard: 'РџР°РЅРµР»СЊ',
-    habits: 'РџСЂРёРІС‹С‡РєРё',
-    calendar: 'РљР°Р»РµРЅРґР°СЂСЊ',
-    statistics: 'РЎС‚Р°С‚РёСЃС‚РёРєР°',
-    profile: 'РџСЂРѕС„РёР»СЊ',
-    light: 'РЎРІРµС‚Р»Р°СЏ',
-    dark: 'РўРµРјРЅР°СЏ',
-    logout: 'Р’С‹Р№С‚Рё',
-    soundOn: 'Р—РІСѓРє РІРєР».',
-    soundOff: 'Р—РІСѓРє РІС‹РєР».',
+    continueWithGoogle: 'Р’РѕР№С‚Рё С‡РµСЂРµР· Google',
+    continueWithApple: 'Р’РѕР№С‚Рё С‡РµСЂРµР· Apple',
+    continueWithGitHub: 'Р’РѕР№С‚Рё С‡РµСЂРµР· GitHub',
+    continueWithEmail: 'Продолжить с Email',
+    passwordLabel: 'Пароль',
+    passwordPlaceholder: 'Придумайте пароль',
+    authErrorMissingFields: 'Введите email и пароль.',
+    languageLabel: 'Язык',
+    dashboard: 'Панель',
+    habits: 'Привычки',
+    calendar: 'Календарь',
+    statistics: 'Статистика',
+    profile: 'Профиль',
+    light: 'Светлая',
+    dark: 'Темная',
+    logout: 'Выйти',
+    soundOn: 'Звук вкл.',
+    soundOff: 'Звук выкл.',
     reminderTitle: 'Напоминание',
     reminderBody: 'Сегодня осталось выполнить: {count}.',
-    greetingMorning: 'Р”РѕР±СЂРѕРµ СѓС‚СЂРѕ',
-    greetingAfternoon: 'Р”РѕР±СЂС‹Р№ РґРµРЅСЊ',
-    greetingEvening: 'Р”РѕР±СЂС‹Р№ РІРµС‡РµСЂ',
-    habitsCompletedToday: 'РїСЂРёРІС‹С‡РµРє РІС‹РїРѕР»РЅРµРЅРѕ СЃРµРіРѕРґРЅСЏ',
-    todaysProgress: 'РџСЂРѕРіСЂРµСЃСЃ Р·Р° СЃРµРіРѕРґРЅСЏ',
-    complete: 'Р’С‹РїРѕР»РЅРµРЅРѕ',
-    habitsCompleted: 'РџСЂРёРІС‹С‡РµРє РІС‹РїРѕР»РЅРµРЅРѕ',
-    currentStreak: 'РўРµРєСѓС‰Р°СЏ СЃРµСЂРёСЏ',
-    days: 'РґРЅРµР№',
-    best: 'Р›СѓС‡С€РµРµ',
-    totalHabits: 'Р’СЃРµРіРѕ РїСЂРёРІС‹С‡РµРє',
-    activeHabits: 'РђРєС‚РёРІРЅС‹Рµ РїСЂРёРІС‹С‡РєРё',
-    addNewHabit: 'Р”РѕР±Р°РІРёС‚СЊ РїСЂРёРІС‹С‡РєСѓ',
-    todaysHabits: 'РџСЂРёРІС‹С‡РєРё СЃРµРіРѕРґРЅСЏ',
-    noHabitsYet: 'РџРѕРєР° РЅРµС‚ РїСЂРёРІС‹С‡РµРє. РЎРѕР·РґР°Р№С‚Рµ РїРµСЂРІСѓСЋ РїСЂРёРІС‹С‡РєСѓ!',
-    createFirstHabit: 'РЎРѕР·РґР°С‚СЊ РїРµСЂРІСѓСЋ РїСЂРёРІС‹С‡РєСѓ',
-    thisWeekOverview: 'РћР±Р·РѕСЂ РЅРµРґРµР»Рё',
-    allHabits: 'Р’СЃРµ РїСЂРёРІС‹С‡РєРё',
-    newHabit: 'РќРѕРІР°СЏ РїСЂРёРІС‹С‡РєР°',
-    searchHabits: 'РџРѕРёСЃРє РїСЂРёРІС‹С‡РµРє',
-    searchPlaceholder: 'РџРѕРёСЃРє РїРѕ РЅР°Р·РІР°РЅРёСЋ РёР»Рё РєР°С‚РµРіРѕСЂРёРё',
-    noHabitsFound: 'РќРёС‡РµРіРѕ РЅРµ РЅР°Р№РґРµРЅРѕ РїРѕ РІР°С€РµРјСѓ Р·Р°РїСЂРѕСЃСѓ.',
-    clearSearch: 'РћС‡РёСЃС‚РёС‚СЊ РїРѕРёСЃРє',
-    noHabitsCreated: 'РџСЂРёРІС‹С‡РµРє РµС‰Рµ РЅРµС‚. РќР°С‡РЅРёС‚Рµ СЃРµРіРѕРґРЅСЏ!',
-    createYourFirstHabit: 'РЎРѕР·РґР°С‚СЊ РїРµСЂРІСѓСЋ РїСЂРёРІС‹С‡РєСѓ',
-    category: 'РљР°С‚РµРіРѕСЂРёСЏ',
-    goal: 'Р¦РµР»СЊ',
-    streak: 'РЎРµСЂРёСЏ',
-    bestStreakLabel: 'Р›СѓС‡С€Р°СЏ СЃРµСЂРёСЏ',
-    statisticsTitle: 'РЎС‚Р°С‚РёСЃС‚РёРєР°',
-    completedToday: 'Р’С‹РїРѕР»РЅРµРЅРѕ СЃРµРіРѕРґРЅСЏ',
-    trend30Days: 'РўСЂРµРЅРґ Р·Р° 30 РґРЅРµР№',
-    habitDistribution: 'Р Р°СЃРїСЂРµРґРµР»РµРЅРёРµ РїСЂРёРІС‹С‡РµРє',
-    completed: 'Р’С‹РїРѕР»РЅРµРЅРѕ',
-    active: 'РђРєС‚РёРІРЅС‹Рµ',
-    habitsPerformance: 'Р­С„С„РµРєС‚РёРІРЅРѕСЃС‚СЊ РїСЂРёРІС‹С‡РµРє',
-    completion: 'Р’С‹РїРѕР»РЅРµРЅРёРµ',
-    bio: 'Рћ СЃРµР±Рµ',
-    joined: 'РџСЂРёСЃРѕРµРґРёРЅРёР»СЃСЏ',
-    totalCompleted: 'Р’СЃРµРіРѕ РІС‹РїРѕР»РЅРµРЅРѕ',
-    accountAge: 'Р’РѕР·СЂР°СЃС‚ Р°РєРєР°СѓРЅС‚Р°',
-    yourHabits: 'Р’Р°С€Рё РїСЂРёРІС‹С‡РєРё',
-    noHabitsYetShort: 'РџРѕРєР° РЅРµС‚ РїСЂРёРІС‹С‡РµРє',
-    completedCount: 'РІС‹РїРѕР»РЅРµРЅРѕ',
-    completedCheckbox: 'Р’С‹РїРѕР»РЅРµРЅРѕ',
-    addHabitTitle: 'Р”РѕР±Р°РІРёС‚СЊ РїСЂРёРІС‹С‡РєСѓ',
-    habitName: 'РќР°Р·РІР°РЅРёРµ РїСЂРёРІС‹С‡РєРё',
-    habitNamePlaceholder: 'РЅР°РїСЂРёРјРµСЂ, РЈС‚СЂРµРЅРЅСЏСЏ РјРµРґРёС‚Р°С†РёСЏ',
-    unit: 'Р•Рґ. РёР·РјРµСЂРµРЅРёСЏ',
-    icon: 'РРєРѕРЅРєР°',
-    reminderTimeOptional: 'Р’СЂРµРјСЏ РЅР°РїРѕРјРёРЅР°РЅРёСЏ (РЅРµРѕР±СЏР·Р°С‚РµР»СЊРЅРѕ)',
-    cancel: 'РћС‚РјРµРЅР°',
-    saveChanges: 'РЎРѕС…СЂР°РЅРёС‚СЊ',
-    addHabit: 'Р”РѕР±Р°РІРёС‚СЊ',
-    monthlyResetTitle: 'Р•Р¶РµРјРµСЃСЏС‡РЅР°СЏ РѕС‡РёСЃС‚РєР°',
-    resetNoticePrefix: 'Р›РѕРєР°Р»СЊРЅС‹Рµ РґР°РЅРЅС‹Рµ РѕС‡РёС‰РµРЅС‹',
-    closeNotice: 'Р—Р°РєСЂС‹С‚СЊ СѓРІРµРґРѕРјР»РµРЅРёРµ',
-    weekdaysShort: ['РџРЅ', 'Р’С‚', 'РЎСЂ', 'Р§С‚', 'РџС‚', 'РЎР±', 'Р’СЃ'],
+    greetingMorning: 'Доброе утро',
+    greetingAfternoon: 'Добрый день',
+    greetingEvening: 'Добрый вечер',
+    habitsCompletedToday: 'привычек выполнено сегодня',
+    todaysProgress: 'Прогресс за сегодня',
+    complete: 'Выполнено',
+    habitsCompleted: 'Привычек выполнено',
+    currentStreak: 'Текущая серия',
+    days: 'дней',
+    best: 'Лучшее',
+    totalHabits: 'Всего привычек',
+    activeHabits: 'Активные привычки',
+    addNewHabit: 'Добавить привычку',
+    todaysHabits: 'Привычки сегодня',
+    noHabitsYet: 'Пока нет привычек. Создайте первую привычку!',
+    createFirstHabit: 'Создать первую привычку',
+    thisWeekOverview: 'Обзор недели',
+    allHabits: 'Все привычки',
+    newHabit: 'Новая привычка',
+    searchHabits: 'Поиск привычек',
+    searchPlaceholder: 'Поиск по названию или категории',
+    noHabitsFound: 'Ничего не найдено по вашему запросу.',
+    clearSearch: 'Очистить поиск',
+    noHabitsCreated: 'Привычек еще нет. Начните сегодня!',
+    createYourFirstHabit: 'Создать первую привычку',
+    category: 'Категория',
+    goal: 'Цель',
+    streak: 'Серия',
+    bestStreakLabel: 'Лучшая серия',
+    statisticsTitle: 'Статистика',
+    completedToday: 'Выполнено сегодня',
+    trend30Days: 'Тренд за 30 дней',
+    habitDistribution: 'Распределение привычек',
+    completed: 'Выполнено',
+    active: 'Активные',
+    habitsPerformance: 'Эффективность привычек',
+    completion: 'Выполнение',
+    bio: 'О себе',
+    joined: 'Присоединился',
+    totalCompleted: 'Всего выполнено',
+    accountAge: 'Возраст аккаунта',
+    yourHabits: 'Ваши привычки',
+    noHabitsYetShort: 'Пока нет привычек',
+    completedCount: 'выполнено',
+    completedCheckbox: 'Выполнено',
+    addHabitTitle: 'Добавить привычку',
+    habitName: 'Название привычки',
+    habitNamePlaceholder: 'например, Утренняя медитация',
+    unit: 'Ед. измерения',
+    icon: 'Иконка',
+    reminderTimeOptional: 'Время напоминания (необязательно)',
+    cancel: 'Отмена',
+    saveChanges: 'Сохранить',
+    addHabit: 'Добавить',
+    monthlyResetTitle: 'Ежемесячная очистка',
+    resetNoticePrefix: 'Локальные данные очищены',
+    closeNotice: 'Закрыть уведомление',
+    weekdaysShort: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
   },
   uz: {
     signInTitle: 'Habitify ga kirish',
@@ -266,7 +266,7 @@ const translations = {
     newHabit: 'Yangi odat',
     searchHabits: 'Odatlarni qidirish',
     searchPlaceholder: "Nomi yoki kategoriya bo'yicha qidiring",
-    noHabitsFound: 'Qidiruv boвЂyicha hech narsa topilmadi.',
+    noHabitsFound: 'Qidiruv bo‘yicha hech narsa topilmadi.',
     clearSearch: 'Qidiruvni tozalash',
     noHabitsCreated: "Hali odatlar yo'q. Bugun boshlang!",
     createYourFirstHabit: 'Birinchi odatni yaratish',
@@ -317,13 +317,13 @@ const categoryLabels: Record<Language, Record<string, string>> = {
     hobbies: 'Hobbies',
   },
   ru: {
-    health: 'Р—РґРѕСЂРѕРІСЊРµ',
-    productivity: 'РџСЂРѕРґСѓРєС‚РёРІРЅРѕСЃС‚СЊ',
-    learning: 'РћР±СѓС‡РµРЅРёРµ',
-    fitness: 'Р¤РёС‚РЅРµСЃ',
-    wellness: 'РЎР°РјРѕС‡СѓРІСЃС‚РІРёРµ',
-    finance: 'Р¤РёРЅР°РЅСЃС‹',
-    hobbies: 'РҐРѕР±Р±Рё',
+    health: 'Здоровье',
+    productivity: 'Продуктивность',
+    learning: 'Обучение',
+    fitness: 'Фитнес',
+    wellness: 'Самочувствие',
+    finance: 'Финансы',
+    hobbies: 'Хобби',
   },
   uz: {
     health: "Sog'liq",
@@ -347,13 +347,13 @@ const unitLabels: Record<Language, Record<string, string>> = {
     pages: 'pages',
   },
   ru: {
-    min: 'РјРёРЅ',
-    hours: 'С‡',
-    reps: 'РїРѕРІС‚.',
-    km: 'РєРј',
-    liters: 'Р»',
-    count: 'СЂР°Р·',
-    pages: 'СЃС‚СЂ.',
+    min: 'мин',
+    hours: 'ч',
+    reps: 'повт.',
+    km: 'км',
+    liters: 'л',
+    count: 'раз',
+    pages: 'стр.',
   },
   uz: {
     min: 'daq',
@@ -450,6 +450,26 @@ const themes = {
 type ThemeConfig = (typeof themes)['dark'];
 
 const MS_PER_DAY = 1000 * 60 * 60 * 24;
+const habitIcons = ['💻', '📚', '💪', '💧', '🌙', '🧘', '🏃', '🍎', '🎯', '⭐'];
+const defaultHabitIcon = '⭐';
+const legacyIconMap: Record<string, string> = {
+  'рџ’»': '💻',
+  'рџ“љ': '📚',
+  'рџ’Є': '💪',
+  'рџ’§': '💧',
+  'рџЌ™': '🌙',
+  'рџ§': '🧘',
+  'рџЏѓ': '🏃',
+  'рџЌЋ': '🍎',
+  'рџЋЇ': '🎯',
+  'в­ђ': '⭐',
+};
+const habitIconSet = new Set(habitIcons);
+const normalizeIcon = (icon: string | null | undefined) => {
+  if (!icon) return defaultHabitIcon;
+  const mapped = legacyIconMap[icon] ?? icon;
+  return habitIconSet.has(mapped) ? mapped : defaultHabitIcon;
+};
 
 const normalizeLanguage = (value: string | null | undefined): Language => {
   if (value === 'ru' || value === 'uz' || value === 'en') {
@@ -680,7 +700,7 @@ function HabitTrackerApp() {
     name: '',
     goal: '',
     unit: 'min',
-    icon: 'в­ђ',
+    icon: defaultHabitIcon,
     category: 'health',
     reminderTime: '09:00',
   });
@@ -742,7 +762,13 @@ function HabitTrackerApp() {
       if (!Array.isArray(savedHabits)) {
         setLocalStorage(`habits_${user.id}`, []);
       }
-      setHabits(safeHabits as Habit[]);
+      const normalizedHabits = safeHabits.map((item) => {
+        if (!item || typeof item !== 'object') return item;
+        const habit = item as Habit;
+        const nextIcon = normalizeIcon(habit.icon);
+        return habit.icon === nextIcon ? habit : { ...habit, icon: nextIcon };
+      }) as Habit[];
+      setHabits(normalizedHabits);
 
       const savedProfile = getLocalStorage<unknown>(`profile_${user.id}`, {});
       const isProfileObject = Boolean(savedProfile) && typeof savedProfile === 'object' && !Array.isArray(savedProfile);
@@ -883,7 +909,7 @@ function HabitTrackerApp() {
   }, []);
 
   /*
-      avatar: 'рџ‘¤',
+      avatar: '👤',
       bio: 'Building better habits daily!',
       joinDate: getTodayDate(),
       theme: 'dark',
@@ -956,7 +982,7 @@ function HabitTrackerApp() {
         name: newHabit.name,
         goal: parseFloat(newHabit.goal),
         unit: newHabit.unit,
-        icon: newHabit.icon,
+        icon: normalizeIcon(newHabit.icon),
         color: getRandomColor(),
         createdAt: getTodayDate(),
         completions: [],
@@ -969,7 +995,7 @@ function HabitTrackerApp() {
         name: '',
         goal: '',
         unit: 'min',
-        icon: 'в­ђ',
+        icon: defaultHabitIcon,
         category: 'health',
         reminderTime: '09:00',
       });
@@ -2151,7 +2177,7 @@ function CalendarPage({
                   </>
                 )}
                 {/* {completionRate === 100 && (
-                  <div className="text-lg absolute -top-1 -right-1">вњ“</div>
+                  <div className="text-lg absolute -top-1 -right-1">✓</div>
                 )} */}
               </button>
             );
@@ -2192,7 +2218,7 @@ function CalendarPage({
                 </div>
                 <p className={`${themeConfig.textSecondary} text-xs mt-2`}>
                   {completion?.current || 0} / {habit.goal} {getUnitLabel(language, habit.unit)}
-                  {completion?.time && ` В· ${completion.time}`}
+                  {completion?.time && ` · ${completion.time}`}
                 </p>
               </div>
             );
@@ -2736,7 +2762,7 @@ function HabitCard({
           </div>
           <p className={`${themeConfig.textSecondary} text-xs mt-1`}>
             {currentValue} / {habit.goal} {getUnitLabel(language, habit.unit)}
-            {completion?.time && ` В· ${completion.time}`}
+            {completion?.time && ` · ${completion.time}`}
           </p>
         </div>
       </div>
@@ -2854,10 +2880,10 @@ function AddHabitModal({
   themeConfig: ThemeConfig;
   language: Language;
 }) {
-  const icons = ['рџ’»', 'рџ“љ', 'рџ’Є', 'рџ’§', 'рџЊ™', 'рџ§', 'рџЏѓ', 'рџЌЋ', 'рџЋЇ', 'в­ђ'];
   const categories = ['health', 'productivity', 'learning', 'fitness', 'wellness', 'finance', 'hobbies'];
   const units = ['min', 'hours', 'reps', 'km', 'liters', 'count', 'pages'];
   const text = translations[language];
+  const selectedIcon = normalizeIcon(habit.icon);
 
   return (
     <div className={`fixed inset-0 ${theme === 'dark' ? 'bg-black/50' : 'bg-white/50'} backdrop-blur-sm flex items-center justify-center p-4 z-50`}>
@@ -2932,12 +2958,12 @@ function AddHabitModal({
               {text.icon}
             </label>
             <div className="grid grid-cols-5 gap-2">
-              {icons.map((icon) => (
+              {habitIcons.map((icon) => (
                 <button
                   key={icon}
                   onClick={() => onChange({ ...habit, icon })}
                   className={`p-3 rounded-lg text-xl transition ${
-                    habit.icon === icon
+                    selectedIcon === icon
                       ? 'bg-emerald-500/30 border border-emerald-500/50'
                       : `${themeConfig.bgTertiary} border ${themeConfig.border} ${themeConfig.hover}`
                   }`}
@@ -2981,6 +3007,7 @@ function AddHabitModal({
 }
 
 // Animation styles live in app/globals.css to avoid module-level side effects.
+
 
 
 
