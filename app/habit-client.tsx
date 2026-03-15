@@ -992,12 +992,60 @@ function HabitTrackerApp() {
       return completion?.completed;
     });
 
+    const isHabitActiveOn = (habit: Habit, dateStr: string) => {
+      return !habit.createdAt || habit.createdAt <= dateStr;
+    };
+
+    const isDayFullyCompleted = (dateStr: string) => {
+      const activeHabits = habits.filter(h => isHabitActiveOn(h, dateStr));
+      if (activeHabits.length === 0) return false;
+      return activeHabits.every(h => h.completions.find(c => c.date === dateStr && c.completed));
+    };
+
+    const getCurrentStreak = () => {
+      if (habits.length === 0) return 0;
+      let streak = 0;
+      const checkDate = new Date();
+      while (true) {
+        const dateStr = formatLocalDate(checkDate);
+        if (!isDayFullyCompleted(dateStr)) break;
+        streak++;
+        checkDate.setDate(checkDate.getDate() - 1);
+      }
+      return streak;
+    };
+
+    const getBestStreak = () => {
+      if (habits.length === 0) return 0;
+      const validDates = habits
+        .map(h => h.createdAt)
+        .filter((value): value is string => Boolean(value));
+      const startDate = validDates.length > 0
+        ? parseLocalDate(validDates.reduce((min, value) => (value < min ? value : min)))
+        : new Date();
+      const today = new Date();
+      let best = 0;
+      let current = 0;
+      const cursor = new Date(startDate);
+      while (cursor <= today) {
+        const dateStr = formatLocalDate(cursor);
+        if (isDayFullyCompleted(dateStr)) {
+          current++;
+          best = Math.max(best, current);
+        } else {
+          current = 0;
+        }
+        cursor.setDate(cursor.getDate() + 1);
+      }
+      return best;
+    };
+
     return {
       totalHabits: habits.length,
       completedToday: todaysHabits.length,
       weeklyCompletion: Math.round((todaysHabits.length / Math.max(habits.length, 1)) * 100),
-      currentStreak: Math.max(...habits.map(h => getStreak(h)), 0),
-      bestStreak: Math.max(...habits.map(h => getBestStreak(h)), 0),
+      currentStreak: getCurrentStreak(),
+      bestStreak: getBestStreak(),
     };
   };
 
