@@ -647,6 +647,7 @@ function HabitTrackerApp() {
   const [soundEnabled, setSoundEnabled] = useState(() => getLocalStorage<boolean>('sound_enabled', true) ?? true);
   const [language, setLanguage] = useState<Language>(() => normalizeLanguage(getLocalStorage<string>('language', 'en')));
   const [isMounted, setIsMounted] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   const [currentPage, setCurrentPage] = useState<Page>('dashboard');
   const [sidebarOpen] = useState(true);
@@ -717,10 +718,20 @@ function HabitTrackerApp() {
         setProfileOverrides({});
         return;
       }
-      const savedHabits = getLocalStorage<Habit[]>(`habits_${user.id}`, []);
-      setHabits(savedHabits);
-      const savedProfile = getLocalStorage<ProfileOverrides>(`profile_${user.id}`, {});
-      setProfileOverrides(savedProfile || {});
+      const savedHabits = getLocalStorage<unknown>(`habits_${user.id}`, []);
+      const safeHabits = Array.isArray(savedHabits) ? savedHabits : [];
+      if (!Array.isArray(savedHabits)) {
+        setLocalStorage(`habits_${user.id}`, []);
+      }
+      setHabits(safeHabits as Habit[]);
+
+      const savedProfile = getLocalStorage<unknown>(`profile_${user.id}`, {});
+      const isProfileObject = Boolean(savedProfile) && typeof savedProfile === 'object' && !Array.isArray(savedProfile);
+      const safeProfile = isProfileObject ? (savedProfile as ProfileOverrides) : {};
+      if (!isProfileObject) {
+        setLocalStorage(`profile_${user.id}`, {});
+      }
+      setProfileOverrides(safeProfile);
     };
     loadUserData();
   }, [isSignedIn, user?.id]);
@@ -817,6 +828,19 @@ function HabitTrackerApp() {
     return () => {
       window.cancelAnimationFrame(rafId);
     };
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const media = window.matchMedia('(max-width: 640px)');
+    const update = () => setIsMobile(media.matches);
+    update();
+    if (typeof media.addEventListener === 'function') {
+      media.addEventListener('change', update);
+      return () => media.removeEventListener('change', update);
+    }
+    media.addListener(update);
+    return () => media.removeListener(update);
   }, []);
 
   /*
@@ -935,29 +959,6 @@ function HabitTrackerApp() {
             completed: current >= h.goal,
             current,
             time,
-          });
-        }
-
-        return { ...h, completions };
-      }
-      return h;
-    }));
-  };
-
-  // Toggle Habit Completion
-  const toggleHabitCompletion = (habitId: string, date: string) => {
-    setHabits((prev) => prev.map(h => {
-      if (h.id === habitId) {
-        const completions = [...h.completions];
-        const existingIndex = completions.findIndex(c => c.date === date);
-
-        if (existingIndex >= 0) {
-          completions[existingIndex].completed = !completions[existingIndex].completed;
-        } else {
-          completions.push({
-            date,
-            completed: true,
-            current: h.goal,
           });
         }
 
@@ -1103,7 +1104,6 @@ function HabitTrackerApp() {
               habits={habits}
               selectedDate={getTodayDate()}
               metrics={calculateMetrics()}
-              onToggleHabit={toggleHabitCompletion}
               onUpdateProgress={handleUpdateHabitCompletion}
               onAddHabit={() => setShowAddHabit(true)}
               onDeleteHabit={deleteHabit}
@@ -1112,6 +1112,7 @@ function HabitTrackerApp() {
               language={language}
               locale={locale}
               isMounted={isMounted}
+              isMobile={isMobile}
             />
           )}
 
@@ -1600,7 +1601,6 @@ function DashboardPage({
   habits,
   selectedDate,
   metrics,
-  onToggleHabit,
   onUpdateProgress,
   onAddHabit,
   onDeleteHabit,
@@ -1609,11 +1609,11 @@ function DashboardPage({
   language,
   locale,
   isMounted,
+  isMobile,
 }: {
   habits: Habit[];
   selectedDate: string;
   metrics: Metrics;
-  onToggleHabit: (habitId: string, date: string) => void;
   onUpdateProgress: (habitId: string, date: string, current: number, time?: string) => void;
   onAddHabit: () => void;
   onDeleteHabit: (habitId: string) => void;
@@ -1622,6 +1622,7 @@ function DashboardPage({
   language: Language;
   locale: string;
   isMounted: boolean;
+  isMobile: boolean;
 }) {
   const weekDates = getWeekDates();
   const text = translations[language];
@@ -1733,12 +1734,12 @@ function DashboardPage({
                   habit={habit}
                   date={selectedDate}
                   completion={completion}
-                  onToggle={onToggleHabit}
                   onUpdate={onUpdateProgress}
                   onDelete={onDeleteHabit}
                   theme={theme}
                   themeConfig={themeConfig}
                   language={language}
+                  isMobile={isMobile}
                 />
               );
             })}
@@ -2488,27 +2489,32 @@ function HabitCard({
   habit,
   date,
   completion,
-  onToggle,
   onUpdate,
   onDelete,
   theme,
   themeConfig,
   language,
+  isMobile,
 }: {
   habit: Habit;
   date: string;
   completion?: HabitCompletion;
-  onToggle: (habitId: string, date: string) => void;
   onUpdate: (habitId: string, date: string, current: number, time?: string) => void;
   onDelete: (habitId: string) => void;
   theme: Theme;
   themeConfig: ThemeConfig;
   language: Language;
+  isMobile: boolean;
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [currentValue, setCurrentValue] = useState(completion?.current || 0);
   const [time, setTime] = useState(completion?.time || getCurrentTimeString());
   const text = translations[language];
+
+  useEffect(() => {
+    setCurrentValue(completion?.current || 0);
+    setTime(completion?.time || getCurrentTimeString());
+  }, [completion?.current, completion?.time]);
 
   const percentage = Math.min((currentValue / habit.goal) * 100, 100);
 
@@ -2516,12 +2522,20 @@ function HabitCard({
     <div className={`${themeConfig.card} rounded-xl p-4 border ${themeConfig.border} flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0 hover:border-emerald-500/50 transition shadow-lg`}>
       <div className="flex items-center gap-4 flex-1 w-full">
         <button
-          onClick={() => onToggle(habit.id, date)}
+          onClick={() => {
+            if (!isMobile) return;
+            const nextTime = getCurrentTimeString();
+            setCurrentValue(habit.goal);
+            setTime(nextTime);
+            onUpdate(habit.id, date, habit.goal, nextTime);
+          }}
+          disabled={!isMobile}
+          aria-disabled={!isMobile}
           className={`flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center transition ${
             completion?.completed
               ? 'bg-green-500/20 text-green-500'
               : `${themeConfig.bgTertiary} ${themeConfig.textSecondary} hover:bg-emerald-500/20`
-          }`}
+          } ${isMobile ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'}`}
         >
           {completion?.completed && <Check className="w-6 h-6" />}
         </button>
@@ -2741,17 +2755,4 @@ function AddHabitModal({
   );
 }
 
-// CSS for animations
-if (typeof window !== 'undefined') {
-  const style = document.createElement('style');
-  style.textContent = `
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .animate-fade-in {
-      animation: fadeIn 0.3s ease-out;
-    }
-  `;
-  document.head.appendChild(style);
-}
+// Animation styles live in app/globals.css to avoid module-level side effects.
