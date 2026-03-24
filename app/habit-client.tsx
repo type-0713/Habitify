@@ -1997,25 +1997,15 @@ function Header({
         } section-reveal spotlight-card`}
       >
         <div className="flex items-start justify-between gap-3">
-          <div className="flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
-            <button
-              onClick={onMenuClick}
-              className={`md:hidden flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border transition ${themeConfig.hover} ${
-                theme === 'dark' ? 'border-slate-700 bg-slate-800/85 text-slate-100' : 'border-slate-200 bg-white/90 text-slate-700'
-              }`}
-              aria-label="Open menu"
-            >
-              <Menu className="h-5 w-5" />
-            </button>
-            <div className="min-w-0">
-              <h2 className={`truncate text-sm font-bold leading-tight sm:text-xl ${themeConfig.text}`}>
-                {getGreeting(language)}, {user.name}!
-              </h2>
-              <p className={`${themeConfig.textSecondary} mt-1 text-[11px] sm:text-sm`}>
-                {metrics.completedToday} / {metrics.totalHabits} {text.habitsCompletedToday}
-              </p>
-            </div>
-          </div>
+          <button
+            onClick={onMenuClick}
+            className={`md:hidden flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border transition ${themeConfig.hover} ${
+              theme === 'dark' ? 'border-slate-700 bg-slate-800/85 text-slate-100' : 'border-slate-200 bg-white/90 text-slate-700'
+            }`}
+            aria-label="Open menu"
+          >
+            <Menu className="h-5 w-5" />
+          </button>
 
           <div className="flex shrink-0 items-center gap-2 sm:gap-3">
             <div
@@ -2086,6 +2076,15 @@ function Header({
               </div>
             </button>
           </div>
+        </div>
+
+        <div className="mt-3 min-w-0">
+          <h2 className={`truncate text-sm font-bold leading-tight sm:text-xl ${themeConfig.text}`}>
+            {getGreeting(language)}, {user.name}!
+          </h2>
+          <p className={`${themeConfig.textSecondary} mt-1 text-[11px] sm:text-sm`}>
+            {metrics.completedToday} / {metrics.totalHabits} {text.habitsCompletedToday}
+          </p>
         </div>
 
         <div className="mt-3 flex items-center gap-2 md:hidden">
