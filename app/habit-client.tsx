@@ -1980,57 +1980,108 @@ function Header({
 }) {
   const themeConfig = themes[theme];
   const text = translations[language];
+  const completionRatio = metrics.totalHabits > 0 ? Math.round((metrics.completedToday / metrics.totalHabits) * 100) : 0;
 
   return (
-    <header className={`${theme === 'dark' ? 'bg-slate-800/50 border-slate-700' : 'bg-white/75 shadow-sm border-slate-200/80'} section-reveal spotlight-card backdrop-blur-xl border-b sticky top-0 z-40`}>
-      <div className="px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+    <header className="sticky top-0 z-50 px-3 pt-3 sm:px-4 sm:pt-4">
+      <div
+        className={`mx-auto flex max-w-7xl items-center justify-between gap-3 rounded-[28px] border px-3 py-3 shadow-[0_20px_60px_-32px_rgba(15,23,42,0.45)] backdrop-blur-2xl transition sm:px-5 sm:py-4 ${
+          theme === 'dark'
+            ? 'border-slate-700/80 bg-slate-900/72'
+            : 'border-white/80 bg-white/82 shadow-[0_24px_60px_-34px_rgba(15,23,42,0.22)]'
+        } section-reveal spotlight-card`}
+      >
+        <div className="flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
           <button
             onClick={onMenuClick}
-            className={`md:hidden p-2 rounded-lg transition ${themeConfig.hover} shrink-0`}
+            className={`md:hidden flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border transition ${themeConfig.hover} ${
+              theme === 'dark' ? 'border-slate-700 bg-slate-800/85 text-slate-100' : 'border-slate-200 bg-white/90 text-slate-700'
+            }`}
+            aria-label="Open menu"
           >
-            <Menu className="w-6 h-6" />
+            <Menu className="h-5 w-5" />
           </button>
           <div className="min-w-0">
-            <h2 className={`text-lg sm:text-xl font-bold ${themeConfig.text} leading-tight break-words`}>
+            <h2 className={`truncate text-base font-bold leading-tight sm:text-xl ${themeConfig.text}`}>
               {getGreeting(language)}, {user.name}!
             </h2>
-            <p className={`${themeConfig.textSecondary} text-xs sm:text-sm`}>
-              {metrics.completedToday} / {metrics.totalHabits} {text.habitsCompletedToday}
-            </p>
+            <div className="mt-1 flex flex-wrap items-center gap-2">
+              <p className={`${themeConfig.textSecondary} text-xs sm:text-sm`}>
+                {metrics.completedToday} / {metrics.totalHabits} {text.habitsCompletedToday}
+              </p>
+              <span
+                className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold ${
+                  theme === 'dark' ? 'bg-emerald-500/14 text-emerald-300' : 'bg-emerald-50 text-emerald-700'
+                }`}
+              >
+                {completionRatio}% {text.complete.toLowerCase()}
+              </span>
+            </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+          <div
+            className={`hidden items-center gap-3 rounded-2xl border px-3 py-2 md:flex ${
+              theme === 'dark' ? 'border-slate-700 bg-slate-800/75' : 'border-slate-200 bg-white/92'
+            }`}
+          >
+            <div className="min-w-[88px]">
+              <p className={`text-[10px] uppercase tracking-[0.18em] ${themeConfig.textSecondary}`}>{text.todaysProgress}</p>
+              <p className={`text-sm font-semibold ${themeConfig.text}`}>{completionRatio}%</p>
+            </div>
+            <div className={`h-2 w-24 overflow-hidden rounded-full ${theme === 'dark' ? 'bg-slate-700' : 'bg-slate-200'}`}>
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-emerald-500 via-sky-500 to-indigo-500 transition-all duration-500"
+                style={{ width: `${completionRatio}%` }}
+              />
+            </div>
+          </div>
+
           <button
             onClick={onSoundToggle}
             aria-pressed={!soundEnabled}
-            className={`relative p-2 rounded-lg transition hover-lift ${themeConfig.hover}`}
+            className={`relative flex h-11 w-11 items-center justify-center rounded-2xl border transition hover-lift ${
+              theme === 'dark'
+                ? 'border-slate-700 bg-slate-800/80 text-slate-100 hover:bg-slate-700'
+                : 'border-slate-200 bg-white/92 text-slate-700 hover:bg-slate-50'
+            }`}
             title={soundEnabled ? text.soundOn : text.soundOff}
           >
-            <Bell className="w-6 h-6" />
+            <Bell className="h-5 w-5" />
             {metrics.completedToday > 0 && (
-              <span className="absolute top-1 right-1 w-2 h-2 bg-green-500 rounded-full"></span>
+              <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_0_4px_rgba(16,185,129,0.12)]" />
             )}
             {!soundEnabled && (
               <span className="absolute inset-0 flex items-center justify-center">
-                <span className="w-7 h-[2px] bg-red-500 rotate-45"></span>
+                <span className="h-[2px] w-6 rotate-45 bg-red-500" />
               </span>
             )}
           </button>
-            <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-emerald-400 via-sky-400 to-indigo-500 rounded-full flex items-center justify-center text-sm sm:text-lg font-semibold shadow-lg overflow-hidden ring-2 ring-sky-400/30 shrink-0 float-gentle">
-            {user.avatarUrl ? (
-              <Image
-                src={user.avatarUrl}
-                alt={user.name}
-                width={40}
-                height={40}
-                sizes="40px"
-                className="w-full h-full rounded-full object-cover"
-              />
-            ) : (
-              <span className="leading-none">{user.avatar}</span>
-            )}
+
+          <div className={`flex items-center gap-2 rounded-2xl border px-2 py-1.5 ${
+            theme === 'dark' ? 'border-slate-700 bg-slate-800/80' : 'border-slate-200 bg-white/92'
+          }`}>
+            <div className="hidden text-right sm:block">
+              <p className={`max-w-[120px] truncate text-xs font-semibold ${themeConfig.text}`}>{user.name}</p>
+              <p className={`text-[11px] ${themeConfig.textSecondary}`}>{text.profile}</p>
+            </div>
+            <div className="h-10 w-10 overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-400 via-sky-400 to-indigo-500 text-sm font-semibold text-white shadow-lg ring-2 ring-sky-400/30 float-gentle">
+              {user.avatarUrl ? (
+                <Image
+                  src={user.avatarUrl}
+                  alt={user.name}
+                  width={40}
+                  height={40}
+                  sizes="40px"
+                  className="h-full w-full rounded-2xl object-cover"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center">
+                  <span className="leading-none">{user.avatar}</span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
