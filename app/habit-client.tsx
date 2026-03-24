@@ -1374,7 +1374,7 @@ function HabitTrackerApp() {
       {mobileSidebarOpen && (
         <>
           <div
-            className="fixed inset-0 bg-black/40 z-40 md:hidden"
+            className="fixed inset-0 z-40 bg-[linear-gradient(135deg,rgba(15,23,42,0.52),rgba(15,23,42,0.26))] backdrop-blur-[6px] md:hidden"
             onClick={() => setMobileSidebarOpen(false)}
           />
           <Sidebar
@@ -1818,10 +1818,12 @@ function Sidebar({
   const text = translations[language];
   const isMobile = variant === 'mobile';
   const showLabels = isMobile ? true : isOpen;
-  const widthClass = isMobile ? 'w-64' : isOpen ? 'w-64' : 'w-20';
+  const widthClass = isMobile ? 'w-[min(22rem,calc(100vw-1.5rem))]' : isOpen ? 'w-64' : 'w-20';
   const containerClass = `${
-    isMobile ? 'flex md:hidden fixed inset-y-0 left-0 z-50' : 'hidden md:flex'
-  } ${widthClass} ${theme === 'dark' ? 'bg-slate-800/80 border-slate-700' : 'bg-white shadow-xl border-slate-200'} spotlight-card section-reveal backdrop-blur-xl border-r transition-all duration-300 flex flex-col overflow-y-auto`;
+    isMobile
+      ? 'flex md:hidden fixed inset-y-3 left-3 z-50 rounded-[32px] border shadow-[0_30px_70px_-30px_rgba(15,23,42,0.6)]'
+      : 'hidden md:flex'
+  } ${widthClass} ${theme === 'dark' ? 'bg-slate-800/88 border-slate-700' : 'bg-white/96 shadow-xl border-slate-200'} spotlight-card section-reveal backdrop-blur-xl ${isMobile ? '' : 'border-r'} transition-all duration-300 flex flex-col overflow-y-auto`;
   const menuItems: { id: Page; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
     { id: 'dashboard', label: text.dashboard, icon: Home },
     { id: 'habits', label: text.habits, icon: ListTodo },
@@ -1840,8 +1842,13 @@ function Sidebar({
     <aside
       className={containerClass}
     >
+      <div className={`pointer-events-none absolute inset-0 ${
+        theme === 'dark'
+          ? 'bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.16),_transparent_36%),radial-gradient(circle_at_bottom_right,_rgba(59,130,246,0.18),_transparent_34%)]'
+          : 'bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.12),_transparent_36%),radial-gradient(circle_at_bottom_right,_rgba(59,130,246,0.12),_transparent_34%)]'
+      }`} />
       {/* Logo */}
-      <div className={`p-6 border-b ${themeConfig.border}`}>
+      <div className={`relative p-6 border-b ${themeConfig.border}`}>
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 via-sky-500 to-indigo-500 rounded-lg flex items-center justify-center flex-shrink-0 shadow-lg">
@@ -1862,12 +1869,12 @@ function Sidebar({
       </div>
 
       {/* Menu Items */}
-      <nav className="flex-1 p-4 space-y-2">
+      <nav className="relative flex-1 p-4 space-y-2">
         {menuItems.map((item) => (
           <button
             key={item.id}
             onClick={() => handlePageChange(item.id)}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg hover-lift transition ${
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl hover-lift transition ${
               currentPage === item.id
                 ? 'bg-gradient-to-r from-emerald-500 via-sky-500 to-indigo-500 text-white shadow-lg'
                 : `${themeConfig.textSecondary} ${themeConfig.hover}`
@@ -1885,7 +1892,7 @@ function Sidebar({
       </nav>
 
       {/* Theme Toggle */}
-      <div className={`p-4 border-t ${themeConfig.border}`}>
+      <div className={`relative p-4 border-t ${themeConfig.border}`}>
         <button
           onClick={() => onThemeChange(theme === 'dark' ? 'light' : 'dark')}
           className={`w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition ${
@@ -1904,7 +1911,7 @@ function Sidebar({
       </div>
 
       {/* Language Toggle */}
-      <div className={`p-4 border-t ${themeConfig.border}`}>
+      <div className={`relative p-4 border-t ${themeConfig.border}`}>
         {showLabels && <p className={`text-xs ${themeConfig.textSecondary} mb-2`}>{text.languageLabel}</p>}
         <div className={`flex ${showLabels ? 'gap-2' : 'flex-col gap-2 items-center'}`}>
           {(['en', 'ru', 'uz'] as Language[]).map((lang) => (
@@ -1924,7 +1931,7 @@ function Sidebar({
       </div>
 
       {/* User Profile */}
-      <div className={`p-4 border-t ${themeConfig.border} space-y-4`}>
+      <div className={`relative p-4 border-t ${themeConfig.border} space-y-4`}>
         <div className={`flex items-center gap-3 ${!showLabels && 'justify-center'}`}>
           <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 via-sky-400 to-indigo-500 rounded-full flex items-center justify-center text-base font-semibold shadow-lg overflow-hidden ring-2 ring-sky-400/30 shrink-0">
             {user.avatarUrl ? (
