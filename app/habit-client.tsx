@@ -2078,7 +2078,7 @@ function Header({
           </div>
         </div>
 
-        <div className="mt-3 min-w-0">
+        <div className="mt-3 min-w-0 hidden md:block">
           <h2 className={`truncate text-sm font-bold leading-tight sm:text-xl ${themeConfig.text}`}>
             {getGreeting(language)}, {user.name}!
           </h2>
@@ -2087,7 +2087,7 @@ function Header({
           </p>
         </div>
 
-        <div className="mt-3 flex items-center gap-2 md:hidden">
+        <div className="mt-3 hidden items-center gap-2 md:hidden">
           <span
             className={`inline-flex shrink-0 items-center rounded-full px-2.5 py-1 text-[11px] font-semibold ${
               theme === 'dark' ? 'bg-emerald-500/14 text-emerald-300' : 'bg-emerald-50 text-emerald-700'
