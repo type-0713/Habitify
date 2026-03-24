@@ -1429,7 +1429,7 @@ function HabitTrackerApp() {
 
         {resetNotice && (
           <div className="px-6 md:px-8 pt-4">
-            <div className={`${themeConfig.card} rounded-xl p-4 border ${themeConfig.border} shadow-lg flex items-start justify-between gap-4`}>
+            <div className={`${themeConfig.card} spotlight-card section-reveal rounded-xl p-4 border ${themeConfig.border} shadow-lg flex items-start justify-between gap-4`}>
               <div className="min-w-0">
                 <p className={`${themeConfig.text} font-semibold`}>{text.monthlyResetTitle}</p>
                 <p className={`${themeConfig.textSecondary} text-sm break-words`}>{resetNotice}</p>
@@ -1445,7 +1445,7 @@ function HabitTrackerApp() {
           </div>
         )}
 
-        <div className={`relative w-full rounded-[28px] p-4 sm:p-5 md:p-8 max-w-7xl mx-auto ${themeConfig.bgSecondary}`}>
+        <div className={`relative w-full rounded-[28px] p-4 sm:p-5 md:p-8 max-w-7xl mx-auto section-reveal ${themeConfig.bgSecondary}`}>
           <div className={`pointer-events-none absolute -top-20 right-0 h-48 w-48 rounded-full blur-3xl ${
             theme === 'dark' ? 'bg-emerald-500/10' : 'bg-emerald-200/50'
           }`} />
@@ -1623,13 +1623,13 @@ function AuthPage({
   return (
     <div className={`relative min-h-screen overflow-hidden ${theme === 'dark' ? 'bg-slate-950 text-slate-100' : 'bg-[linear-gradient(135deg,#fff8ec_0%,#fffdf7_48%,#f0fbff_100%)] text-slate-900'} flex items-center justify-center p-4 sm:p-6`}>
       <div className={`pointer-events-none absolute -top-32 left-1/2 h-80 w-80 -translate-x-1/2 rounded-full blur-3xl ${theme === 'dark' ? 'bg-amber-500/20' : 'bg-amber-200/80'}`} />
-      <div className={`pointer-events-none absolute bottom-0 left-0 h-72 w-72 rounded-full blur-3xl ${theme === 'dark' ? 'bg-sky-500/15' : 'bg-sky-200/70'}`} />
-      <div className={`pointer-events-none absolute -bottom-40 right-10 h-80 w-80 rounded-full blur-3xl ${theme === 'dark' ? 'bg-emerald-500/20' : 'bg-emerald-200/70'}`} />
+      <div className={`pointer-events-none absolute bottom-0 left-0 h-72 w-72 rounded-full blur-3xl float-gentle ${theme === 'dark' ? 'bg-sky-500/15' : 'bg-sky-200/70'}`} />
+      <div className={`pointer-events-none absolute -bottom-40 right-10 h-80 w-80 rounded-full blur-3xl float-gentle ${theme === 'dark' ? 'bg-emerald-500/20' : 'bg-emerald-200/70'}`} />
 
-      <div className="relative w-full max-w-5xl">
-        <div className={`${theme === 'dark' ? 'bg-slate-900/70 border-slate-800' : 'bg-white/85 border-amber-100'} rounded-[32px] border shadow-[0_30px_80px_-40px_rgba(15,23,42,0.35)] overflow-hidden backdrop-blur-xl`}>
+      <div className="relative w-full max-w-5xl section-reveal">
+        <div className={`${theme === 'dark' ? 'bg-slate-900/70 border-slate-800' : 'bg-white/85 border-amber-100'} spotlight-card glow-pulse rounded-[32px] border shadow-[0_30px_80px_-40px_rgba(15,23,42,0.35)] overflow-hidden backdrop-blur-xl`}>
           <div className="grid gap-0 md:grid-cols-[1.25fr_1fr]">
-            <div className="p-7 md:p-10">
+              <div className="p-7 md:p-10 section-reveal section-delay-1">
               <div className="flex items-center gap-3 mb-8">
                 <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-amber-400 via-orange-500 to-orange-600 flex items-center justify-center shadow-lg shadow-orange-500/25">
                   <Check className="w-6 h-6 text-white" />
@@ -1732,7 +1732,7 @@ function AuthPage({
               </div>
             </div>
 
-            <div className={`relative hidden md:flex flex-col justify-between p-10 ${theme === 'dark' ? 'bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800' : 'bg-[linear-gradient(160deg,#fff3d6_0%,#ffffff_45%,#eaf9ff_100%)]'}`}>
+            <div className={`relative hidden md:flex flex-col justify-between p-10 section-reveal section-delay-2 ${theme === 'dark' ? 'bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800' : 'bg-[linear-gradient(160deg,#fff3d6_0%,#ffffff_45%,#eaf9ff_100%)]'}`}>
               <div className={`absolute inset-0 ${theme === 'dark' ? 'bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.15),_transparent_55%)]' : 'bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.22),_transparent_55%)]'}`} />
               <div className="relative">
                 <div className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-semibold tracking-[0.2em] ${theme === 'dark' ? 'bg-slate-800 text-emerald-300 border border-slate-700' : 'bg-white/80 text-emerald-700 border border-emerald-100 shadow-sm'}`}>
@@ -1816,7 +1816,7 @@ function Sidebar({
   const widthClass = isMobile ? 'w-64' : isOpen ? 'w-64' : 'w-20';
   const containerClass = `${
     isMobile ? 'flex md:hidden fixed inset-y-0 left-0 z-50' : 'hidden md:flex'
-  } ${widthClass} ${theme === 'dark' ? 'bg-slate-800/80 border-slate-700' : 'bg-white shadow-xl border-slate-200'} backdrop-blur-xl border-r transition-all duration-300 flex flex-col overflow-y-auto`;
+  } ${widthClass} ${theme === 'dark' ? 'bg-slate-800/80 border-slate-700' : 'bg-white shadow-xl border-slate-200'} spotlight-card section-reveal backdrop-blur-xl border-r transition-all duration-300 flex flex-col overflow-y-auto`;
   const menuItems: { id: Page; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
     { id: 'dashboard', label: text.dashboard, icon: Home },
     { id: 'habits', label: text.habits, icon: ListTodo },
@@ -1862,7 +1862,7 @@ function Sidebar({
           <button
             key={item.id}
             onClick={() => handlePageChange(item.id)}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg hover-lift transition ${
               currentPage === item.id
                 ? 'bg-gradient-to-r from-emerald-500 via-sky-500 to-indigo-500 text-white shadow-lg'
                 : `${themeConfig.textSecondary} ${themeConfig.hover}`
@@ -1982,7 +1982,7 @@ function Header({
   const text = translations[language];
 
   return (
-    <header className={`${theme === 'dark' ? 'bg-slate-800/50 border-slate-700' : 'bg-white/75 shadow-sm border-slate-200/80'} backdrop-blur-xl border-b sticky top-0 z-40`}>
+    <header className={`${theme === 'dark' ? 'bg-slate-800/50 border-slate-700' : 'bg-white/75 shadow-sm border-slate-200/80'} section-reveal spotlight-card backdrop-blur-xl border-b sticky top-0 z-40`}>
       <div className="px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-3">
         <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
           <button
@@ -2005,7 +2005,7 @@ function Header({
           <button
             onClick={onSoundToggle}
             aria-pressed={!soundEnabled}
-            className={`relative p-2 rounded-lg transition ${themeConfig.hover}`}
+            className={`relative p-2 rounded-lg transition hover-lift ${themeConfig.hover}`}
             title={soundEnabled ? text.soundOn : text.soundOff}
           >
             <Bell className="w-6 h-6" />
@@ -2018,7 +2018,7 @@ function Header({
               </span>
             )}
           </button>
-          <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-emerald-400 via-sky-400 to-indigo-500 rounded-full flex items-center justify-center text-sm sm:text-lg font-semibold shadow-lg overflow-hidden ring-2 ring-sky-400/30 shrink-0">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-emerald-400 via-sky-400 to-indigo-500 rounded-full flex items-center justify-center text-sm sm:text-lg font-semibold shadow-lg overflow-hidden ring-2 ring-sky-400/30 shrink-0 float-gentle">
             {user.avatarUrl ? (
               <Image
                 src={user.avatarUrl}
@@ -2073,7 +2073,7 @@ function DashboardPage({
 
   return (
     <div className="space-y-8">
-      <section className={`relative overflow-hidden rounded-[28px] border ${themeConfig.border} ${themeConfig.card} p-5 shadow-lg sm:p-6 lg:p-8`}>
+      <section className={`relative overflow-hidden rounded-[28px] border ${themeConfig.border} ${themeConfig.card} spotlight-card glow-pulse section-reveal p-5 shadow-lg sm:p-6 lg:p-8`}>
         <div className={`pointer-events-none absolute inset-y-0 right-0 w-1/2 ${
           theme === 'dark'
             ? 'bg-[radial-gradient(circle_at_top_right,_rgba(56,189,248,0.16),_transparent_58%)]'
@@ -2100,19 +2100,19 @@ function DashboardPage({
               {selectedDateLabel}
             </p>
             <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
-              <div className={`rounded-2xl border px-4 py-3 ${
+                <div className={`rounded-2xl border px-4 py-3 hover-lift section-reveal section-delay-1 ${
                 theme === 'dark' ? 'border-slate-700 bg-slate-900/70' : 'border-slate-200 bg-white/85'
               }`}>
                 <p className={`text-[11px] uppercase tracking-[0.18em] ${themeConfig.textSecondary}`}>{text.todaysProgress}</p>
                 <p className={`mt-1 text-xl font-bold ${themeConfig.text}`}>{metrics.weeklyCompletion}%</p>
               </div>
-              <div className={`rounded-2xl border px-4 py-3 ${
+                <div className={`rounded-2xl border px-4 py-3 hover-lift section-reveal section-delay-2 ${
                 theme === 'dark' ? 'border-slate-700 bg-slate-900/70' : 'border-slate-200 bg-white/85'
               }`}>
                 <p className={`text-[11px] uppercase tracking-[0.18em] ${themeConfig.textSecondary}`}>{text.currentStreak}</p>
                 <p className={`mt-1 text-xl font-bold ${themeConfig.text}`}>{metrics.currentStreak} {text.days}</p>
               </div>
-              <div className={`rounded-2xl border px-4 py-3 ${
+                <div className={`rounded-2xl border px-4 py-3 hover-lift section-reveal section-delay-3 ${
                 theme === 'dark' ? 'border-slate-700 bg-slate-900/70' : 'border-slate-200 bg-white/85'
               }`}>
                 <p className={`text-[11px] uppercase tracking-[0.18em] ${themeConfig.textSecondary}`}>{text.totalHabits}</p>
@@ -2121,7 +2121,7 @@ function DashboardPage({
             </div>
           </div>
 
-          <div className={`grid gap-3 rounded-[24px] border p-4 sm:min-w-[280px] ${
+          <div className={`grid gap-3 rounded-[24px] border p-4 sm:min-w-[280px] section-reveal section-delay-2 spotlight-card ${
             theme === 'dark' ? 'border-slate-700 bg-slate-900/80' : 'border-white/80 bg-white/90'
           }`}>
             <div className="flex items-center justify-between gap-3">
@@ -2157,7 +2157,7 @@ function DashboardPage({
       {/* Metrics Grid */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {/* Progress Card */}
-        <div className={`${themeConfig.card} rounded-[24px] p-6 border ${themeConfig.border} shadow-lg`}>
+          <div className={`${themeConfig.card} rounded-[24px] p-6 border ${themeConfig.border} shadow-lg spotlight-card hover-lift section-reveal section-delay-1`}>
           <h3 className={`${themeConfig.textSecondary} text-sm font-medium mb-4`}>{text.todaysProgress}</h3>
           <div className="flex items-center gap-4">
             <div className="relative w-24 h-24">
@@ -2202,7 +2202,7 @@ function DashboardPage({
         </div>
 
         {/* Streak Card */}
-        <div className={`${theme === 'dark' ? 'bg-orange-500/20 border-orange-500/30' : 'bg-orange-50 border-orange-200'} ${themeConfig.card} rounded-[24px] p-6 border shadow-lg`}>
+          <div className={`${theme === 'dark' ? 'bg-orange-500/20 border-orange-500/30' : 'bg-orange-50 border-orange-200'} ${themeConfig.card} rounded-[24px] p-6 border shadow-lg spotlight-card hover-lift section-reveal section-delay-2`}>
           <div className="flex items-start justify-between">
             <div>
               <p className={`${themeConfig.textSecondary} text-sm font-medium mb-2`}>{text.currentStreak}</p>
@@ -2217,14 +2217,14 @@ function DashboardPage({
         </div>
 
         {/* Total Habits Card */}
-        <div className={`${theme === 'dark' ? 'bg-green-500/20 border-green-500/30' : 'bg-green-50 border-green-200'} ${themeConfig.card} rounded-[24px] p-6 border shadow-lg`}>
+          <div className={`${theme === 'dark' ? 'bg-green-500/20 border-green-500/30' : 'bg-green-50 border-green-200'} ${themeConfig.card} rounded-[24px] p-6 border shadow-lg spotlight-card hover-lift section-reveal section-delay-3`}>
           <p className={`${themeConfig.textSecondary} text-sm font-medium mb-4`}>{text.totalHabits}</p>
           <p className={`text-4xl font-bold ${theme === 'dark' ? 'text-green-400' : 'text-green-600'}`}>{metrics.totalHabits}</p>
           <p className={`${themeConfig.textSecondary} text-xs mt-2`}>{text.activeHabits}</p>
         </div>
 
         {/* Add Habit Card */}
-        <div className={`${theme === 'dark' ? 'bg-emerald-500/20 border-emerald-500/30' : 'bg-emerald-50 border-emerald-200'} ${themeConfig.card} rounded-[24px] p-6 border flex items-center justify-center cursor-pointer hover:border-emerald-500/50 transition shadow-lg`}>
+          <div className={`${theme === 'dark' ? 'bg-emerald-500/20 border-emerald-500/30' : 'bg-emerald-50 border-emerald-200'} ${themeConfig.card} rounded-[24px] p-6 border flex items-center justify-center cursor-pointer hover:border-emerald-500/50 transition shadow-lg spotlight-card hover-lift section-reveal section-delay-4`}>
           <button
             onClick={onAddHabit}
             className="flex flex-col items-center gap-2 text-center"
@@ -2236,10 +2236,10 @@ function DashboardPage({
       </div>
 
       {/* Today's Habits */}
-      <div>
+      <div className="section-reveal section-delay-2">
         <h3 className={`text-2xl font-bold ${themeConfig.text} mb-6`}>{text.todaysHabits}</h3>
         {habits.length === 0 ? (
-          <div className={`${themeConfig.card} rounded-2xl p-12 border ${themeConfig.border} text-center shadow-lg`}>
+          <div className={`${themeConfig.card} rounded-2xl p-12 border ${themeConfig.border} text-center shadow-lg spotlight-card`}>
             <Plus className={`w-12 h-12 ${themeConfig.textSecondary} mx-auto mb-4 opacity-50`} />
             <p className={`${themeConfig.textSecondary} mb-4`}>{text.noHabitsYet}</p>
             <button
@@ -2274,7 +2274,7 @@ function DashboardPage({
 
       {/* Week Overview Chart */}
       {habits.length > 0 && (
-        <div className={`${themeConfig.card} rounded-2xl p-6 border ${themeConfig.border} shadow-lg`}>
+        <div className={`${themeConfig.card} rounded-2xl p-6 border ${themeConfig.border} shadow-lg spotlight-card section-reveal section-delay-3`}>
           <h3 className={`${themeConfig.text} font-bold mb-6`}>{text.thisWeekOverview}</h3>
           {isMounted ? (
             <ResponsiveContainer width="100%" height={300}>
@@ -2354,7 +2354,7 @@ function HabitsPage({
     : habits;
   return (
     <div className="max-w-6xl space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between section-reveal">
         <h2 className={`text-3xl font-bold ${themeConfig.text}`}>{text.allHabits}</h2>
         <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
           <div className="flex-1 sm:flex-none">
@@ -2378,7 +2378,7 @@ function HabitsPage({
       </div>
 
       {habits.length === 0 ? (
-        <div className={`${themeConfig.card} rounded-2xl p-12 border ${themeConfig.border} text-center shadow-lg`}>
+        <div className={`${themeConfig.card} rounded-2xl p-12 border ${themeConfig.border} text-center shadow-lg spotlight-card section-reveal section-delay-1`}>
           <ListTodo className={`w-12 h-12 ${themeConfig.textSecondary} mx-auto mb-4 opacity-50`} />
           <p className={`${themeConfig.textSecondary} mb-4`}>{text.noHabitsCreated}</p>
           <button
@@ -2389,7 +2389,7 @@ function HabitsPage({
           </button>
         </div>
       ) : filteredHabits.length === 0 ? (
-        <div className={`${themeConfig.card} rounded-2xl p-12 border ${themeConfig.border} text-center shadow-lg`}>
+        <div className={`${themeConfig.card} rounded-2xl p-12 border ${themeConfig.border} text-center shadow-lg spotlight-card section-reveal section-delay-1`}>
           <ListTodo className={`w-12 h-12 ${themeConfig.textSecondary} mx-auto mb-4 opacity-50`} />
           <p className={`${themeConfig.textSecondary} mb-4`}>{text.noHabitsFound}</p>
           <button
@@ -2406,7 +2406,7 @@ function HabitsPage({
             return (
               <div
                 key={habit.id}
-                className={`${themeConfig.card} rounded-xl p-4 border ${themeConfig.border} hover:border-emerald-500/50 transition shadow-lg`}
+                className={`${themeConfig.card} rounded-xl p-4 border ${themeConfig.border} hover:border-emerald-500/50 transition shadow-lg spotlight-card hover-lift section-reveal`}
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-start gap-3">
@@ -2512,7 +2512,7 @@ function CalendarPage({
 
   return (
     <div className="max-w-4xl space-y-6">
-      <div className={`${themeConfig.card} rounded-2xl p-6 border ${themeConfig.border} shadow-lg`}>
+        <div className={`${themeConfig.card} rounded-2xl p-6 border ${themeConfig.border} shadow-lg spotlight-card section-reveal`}>
         <div className="flex items-center justify-between mb-6">
           <h2 className={`text-2xl font-bold ${themeConfig.text}`}>
             {currentMonth.toLocaleDateString(locale, { month: 'long', year: 'numeric' })}
@@ -2565,7 +2565,7 @@ function CalendarPage({
               <button
                 key={day}
                 onClick={() => onDateSelect(dateStr)}
-                className={`p-2 sm:p-3 rounded-lg text-center transition relative flex flex-col items-center ${
+                className={`p-2 sm:p-3 rounded-lg text-center transition relative flex flex-col items-center hover-lift ${
                   isSelected
                     ? 'bg-emerald-500/30 border border-emerald-500/50'
                     : isToday
@@ -2594,7 +2594,7 @@ function CalendarPage({
       </div>
 
       {/* Selected Date Details */}
-      <div className={`${themeConfig.card} rounded-2xl p-6 border ${themeConfig.border} shadow-lg`}>
+        <div className={`${themeConfig.card} rounded-2xl p-6 border ${themeConfig.border} shadow-lg spotlight-card section-reveal section-delay-2`}>
         <h3 className={`${themeConfig.text} font-bold mb-4`}>
           {parseLocalDate(selectedDate).toLocaleDateString(locale, {
             weekday: 'long',
@@ -2608,7 +2608,7 @@ function CalendarPage({
           {habits.map((habit: Habit) => {
             const completion = habit.completions.find(c => c.date === selectedDate);
             return (
-              <div key={habit.id} className={`${themeConfig.bgTertiary} rounded-lg p-4`}>
+              <div key={habit.id} className={`${themeConfig.bgTertiary} rounded-lg p-4 hover-lift section-reveal`}>
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <span className="text-xl">{habit.icon}</span>
@@ -2693,8 +2693,8 @@ function StatsPage({
     : { start: '#f97316', mid: '#f43f5e', end: '#ec4899' };
 
   return (
-    <div className="max-w-6xl space-y-8">
-      <h2 className={`text-3xl font-bold ${themeConfig.text}`}>{text.statisticsTitle}</h2>
+      <div className="max-w-6xl space-y-8">
+        <h2 className={`text-3xl font-bold ${themeConfig.text} section-reveal`}>{text.statisticsTitle}</h2>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -2706,7 +2706,7 @@ function StatsPage({
         ].map((stat, idx) => (
           <div
             key={idx}
-            className={`${themeConfig.card} rounded-xl p-6 border ${themeConfig.border} shadow-lg`}
+            className={`${themeConfig.card} rounded-xl p-6 border ${themeConfig.border} shadow-lg spotlight-card hover-lift section-reveal`}
           >
             <p className={`${themeConfig.textSecondary} text-sm mb-2`}>{stat.label}</p>
             <p className={`text-3xl font-bold ${themeConfig.text}`}>{stat.value}</p>
@@ -2717,7 +2717,7 @@ function StatsPage({
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* 30-Day Trend */}
-        <div className={`${themeConfig.card} rounded-xl p-6 border ${themeConfig.border} shadow-lg`}>
+        <div className={`${themeConfig.card} rounded-xl p-6 border ${themeConfig.border} shadow-lg spotlight-card section-reveal section-delay-1`}>
           <h3 className={`${themeConfig.text} font-bold mb-6`}>{text.trend30Days}</h3>
           {isMounted ? (
             <ResponsiveContainer width="100%" height={300}>
@@ -2758,7 +2758,7 @@ function StatsPage({
         </div>
 
         {/* Habit Distribution */}
-        <div className={`${themeConfig.card} rounded-xl p-6 border ${themeConfig.border} shadow-lg`}>
+        <div className={`${themeConfig.card} rounded-xl p-6 border ${themeConfig.border} shadow-lg spotlight-card section-reveal section-delay-2`}>
           <h3 className={`${themeConfig.text} font-bold mb-6`}>{text.habitDistribution}</h3>
           {isMounted ? (
             <ResponsiveContainer width="100%" height={300}>
@@ -2814,7 +2814,7 @@ function StatsPage({
       </div>
 
       {/* Habit Details */}
-      <div className={`${themeConfig.card} rounded-xl p-6 border ${themeConfig.border} shadow-lg`}>
+      <div className={`${themeConfig.card} rounded-xl p-6 border ${themeConfig.border} shadow-lg spotlight-card section-reveal section-delay-3`}>
         <h3 className={`${themeConfig.text} font-bold mb-6`}>{text.habitsPerformance}</h3>
         <div className="space-y-4">
           {habits.map((habit: Habit) => {
@@ -2825,7 +2825,7 @@ function StatsPage({
             );
 
             return (
-              <div key={habit.id} className={`flex items-center justify-between p-4 ${themeConfig.bgTertiary} rounded-lg`}>
+              <div key={habit.id} className={`flex items-center justify-between p-4 ${themeConfig.bgTertiary} rounded-lg hover-lift section-reveal`}>
                 <div className="flex items-center gap-3 flex-1">
                   <span className="text-2xl">{habit.icon}</span>
                   <div>
@@ -2917,7 +2917,7 @@ function ProfilePage({
   return (
     <div className="max-w-2xl space-y-6">
       {/* Profile Card */}
-      <div className={`${themeConfig.card} rounded-2xl p-8 border ${themeConfig.border} shadow-lg`}>
+      <div className={`${themeConfig.card} rounded-2xl p-8 border ${themeConfig.border} shadow-lg spotlight-card glow-pulse section-reveal`}>
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
           <div className="flex items-start gap-4 flex-1 min-w-0">
             <div className="w-16 h-16 shrink-0 bg-gradient-to-br from-emerald-400 via-sky-400 to-indigo-500 rounded-full flex items-center justify-center text-3xl shadow-lg ring-2 ring-sky-400/30 overflow-hidden">
@@ -3001,15 +3001,15 @@ function ProfilePage({
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className={`${themeConfig.card} rounded-xl p-6 border ${themeConfig.border} shadow-lg`}>
+        <div className={`${themeConfig.card} rounded-xl p-6 border ${themeConfig.border} shadow-lg spotlight-card hover-lift section-reveal section-delay-1`}>
           <p className={`${themeConfig.textSecondary} text-sm mb-2`}>{text.totalHabits}</p>
           <p className={`text-3xl font-bold ${themeConfig.text}`}>{habits.length}</p>
         </div>
-        <div className={`${themeConfig.card} rounded-xl p-6 border ${themeConfig.border} shadow-lg`}>
+        <div className={`${themeConfig.card} rounded-xl p-6 border ${themeConfig.border} shadow-lg spotlight-card hover-lift section-reveal section-delay-2`}>
           <p className={`${themeConfig.textSecondary} text-sm mb-2`}>{text.totalCompleted}</p>
           <p className={`text-3xl font-bold ${theme === 'dark' ? 'text-green-400' : 'text-green-600'}`}>{totalCompleted}</p>
         </div>
-        <div className={`${themeConfig.card} rounded-xl p-6 border ${themeConfig.border} shadow-lg`}>
+        <div className={`${themeConfig.card} rounded-xl p-6 border ${themeConfig.border} shadow-lg spotlight-card hover-lift section-reveal section-delay-3`}>
           <p className={`${themeConfig.textSecondary} text-sm mb-2`}>{text.accountAge}</p>
           <p className={`text-3xl font-bold text-emerald-500`}>
             {accountAgeDays}
@@ -3019,14 +3019,14 @@ function ProfilePage({
       </div>
 
       {/* Recent Habits */}
-      <div className={`${themeConfig.card} rounded-2xl p-6 border ${themeConfig.border} shadow-lg`}>
+      <div className={`${themeConfig.card} rounded-2xl p-6 border ${themeConfig.border} shadow-lg spotlight-card section-reveal section-delay-4`}>
         <h3 className={`${themeConfig.text} font-bold mb-4`}>{text.yourHabits}</h3>
         <div className="space-y-2">
           {habits.length === 0 ? (
             <p className={themeConfig.textSecondary}>{text.noHabitsYetShort}</p>
           ) : (
             habits.map((habit: Habit) => (
-              <div key={habit.id} className={`flex items-center justify-between p-3 ${themeConfig.bgTertiary} rounded-lg`}>
+              <div key={habit.id} className={`flex items-center justify-between p-3 ${themeConfig.bgTertiary} rounded-lg hover-lift section-reveal`}>
                 <div className="flex items-center gap-2">
                   <span className="text-xl">{habit.icon}</span>
                   <span className={themeConfig.text}>{habit.name}</span>
@@ -3042,7 +3042,7 @@ function ProfilePage({
 
       {isMobile && isMobileEditOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className={`${themeConfig.card} w-full max-w-md rounded-2xl border ${themeConfig.border} p-6 shadow-2xl max-h-[90vh] overflow-y-auto`}>
+          <div className={`${themeConfig.card} w-full max-w-md rounded-2xl border ${themeConfig.border} p-6 shadow-2xl max-h-[90vh] overflow-y-auto spotlight-card section-reveal`}>
             <div className="flex items-center justify-between mb-4">
               <h3 className={`${themeConfig.text} text-lg font-bold`}>{text.profile}</h3>
               <button
@@ -3144,7 +3144,7 @@ function HabitCard({
   ].filter(Boolean) as string[];
 
   return (
-    <div className={`group relative overflow-hidden rounded-[24px] border ${themeConfig.border} ${themeConfig.card} p-4 shadow-lg transition hover:-translate-y-0.5 hover:border-emerald-500/30`}>
+    <div className={`group relative overflow-hidden rounded-[24px] border ${themeConfig.border} ${themeConfig.card} p-4 shadow-lg transition hover:-translate-y-0.5 hover:border-emerald-500/30 spotlight-card hover-lift section-reveal`}>
       <div className={`pointer-events-none absolute inset-x-0 top-0 h-20 opacity-80 ${
         theme === 'dark'
           ? 'bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.14),_transparent_58%)]'
@@ -3298,8 +3298,8 @@ function ReminderToast({
   onClose: () => void;
 }) {
   return (
-    <div className="fixed bottom-4 left-1/2 z-50 w-[calc(100%-2rem)] -translate-x-1/2 sm:bottom-6 sm:right-6 sm:left-auto sm:translate-x-0 sm:w-auto">
-      <div className={`${themeConfig.card} rounded-2xl border ${themeConfig.border} p-4 sm:p-5 shadow-2xl backdrop-blur-xl max-w-sm`}>
+    <div className="fixed bottom-4 left-1/2 z-50 w-[calc(100%-2rem)] -translate-x-1/2 sm:bottom-6 sm:right-6 sm:left-auto sm:translate-x-0 sm:w-auto section-reveal">
+      <div className={`${themeConfig.card} rounded-2xl border ${themeConfig.border} p-4 sm:p-5 shadow-2xl backdrop-blur-xl max-w-sm spotlight-card`}>
         <div className="flex items-start gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 via-sky-500 to-indigo-500 flex items-center justify-center text-white shadow-lg shrink-0">
             <Bell className="w-5 h-5" />
@@ -3357,7 +3357,7 @@ function CelebrationToast({
             }}
           />
         ))}
-        <div className={`relative overflow-hidden rounded-[28px] border p-5 shadow-2xl backdrop-blur-xl ${
+        <div className={`relative overflow-hidden rounded-[28px] border p-5 shadow-2xl backdrop-blur-xl section-reveal spotlight-card ${
           theme === 'dark'
             ? `${themeConfig.card} border-emerald-500/30`
             : 'bg-white/95 border-emerald-200'
@@ -3414,7 +3414,7 @@ function AddHabitModal({
 
   return (
     <div className={`fixed inset-0 ${theme === 'dark' ? 'bg-black/50' : 'bg-white/50'} backdrop-blur-sm flex items-center justify-center p-4 z-50`}>
-      <div className={`${themeConfig.card} rounded-2xl p-8 max-w-md w-full border ${themeConfig.border} max-h-[90vh] overflow-y-auto shadow-2xl`}>
+      <div className={`${themeConfig.card} rounded-2xl p-8 max-w-md w-full border ${themeConfig.border} max-h-[90vh] overflow-y-auto shadow-2xl spotlight-card section-reveal`}>
         <h2 className={`text-2xl font-bold ${themeConfig.text} mb-6`}>{text.addHabitTitle}</h2>
 
         <div className="space-y-4">

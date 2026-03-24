@@ -26,6 +26,23 @@ body {
   font-family: "Space Grotesk", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(16, 185, 129, 0.08), transparent 26%),
+    radial-gradient(circle at 88% 22%, rgba(59, 130, 246, 0.08), transparent 24%),
+    radial-gradient(circle at 52% 88%, rgba(245, 158, 11, 0.07), transparent 22%);
+  z-index: -1;
+}
+
+::selection {
+  background: rgba(16, 185, 129, 0.24);
+  color: inherit;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -39,4 +56,120 @@ body {
 
 .animate-fade-in {
   animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes sectionRise {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes floatDrift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -10px, 0);
+  }
+}
+
+@keyframes softGlow {
+  0%,
+  100% {
+    box-shadow: 0 18px 45px -28px rgba(59, 130, 246, 0.18);
+  }
+  50% {
+    box-shadow: 0 24px 55px -24px rgba(16, 185, 129, 0.24);
+  }
+}
+
+@keyframes sheen {
+  from {
+    transform: translateX(-140%);
+  }
+  to {
+    transform: translateX(160%);
+  }
+}
+
+.section-reveal {
+  animation: sectionRise 0.72s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.section-delay-1 {
+  animation-delay: 0.08s;
+}
+
+.section-delay-2 {
+  animation-delay: 0.16s;
+}
+
+.section-delay-3 {
+  animation-delay: 0.24s;
+}
+
+.section-delay-4 {
+  animation-delay: 0.32s;
+}
+
+.hover-lift {
+  transition:
+    transform 220ms ease,
+    box-shadow 220ms ease,
+    border-color 220ms ease,
+    background-color 220ms ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-6px);
+}
+
+.spotlight-card {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.spotlight-card::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.14), transparent 42%, rgba(16, 185, 129, 0.16) 100%);
+  opacity: 0;
+  transition: opacity 220ms ease;
+  z-index: -1;
+}
+
+.spotlight-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 36%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.16), transparent);
+  opacity: 0;
+  transform: translateX(-140%);
+}
+
+.spotlight-card:hover::before {
+  opacity: 1;
+}
+
+.spotlight-card:hover::after {
+  opacity: 1;
+  animation: sheen 1s ease;
+}
+
+.float-gentle {
+  animation: floatDrift 6s ease-in-out infinite;
+}
+
+.glow-pulse {
+  animation: softGlow 4s ease-in-out infinite;
 }
