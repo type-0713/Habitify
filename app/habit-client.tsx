@@ -1,21 +1,18 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import {
   GoogleAuthProvider,
-  GithubAuthProvider,
   OAuthProvider,
   onAuthStateChanged,
   signInWithPopup,
   signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  updateProfile,
   signOut,
 } from 'firebase/auth';
 import { firebaseAuth } from './lib/firebase';
-import { Check, Plus, Flame, Menu, LogOut, Home, ListTodo, BarChart3, Bell, User, Calendar, Edit2, Save, X, ChevronLeft, ChevronRight, Sun, Moon, Github, Apple, Chrome, Mail, LockKeyhole, Eye, EyeOff } from 'lucide-react';
+import { Check, Plus, Flame, Menu, LogOut, Home, ListTodo, BarChart3, Bell, User, Calendar, Edit2, Save, X, ChevronLeft, ChevronRight, Sun, Moon, Apple, Chrome, Mail, LockKeyhole, Eye, EyeOff, Play, Pause } from 'lucide-react';
 
 const ResponsiveContainer = dynamic(() => import('recharts').then((m) => m.ResponsiveContainer), { ssr: false });
 const BarChart = dynamic(() => import('recharts').then((m) => m.BarChart), { ssr: false });
@@ -34,7 +31,7 @@ const Area = dynamic(() => import('recharts').then((m) => m.Area), { ssr: false 
 type Theme = 'dark' | 'light';
 type Page = 'dashboard' | 'habits' | 'calendar' | 'stats' | 'profile';
 type Language = 'en' | 'ru' | 'uz';
-type AuthProvider = 'google' | 'apple' | 'github' | 'email';
+type AuthProvider = 'google' | 'apple' | 'github' | 'microsoft' | 'email';
 
 interface AuthUser {
   id: string;
@@ -54,18 +51,18 @@ const translations = {
     statistics: 'Statistics',
     profile: 'Profile',
     signInTitle: 'Sign in to Habitify',
-    signInSubtitle: 'Choose a provider to continue',
+    signInSubtitle: 'Use your email and password to sign in, or create an account with Google, Apple, or Microsoft.',
     nameLabel: 'Name',
     emailLabel: 'Email',
     namePlaceholder: 'Your name',
     emailPlaceholder: 'you@example.com',
-    continueWithGoogle: 'Continue with Google',
-    continueWithApple: 'Continue with Apple',
-    continueWithGitHub: 'Continue with GitHub',
-    continueWithEmail: 'Continue with Email',
+    continueWithGoogle: 'Create account with Google',
+    continueWithApple: 'Create account with Apple',
+    continueWithGitHub: 'Create account with Microsoft',
+    continueWithEmail: 'Sign in with Email',
     passwordLabel: 'Password',
-    passwordPlaceholder: 'Create a password',
-    authErrorMissingFields: 'Enter email and password to continue.',
+    passwordPlaceholder: 'Enter your password',
+    authErrorMissingFields: 'Enter your email and password.',
     light: 'Light',
     dark: 'Dark',
     logout: 'Logout',
@@ -219,21 +216,21 @@ const translations = {
     weekdaysShort: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
   },
   uz: {
-    signInTitle: 'Habitify ga kirish',
-    signInSubtitle: 'Davom etish uchun provayderni tanlang',
+    signInTitle: 'Habitify akkauntiga kiring',
+    signInSubtitle: "Email va parol orqali kiring yoki Google, Apple va Microsoft orqali yangi akkaunt yarating.",
     nameLabel: 'Ism',
     emailLabel: 'Email',
     namePlaceholder: 'Ismingiz',
     emailPlaceholder: 'you@example.com',
-    continueWithGoogle: 'Google orqali davom etish',
-    continueWithApple: 'Apple orqali davom etish',
-    continueWithGitHub: 'GitHub orqali davom etish',
-    continueWithEmail: 'Email bilan davom etish',
+    continueWithGoogle: 'Google orqali akkaunt yaratish',
+    continueWithApple: 'Apple orqali akkaunt yaratish',
+    continueWithGitHub: 'Microsoft orqali akkaunt yaratish',
+    continueWithEmail: 'Email orqali kirish',
     passwordLabel: 'Parol',
-    passwordPlaceholder: 'Parol yarating',
+    passwordPlaceholder: 'Parolingizni kiriting',
     authErrorMissingFields: 'Email va parolni kiriting.',
     languageLabel: 'Til',
-    dashboard: 'Boshqaruv',
+    dashboard: 'Bosh sahifa',
     habits: 'Odatlar',
     calendar: 'Kalendar',
     statistics: 'Statistika',
@@ -248,8 +245,8 @@ const translations = {
     greetingMorning: 'Xayrli tong',
     greetingAfternoon: 'Xayrli kun',
     greetingEvening: 'Xayrli kech',
-    habitsCompletedToday: 'odat bugun bajarildi',
-    todaysProgress: 'Bugungi progress',
+    habitsCompletedToday: 'ta odat bugun bajarildi',
+    todaysProgress: 'Bugungi jarayon',
     complete: 'Bajarildi',
     habitsCompleted: 'Bajarilgan odatlar',
     currentStreak: 'Hozirgi seriya',
@@ -264,7 +261,7 @@ const translations = {
     thisWeekOverview: "Haftalik ko'rinish",
     allHabits: 'Barcha odatlar',
     newHabit: 'Yangi odat',
-    searchHabits: 'Odatlarni qidirish',
+    searchHabits: 'Odatlarni izlash',
     searchPlaceholder: "Nomi yoki kategoriya bo'yicha qidiring",
     noHabitsFound: 'Qidiruv bo‘yicha hech narsa topilmadi.',
     clearSearch: 'Qidiruvni tozalash',
@@ -280,12 +277,12 @@ const translations = {
     habitDistribution: 'Odatlar taqsimoti',
     completed: 'Bajarilgan',
     active: 'Faol',
-    habitsPerformance: 'Odatlar natijasi',
+    habitsPerformance: 'Odatlar samaradorligi',
     completion: 'Bajarilish',
-    bio: 'Bio',
+    bio: "Qisqacha ma'lumot",
     joined: "Qo'shilgan",
     totalCompleted: 'Jami bajarilgan',
-    accountAge: 'Akkount yoshi',
+    accountAge: 'Hisob yoshi',
     yourHabits: 'Odatlaringiz',
     noHabitsYetShort: "Hali odatlar yo'q",
     completedCount: 'bajarildi',
@@ -294,17 +291,21 @@ const translations = {
     habitName: 'Odat nomi',
     habitNamePlaceholder: 'masalan, Ertalabki meditatsiya',
     unit: 'Birlik',
-    icon: 'Ikonka',
+    icon: 'Belgi',
     reminderTimeOptional: 'Eslatma vaqti (ixtiyoriy)',
     cancel: 'Bekor qilish',
     saveChanges: 'Saqlash',
     addHabit: "Qo'shish",
     monthlyResetTitle: 'Oylik tozalash',
-    resetNoticePrefix: "Lokal ma'lumotlar tozalandi",
+    resetNoticePrefix: "Mahalliy ma'lumotlar tozalandi",
     closeNotice: 'Bildirishnomani yopish',
+    noHabitsFound: "Qidiruv bo'yicha hech narsa topilmadi.",
     weekdaysShort: ['Du', 'Se', 'Ch', 'Pa', 'Ju', 'Sh', 'Ya'],
   },
 };
+
+// Normalize legacy text values that were previously saved with broken encoding.
+translations.uz.noHabitsFound = "Qidiruv bo'yicha hech narsa topilmadi.";
 
 const categoryLabels: Record<Language, Record<string, string>> = {
   en: {
@@ -419,6 +420,11 @@ interface ProfileOverrides {
   bio?: string;
 }
 
+interface ActiveTimer {
+  habitId: string;
+  date: string;
+}
+
 // Theme Configuration
 const themes = {
   dark: {
@@ -484,7 +490,7 @@ const getLocale = (language: Language) => {
   return 'en-US';
 };
 
-const getWeekStartIndex = (_language: Language) => {
+const getWeekStartIndex = () => {
   return 1;
 };
 
@@ -580,6 +586,50 @@ const getMonthStart = (date: Date) => new Date(date.getFullYear(), date.getMonth
 const getCurrentTimeString = () => {
   const now = new Date();
   return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+};
+
+const isTimedHabit = (unit: string) => unit === 'min' || unit === 'hours';
+
+const getHabitProgressRatio = (habit: Habit, completion?: HabitCompletion) => {
+  if (!completion || habit.goal <= 0) return 0;
+  return Math.max(0, Math.min(completion.current / habit.goal, 1));
+};
+
+const getHabitGoalSeconds = (habit: Habit) => {
+  if (habit.unit === 'hours') return habit.goal * 3600;
+  if (habit.unit === 'min') return habit.goal * 60;
+  return 0;
+};
+
+const formatDuration = (totalSeconds: number) => {
+  const safeSeconds = Math.max(0, Math.round(totalSeconds));
+  const hours = Math.floor(safeSeconds / 3600);
+  const minutes = Math.floor((safeSeconds % 3600) / 60);
+  const seconds = safeSeconds % 60;
+
+  if (hours > 0) {
+    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  }
+
+  return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+};
+
+const formatHabitCurrentValue = (habit: Habit, current: number) => {
+  if (isTimedHabit(habit.unit)) {
+    return formatDuration((current / habit.goal) * getHabitGoalSeconds(habit));
+  }
+
+  if (Number.isInteger(current)) return String(current);
+  return current.toFixed(1);
+};
+
+const formatHabitGoalValue = (habit: Habit) => {
+  if (isTimedHabit(habit.unit)) {
+    return formatDuration(getHabitGoalSeconds(habit));
+  }
+
+  if (Number.isInteger(habit.goal)) return String(habit.goal);
+  return habit.goal.toFixed(1);
 };
 
 const formatDate = (dateString: string, locale: string) => {
@@ -695,6 +745,8 @@ function HabitTrackerApp() {
   const [showAddHabit, setShowAddHabit] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string>(getTodayDate());
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [activeTimer, setActiveTimer] = useState<ActiveTimer | null>(null);
+  const timerTickRef = useRef<number | null>(null);
 
   const [newHabit, setNewHabit] = useState<NewHabitDraft>({
     name: '',
@@ -812,6 +864,8 @@ function HabitTrackerApp() {
           ? 'google'
           : providerId === 'github.com'
           ? 'github'
+          : providerId === 'microsoft.com'
+          ? 'microsoft'
           : providerId === 'apple.com'
           ? 'apple'
           : 'email';
@@ -834,6 +888,81 @@ function HabitTrackerApp() {
       setLocalStorage(`habits_${user.id}`, habits);
     }
   }, [habits, isSignedIn, user?.id]);
+
+  useEffect(() => {
+    if (!activeTimer) {
+      timerTickRef.current = null;
+      return;
+    }
+
+    timerTickRef.current = Date.now();
+
+    const intervalId = window.setInterval(() => {
+      const now = Date.now();
+      const lastTick = timerTickRef.current ?? now;
+      const elapsedSeconds = Math.max(1, Math.round((now - lastTick) / 1000));
+      timerTickRef.current = now;
+      let shouldStop = false;
+
+      setHabits((prev) =>
+        prev.map((habit) => {
+          if (habit.id !== activeTimer.habitId || !isTimedHabit(habit.unit)) {
+            return habit;
+          }
+
+          const completions = [...habit.completions];
+          const existingIndex = completions.findIndex((completion) => completion.date === activeTimer.date);
+          const existingCompletion = existingIndex >= 0
+            ? completions[existingIndex]
+            : { date: activeTimer.date, completed: false, current: 0 };
+          const increment = habit.unit === 'hours' ? elapsedSeconds / 3600 : elapsedSeconds / 60;
+          const nextCurrent = Math.min(habit.goal, existingCompletion.current + increment);
+          const completed = nextCurrent >= habit.goal;
+          const nextCompletion: HabitCompletion = {
+            ...existingCompletion,
+            current: nextCurrent,
+            completed,
+            time: completed ? getCurrentTimeString() : existingCompletion.time,
+          };
+
+          if (existingIndex >= 0) {
+            completions[existingIndex] = nextCompletion;
+          } else {
+            completions.push(nextCompletion);
+          }
+
+          if (completed) {
+            shouldStop = true;
+          }
+
+          return { ...habit, completions };
+        }),
+      );
+
+      if (shouldStop) {
+        setActiveTimer((currentTimer) => (
+          currentTimer?.habitId === activeTimer.habitId ? null : currentTimer
+        ));
+        playNotificationSound(soundEnabled, 920);
+      }
+    }, 1000);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [activeTimer, soundEnabled]);
+
+  useEffect(() => {
+    if (!activeTimer) return;
+
+    const timerHabit = habits.find((habit) => habit.id === activeTimer.habitId);
+    const timerCompletion = timerHabit?.completions.find((entry) => entry.date === activeTimer.date);
+
+    if (!timerHabit || getHabitProgressRatio(timerHabit, timerCompletion) >= 1) {
+      const timeoutId = window.setTimeout(() => setActiveTimer(null), 0);
+      return () => window.clearTimeout(timeoutId);
+    }
+  }, [activeTimer, habits]);
 
   // Daily reminder after 14:00 if any habit is still incomplete.
   useEffect(() => {
@@ -883,12 +1012,6 @@ function HabitTrackerApp() {
   }, [habits, isSignedIn, soundEnabled, text.reminderBody, text.reminderTitle, user?.id]);
 
   useEffect(() => {
-    if (!soundEnabled) {
-      setReminderToast(null);
-    }
-  }, [soundEnabled]);
-
-  useEffect(() => {
     const rafId = window.requestAnimationFrame(() => setIsMounted(true));
     return () => {
       window.cancelAnimationFrame(rafId);
@@ -928,7 +1051,7 @@ function HabitTrackerApp() {
   };
   */
 
-  const handleLogin = async (provider: AuthProvider, name: string, email: string, password: string) => {
+  const handleLogin = async (provider: AuthProvider, email: string, password: string) => {
     setAuthError(null);
     try {
       if (provider === 'email') {
@@ -936,26 +1059,14 @@ function HabitTrackerApp() {
           setAuthError(translations[language].authErrorMissingFields);
           return;
         }
-        try {
-          await signInWithEmailAndPassword(firebaseAuth, email, password);
-        } catch (error) {
-          const err = error as { code?: string; message?: string };
-          if (err.code === 'auth/user-not-found') {
-          const credential = await createUserWithEmailAndPassword(firebaseAuth, email, password);
-          if (name) {
-            await updateProfile(credential.user, { displayName: name });
-          }
-          } else {
-            throw error;
-          }
-        }
+        await signInWithEmailAndPassword(firebaseAuth, email, password);
       } else {
         const providerInstance =
           provider === 'google'
             ? new GoogleAuthProvider()
-            : provider === 'github'
-            ? new GithubAuthProvider()
-            : new OAuthProvider('apple.com');
+            : provider === 'apple'
+            ? new OAuthProvider('apple.com')
+            : new OAuthProvider('microsoft.com');
         await signInWithPopup(firebaseAuth, providerInstance);
       }
       setCurrentPage('dashboard');
@@ -1033,6 +1144,39 @@ function HabitTrackerApp() {
     }));
   };
 
+  const handleToggleHabitTimer = (habitId: string, date: string) => {
+    const targetHabit = habits.find((habit) => habit.id === habitId);
+
+    if (!targetHabit) return;
+
+    const completion = targetHabit.completions.find((entry) => entry.date === date);
+    const progressRatio = getHabitProgressRatio(targetHabit, completion);
+
+    if (!isTimedHabit(targetHabit.unit)) {
+      if (progressRatio >= 1) {
+        handleUpdateHabitCompletion(habitId, date, 0);
+      } else {
+        handleUpdateHabitCompletion(habitId, date, targetHabit.goal, getCurrentTimeString());
+      }
+      return;
+    }
+
+    if (activeTimer?.habitId === habitId && activeTimer.date === date) {
+      setActiveTimer(null);
+      return;
+    }
+
+    if (activeTimer && activeTimer.habitId !== habitId) {
+      return;
+    }
+
+    if (progressRatio >= 1) {
+      return;
+    }
+
+    setActiveTimer({ habitId, date });
+  };
+
   // Delete Habit
   const deleteHabit = (habitId: string) => {
     setHabits((prev) => prev.filter(h => h.id !== habitId));
@@ -1052,14 +1196,19 @@ function HabitTrackerApp() {
 
   // Calculate metrics
   const calculateMetrics = (date: string = getTodayDate()): Metrics => {
-    const todaysHabits = habits.filter(h => {
-      const completion = h.completions.find(c => c.date === date);
-      return completion?.completed;
-    });
-
     const isHabitActiveOn = (habit: Habit, dateStr: string) => {
       return !habit.createdAt || habit.createdAt <= dateStr;
     };
+
+    const activeHabits = habits.filter((habit) => isHabitActiveOn(habit, date));
+    const totalProgress = activeHabits.reduce((sum, habit) => {
+      const completion = habit.completions.find((entry) => entry.date === date);
+      return sum + getHabitProgressRatio(habit, completion);
+    }, 0);
+    const completedToday = activeHabits.filter((habit) => {
+      const completion = habit.completions.find((entry) => entry.date === date);
+      return getHabitProgressRatio(habit, completion) >= 1;
+    }).length;
 
     const isDayFullyCompleted = (dateStr: string) => {
       const activeHabits = habits.filter(h => isHabitActiveOn(h, dateStr));
@@ -1107,8 +1256,8 @@ function HabitTrackerApp() {
 
     return {
       totalHabits: habits.length,
-      completedToday: todaysHabits.length,
-      weeklyCompletion: Math.round((todaysHabits.length / Math.max(habits.length, 1)) * 100),
+      completedToday,
+      weeklyCompletion: Math.round((totalProgress / Math.max(activeHabits.length, 1)) * 100),
       currentStreak: getCurrentStreak(),
       bestStreak: getBestStreak(),
     };
@@ -1189,7 +1338,15 @@ function HabitTrackerApp() {
           metrics={calculateMetrics()}
           theme={theme}
           soundEnabled={soundEnabled}
-          onSoundToggle={() => setSoundEnabled((prev) => !prev)}
+          onSoundToggle={() => {
+            setSoundEnabled((prev) => {
+              const nextValue = !prev;
+              if (!nextValue) {
+                setReminderToast(null);
+              }
+              return nextValue;
+            });
+          }}
           language={language}
         />
 
@@ -1217,15 +1374,15 @@ function HabitTrackerApp() {
               habits={habits}
               selectedDate={getTodayDate()}
               metrics={calculateMetrics()}
-              onUpdateProgress={handleUpdateHabitCompletion}
+              onToggleHabitTimer={handleToggleHabitTimer}
               onAddHabit={() => setShowAddHabit(true)}
-              onDeleteHabit={deleteHabit}
               theme={theme}
               themeConfig={themeConfig}
               language={language}
               locale={locale}
               isMounted={isMounted}
               isMobile={isMobile}
+              activeTimer={activeTimer}
             />
           )}
 
@@ -1298,7 +1455,6 @@ function HabitTrackerApp() {
 
       {reminderToast && (
         <ReminderToast
-          theme={theme}
           themeConfig={themeConfig}
           title={reminderToast.title}
           message={reminderToast.message}
@@ -1318,30 +1474,68 @@ function AuthPage({
 }: {
   theme: Theme;
   language: Language;
-  onLogin: (provider: AuthProvider, name: string, email: string, password: string) => void;
+  onLogin: (provider: AuthProvider, email: string, password: string) => void;
   authError: string | null;
 }) {
   const text = translations[language];
-  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const authCopy = language === 'uz'
+    ? {
+        badge: 'SIGN IN',
+        socialLabel: 'Quyidagilar orqali akkaunt yarating',
+        microsoftLabel: 'Microsoft orqali akkaunt yaratish',
+        featureTitle: 'Aniq ritm',
+        featureDescription: "Odatlaringizni sodda, tez va chiroyli boshqaruv paneli orqali kuzating.",
+        highlights: [
+          'Tez start va pauza oqimi',
+          'Kunlik jarayon foizi',
+          "Mobil va kompyuterga mos ko'rinish",
+        ],
+      }
+    : language === 'ru'
+    ? {
+        badge: 'SIGN IN',
+        socialLabel: 'Create account with',
+        microsoftLabel: 'Create account with Microsoft',
+        featureTitle: 'Daily clarity',
+        featureDescription: 'Track habits with a calmer, cleaner workflow and a focused dashboard.',
+        highlights: [
+          'Clean progress tracking',
+          'Fast start and pause controls',
+          'Responsive mobile-friendly layout',
+        ],
+      }
+    : {
+        badge: 'SIGN IN',
+        socialLabel: 'Create account with',
+        microsoftLabel: 'Create account with Microsoft',
+        featureTitle: 'Daily clarity',
+        featureDescription: 'Track habits with a calmer, cleaner workflow and a focused dashboard.',
+        highlights: [
+          'Clean progress tracking',
+          'Fast start and pause controls',
+          'Responsive mobile-friendly layout',
+        ],
+      };
 
   const handleProvider = (provider: AuthProvider) => {
-    onLogin(provider, name, email, password);
+    onLogin(provider, email, password);
   };
 
   return (
-    <div className={`relative min-h-screen overflow-hidden ${theme === 'dark' ? 'bg-slate-950 text-slate-100' : 'bg-amber-50 text-slate-900'} flex items-center justify-center p-6`}>
-      <div className={`pointer-events-none absolute -top-32 left-1/2 h-80 w-80 -translate-x-1/2 rounded-full blur-3xl ${theme === 'dark' ? 'bg-amber-500/20' : 'bg-amber-200/70'}`} />
+    <div className={`relative min-h-screen overflow-hidden ${theme === 'dark' ? 'bg-slate-950 text-slate-100' : 'bg-[linear-gradient(135deg,#fff8ec_0%,#fffdf7_48%,#f0fbff_100%)] text-slate-900'} flex items-center justify-center p-4 sm:p-6`}>
+      <div className={`pointer-events-none absolute -top-32 left-1/2 h-80 w-80 -translate-x-1/2 rounded-full blur-3xl ${theme === 'dark' ? 'bg-amber-500/20' : 'bg-amber-200/80'}`} />
+      <div className={`pointer-events-none absolute bottom-0 left-0 h-72 w-72 rounded-full blur-3xl ${theme === 'dark' ? 'bg-sky-500/15' : 'bg-sky-200/70'}`} />
       <div className={`pointer-events-none absolute -bottom-40 right-10 h-80 w-80 rounded-full blur-3xl ${theme === 'dark' ? 'bg-emerald-500/20' : 'bg-emerald-200/70'}`} />
 
       <div className="relative w-full max-w-5xl">
-        <div className={`${theme === 'dark' ? 'bg-slate-900/70 border-slate-800' : 'bg-white/80 border-amber-100'} rounded-3xl border shadow-[0_30px_80px_-40px_rgba(15,23,42,0.6)] overflow-hidden backdrop-blur-xl`}>
+        <div className={`${theme === 'dark' ? 'bg-slate-900/70 border-slate-800' : 'bg-white/85 border-amber-100'} rounded-[32px] border shadow-[0_30px_80px_-40px_rgba(15,23,42,0.35)] overflow-hidden backdrop-blur-xl`}>
           <div className="grid gap-0 md:grid-cols-[1.25fr_1fr]">
-            <div className="p-8 md:p-10">
+            <div className="p-7 md:p-10">
               <div className="flex items-center gap-3 mb-8">
-                <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center shadow-lg">
+                <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-amber-400 via-orange-500 to-orange-600 flex items-center justify-center shadow-lg shadow-orange-500/25">
                   <Check className="w-6 h-6 text-white" />
                 </div>
                 <div>
@@ -1350,25 +1544,15 @@ function AuthPage({
                 </div>
               </div>
 
+              <div className={`inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold tracking-[0.22em] ${theme === 'dark' ? 'bg-slate-800 text-amber-300 border border-slate-700' : 'bg-amber-50 text-amber-700 border border-amber-200'}`}>
+                {authCopy.badge}
+              </div>
               <h1 className="text-3xl md:text-4xl font-bold" style={{ fontFamily: "'Fraunces', 'Space Grotesk', serif" }}>
                 {text.signInTitle}
               </h1>
-              <p className={`mt-2 text-sm ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>{text.signInSubtitle}</p>
+              <p className={`mt-3 max-w-xl text-sm leading-6 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>{text.signInSubtitle}</p>
 
               <div className="mt-8 grid gap-4">
-                <div>
-                  <label className={`block text-xs mb-2 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{text.nameLabel}</label>
-                  <div className="relative">
-                    <User className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`} />
-                    <input
-                      type="text"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder={text.namePlaceholder}
-                      className={`w-full pl-10 pr-4 py-2.5 rounded-xl ${theme === 'dark' ? 'bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-500' : 'bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400'} border focus:outline-none focus:ring-2 focus:ring-emerald-400`}
-                    />
-                  </div>
-                </div>
                 <div>
                   <label className={`block text-xs mb-2 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{text.emailLabel}</label>
                   <div className="relative">
@@ -1378,7 +1562,7 @@ function AuthPage({
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder={text.emailPlaceholder}
-                      className={`w-full pl-10 pr-4 py-2.5 rounded-xl ${theme === 'dark' ? 'bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-500' : 'bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400'} border focus:outline-none focus:ring-2 focus:ring-emerald-400`}
+                      className={`w-full pl-10 pr-4 py-3 rounded-2xl ${theme === 'dark' ? 'bg-slate-800/90 border-slate-700 text-slate-100 placeholder:text-slate-500' : 'bg-slate-50/90 border-slate-200 text-slate-900 placeholder:text-slate-400'} border focus:outline-none focus:ring-2 focus:ring-emerald-400 transition`}
                     />
                   </div>
                 </div>
@@ -1391,7 +1575,7 @@ function AuthPage({
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder={text.passwordPlaceholder}
-                      className={`w-full pl-10 pr-10 py-2.5 rounded-xl ${theme === 'dark' ? 'bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-500' : 'bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400'} border focus:outline-none focus:ring-2 focus:ring-emerald-400`}
+                      className={`w-full pl-10 pr-10 py-3 rounded-2xl ${theme === 'dark' ? 'bg-slate-800/90 border-slate-700 text-slate-100 placeholder:text-slate-500' : 'bg-slate-50/90 border-slate-200 text-slate-900 placeholder:text-slate-400'} border focus:outline-none focus:ring-2 focus:ring-emerald-400 transition`}
                     />
                     <button
                       type="button"
@@ -1408,61 +1592,90 @@ function AuthPage({
               <div className="mt-6 space-y-4">
                 <button
                   onClick={() => handleProvider('email')}
-                  className="w-full rounded-xl px-4 py-3 bg-gradient-to-r from-emerald-500 via-sky-500 to-indigo-500 text-white font-semibold tracking-wide shadow-lg shadow-sky-500/20 hover:from-emerald-400 hover:to-indigo-400 transition"
+                  className="w-full rounded-2xl px-4 py-3.5 bg-gradient-to-r from-emerald-500 via-sky-500 to-indigo-500 text-white font-semibold tracking-wide shadow-lg shadow-sky-500/20 hover:from-emerald-400 hover:to-indigo-400 transition"
                 >
                   {text.continueWithEmail}
                 </button>
                 {authError && (
-                  <div className={`text-xs px-3 py-2 rounded-lg ${theme === 'dark' ? 'bg-rose-500/10 text-rose-300 border border-rose-500/20' : 'bg-rose-50 text-rose-600 border border-rose-200'}`}>
+                  <div className={`text-xs px-3 py-2 rounded-xl ${theme === 'dark' ? 'bg-rose-500/10 text-rose-300 border border-rose-500/20' : 'bg-rose-50 text-rose-600 border border-rose-200'}`}>
                     {authError}
                   </div>
                 )}
 
+                <div className="flex items-center gap-3">
+                  <div className={`h-px flex-1 ${theme === 'dark' ? 'bg-slate-800' : 'bg-slate-200'}`} />
+                  <p className={`text-[11px] uppercase tracking-[0.24em] ${theme === 'dark' ? 'text-slate-500' : 'text-slate-500'}`}>
+                    {authCopy.socialLabel}
+                  </p>
+                  <div className={`h-px flex-1 ${theme === 'dark' ? 'bg-slate-800' : 'bg-slate-200'}`} />
+                </div>
+
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <button
                     onClick={() => handleProvider('google')}
-                    className={`w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl border ${theme === 'dark' ? 'border-slate-700 bg-slate-800 hover:bg-slate-700' : 'border-slate-200 bg-white hover:bg-amber-50'} transition`}
+                    className={`w-full flex items-center justify-center gap-2 px-3 py-3 rounded-2xl border ${theme === 'dark' ? 'border-slate-700 bg-slate-800 hover:bg-slate-700' : 'border-slate-200 bg-white hover:bg-amber-50'} transition shadow-sm`}
                   >
                     <Chrome className="w-4 h-4" />
                     <span className="text-xs">{text.continueWithGoogle}</span>
                   </button>
                   <button
                     onClick={() => handleProvider('apple')}
-                    className={`w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl border ${theme === 'dark' ? 'border-slate-700 bg-slate-800 hover:bg-slate-700' : 'border-slate-200 bg-white hover:bg-amber-50'} transition`}
+                    className={`w-full flex items-center justify-center gap-2 px-3 py-3 rounded-2xl border ${theme === 'dark' ? 'border-slate-700 bg-slate-800 hover:bg-slate-700' : 'border-slate-200 bg-white hover:bg-amber-50'} transition shadow-sm`}
                   >
                     <Apple className="w-4 h-4" />
                     <span className="text-xs">{text.continueWithApple}</span>
                   </button>
                   <button
-                    onClick={() => handleProvider('github')}
-                    className={`w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl border ${theme === 'dark' ? 'border-slate-700 bg-slate-800 hover:bg-slate-700' : 'border-slate-200 bg-white hover:bg-amber-50'} transition`}
+                    onClick={() => handleProvider('microsoft')}
+                    className={`w-full flex items-center justify-center gap-2 px-3 py-3 rounded-2xl border ${theme === 'dark' ? 'border-slate-700 bg-slate-800 hover:bg-slate-700' : 'border-slate-200 bg-white hover:bg-amber-50'} transition shadow-sm`}
                   >
-                    <Github className="w-4 h-4" />
-                    <span className="text-xs">{text.continueWithGitHub}</span>
+                    <span className={`inline-flex h-5 w-5 items-center justify-center rounded-md text-[10px] font-bold ${theme === 'dark' ? 'bg-slate-700 text-slate-100' : 'bg-slate-100 text-slate-700'}`}>M</span>
+                    <span className="text-xs">{authCopy.microsoftLabel}</span>
                   </button>
                 </div>
               </div>
             </div>
 
-            <div className={`relative hidden md:flex flex-col justify-between p-10 ${theme === 'dark' ? 'bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800' : 'bg-gradient-to-br from-amber-100 via-white to-emerald-50'}`}>
-              <div className={`absolute inset-0 ${theme === 'dark' ? 'bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.15),_transparent_55%)]' : 'bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.25),_transparent_55%)]'}`} />
+            <div className={`relative hidden md:flex flex-col justify-between p-10 ${theme === 'dark' ? 'bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800' : 'bg-[linear-gradient(160deg,#fff3d6_0%,#ffffff_45%,#eaf9ff_100%)]'}`}>
+              <div className={`absolute inset-0 ${theme === 'dark' ? 'bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.15),_transparent_55%)]' : 'bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.22),_transparent_55%)]'}`} />
               <div className="relative">
-                <h2 className="text-xl font-semibold mb-3" style={{ fontFamily: "'Fraunces', 'Space Grotesk', serif" }}>Daily clarity</h2>
-                <p className={`${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>
-                  Track habits with a calm, focused dashboard. Your progress stays local and fast.
+                <div className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-semibold tracking-[0.2em] ${theme === 'dark' ? 'bg-slate-800 text-emerald-300 border border-slate-700' : 'bg-white/80 text-emerald-700 border border-emerald-100 shadow-sm'}`}>
+                  HABIT FLOW
+                </div>
+                <h2 className="mt-5 text-2xl font-semibold" style={{ fontFamily: "'Fraunces', 'Space Grotesk', serif" }}>{authCopy.featureTitle}</h2>
+                <p className={`mt-3 leading-7 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>
+                  {authCopy.featureDescription}
                 </p>
               </div>
-              <div className="relative grid gap-4">
+              <div className="relative mt-8 grid gap-4">
                 {[
                   { label: text.habitsCompleted, value: '12' },
                   { label: text.currentStreak, value: '5' },
                   { label: text.bestStreakLabel, value: '18' },
                 ].map((item) => (
-                  <div key={item.label} className={`${theme === 'dark' ? 'bg-slate-800/70 border-slate-700' : 'bg-white/70 border-amber-100'} rounded-2xl border p-4`}>
+                  <div key={item.label} className={`${theme === 'dark' ? 'bg-slate-800/70 border-slate-700' : 'bg-white/75 border-white/70 shadow-sm'} rounded-2xl border p-4`}>
                     <p className={`text-xs ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{item.label}</p>
                     <p className="text-2xl font-bold">{item.value}</p>
                   </div>
                 ))}
+              </div>
+
+              <div className={`relative mt-6 rounded-[28px] p-5 ${theme === 'dark' ? 'bg-slate-800/70 border border-slate-700' : 'bg-white/80 border border-white shadow-sm'}`}>
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <p className={`text-xs uppercase tracking-[0.2em] ${theme === 'dark' ? 'text-slate-500' : 'text-slate-500'}`}>Why Habitify</p>
+                    <p className={`mt-2 text-sm ${theme === 'dark' ? 'text-slate-300' : 'text-slate-700'}`}>Cleaner structure, faster flow, better focus.</p>
+                  </div>
+                  <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-emerald-400 via-sky-500 to-indigo-500" />
+                </div>
+                <div className="mt-4 grid gap-2">
+                  {authCopy.highlights.map((highlight) => (
+                    <div key={highlight} className="flex items-center gap-2">
+                      <span className="h-2 w-2 rounded-full bg-emerald-400" />
+                      <span className={`text-sm ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>{highlight}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
@@ -1734,38 +1947,116 @@ function DashboardPage({
   habits,
   selectedDate,
   metrics,
-  onUpdateProgress,
+  onToggleHabitTimer,
   onAddHabit,
-  onDeleteHabit,
   theme,
   themeConfig,
   language,
   locale,
   isMounted,
   isMobile,
+  activeTimer,
 }: {
   habits: Habit[];
   selectedDate: string;
   metrics: Metrics;
-  onUpdateProgress: (habitId: string, date: string, current: number, time?: string) => void;
+  onToggleHabitTimer: (habitId: string, date: string) => void;
   onAddHabit: () => void;
-  onDeleteHabit: (habitId: string) => void;
   theme: Theme;
   themeConfig: ThemeConfig;
   language: Language;
   locale: string;
   isMounted: boolean;
   isMobile: boolean;
+  activeTimer: ActiveTimer | null;
 }) {
-  const weekDates = getWeekDates(getWeekStartIndex(language));
+  const weekDates = getWeekDates(getWeekStartIndex());
   const text = translations[language];
+  const selectedDateLabel = formatDate(selectedDate, locale);
+  const hasActiveTimer = Boolean(activeTimer);
 
   return (
     <div className="space-y-8">
+      <section className={`relative overflow-hidden rounded-[28px] border ${themeConfig.border} ${themeConfig.card} p-6 shadow-lg sm:p-8`}>
+        <div className={`pointer-events-none absolute inset-y-0 right-0 w-1/2 ${
+          theme === 'dark'
+            ? 'bg-[radial-gradient(circle_at_top_right,_rgba(56,189,248,0.16),_transparent_58%)]'
+            : 'bg-[radial-gradient(circle_at_top_right,_rgba(59,130,246,0.12),_transparent_60%)]'
+        }`} />
+        <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-2xl">
+            <div className={`inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] ${
+              theme === 'dark'
+                ? 'border-slate-700 bg-slate-800/80 text-emerald-300'
+                : 'border-emerald-200 bg-emerald-50 text-emerald-700'
+            }`}>
+              Habitify Flow
+            </div>
+            <h3 className={`mt-4 text-3xl font-bold leading-tight ${themeConfig.text}`}>
+              {text.todaysHabits}
+            </h3>
+            <p className={`mt-2 text-sm ${themeConfig.textSecondary}`}>
+              {selectedDateLabel}
+            </p>
+            <div className="mt-5 flex flex-wrap gap-3">
+              <div className={`rounded-2xl border px-4 py-3 ${
+                theme === 'dark' ? 'border-slate-700 bg-slate-900/70' : 'border-slate-200 bg-white/85'
+              }`}>
+                <p className={`text-[11px] uppercase tracking-[0.18em] ${themeConfig.textSecondary}`}>{text.todaysProgress}</p>
+                <p className={`mt-1 text-xl font-bold ${themeConfig.text}`}>{metrics.weeklyCompletion}%</p>
+              </div>
+              <div className={`rounded-2xl border px-4 py-3 ${
+                theme === 'dark' ? 'border-slate-700 bg-slate-900/70' : 'border-slate-200 bg-white/85'
+              }`}>
+                <p className={`text-[11px] uppercase tracking-[0.18em] ${themeConfig.textSecondary}`}>{text.currentStreak}</p>
+                <p className={`mt-1 text-xl font-bold ${themeConfig.text}`}>{metrics.currentStreak} {text.days}</p>
+              </div>
+              <div className={`rounded-2xl border px-4 py-3 ${
+                theme === 'dark' ? 'border-slate-700 bg-slate-900/70' : 'border-slate-200 bg-white/85'
+              }`}>
+                <p className={`text-[11px] uppercase tracking-[0.18em] ${themeConfig.textSecondary}`}>{text.totalHabits}</p>
+                <p className={`mt-1 text-xl font-bold ${themeConfig.text}`}>{metrics.totalHabits}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className={`grid gap-3 rounded-[24px] border p-4 sm:min-w-[280px] ${
+            theme === 'dark' ? 'border-slate-700 bg-slate-900/80' : 'border-white/80 bg-white/90'
+          }`}>
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className={`text-xs uppercase tracking-[0.18em] ${themeConfig.textSecondary}`}>{text.habitsCompleted}</p>
+                <p className={`mt-1 text-2xl font-bold ${themeConfig.text}`}>{metrics.completedToday}/{metrics.totalHabits}</p>
+              </div>
+              <button
+                onClick={onAddHabit}
+                className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-500 via-sky-500 to-indigo-500 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-sky-500/20 transition hover:scale-[1.02]"
+              >
+                <Plus className="h-4 w-4" />
+                {text.addNewHabit}
+              </button>
+            </div>
+            <div className={`rounded-2xl px-4 py-3 ${
+              hasActiveTimer
+                ? theme === 'dark'
+                  ? 'bg-amber-500/10 text-amber-200'
+                  : 'bg-amber-50 text-amber-700'
+                : theme === 'dark'
+                ? 'bg-slate-800 text-slate-300'
+                : 'bg-slate-100 text-slate-600'
+            }`}>
+              <p className="text-sm font-medium">
+                {hasActiveTimer ? '1 active timer running right now.' : 'No timer is running right now.'}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Metrics Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
         {/* Progress Card */}
-        <div className={`${themeConfig.card} rounded-2xl p-6 border ${themeConfig.border} shadow-lg`}>
+        <div className={`${themeConfig.card} rounded-[24px] p-6 border ${themeConfig.border} shadow-lg`}>
           <h3 className={`${themeConfig.textSecondary} text-sm font-medium mb-4`}>{text.todaysProgress}</h3>
           <div className="flex items-center gap-4">
             <div className="relative w-24 h-24">
@@ -1810,7 +2101,7 @@ function DashboardPage({
         </div>
 
         {/* Streak Card */}
-        <div className={`${theme === 'dark' ? 'bg-orange-500/20 border-orange-500/30' : 'bg-orange-50 border-orange-200'} ${themeConfig.card} rounded-2xl p-6 border shadow-lg`}>
+        <div className={`${theme === 'dark' ? 'bg-orange-500/20 border-orange-500/30' : 'bg-orange-50 border-orange-200'} ${themeConfig.card} rounded-[24px] p-6 border shadow-lg`}>
           <div className="flex items-start justify-between">
             <div>
               <p className={`${themeConfig.textSecondary} text-sm font-medium mb-2`}>{text.currentStreak}</p>
@@ -1825,14 +2116,14 @@ function DashboardPage({
         </div>
 
         {/* Total Habits Card */}
-        <div className={`${theme === 'dark' ? 'bg-green-500/20 border-green-500/30' : 'bg-green-50 border-green-200'} ${themeConfig.card} rounded-2xl p-6 border shadow-lg`}>
+        <div className={`${theme === 'dark' ? 'bg-green-500/20 border-green-500/30' : 'bg-green-50 border-green-200'} ${themeConfig.card} rounded-[24px] p-6 border shadow-lg`}>
           <p className={`${themeConfig.textSecondary} text-sm font-medium mb-4`}>{text.totalHabits}</p>
           <p className={`text-4xl font-bold ${theme === 'dark' ? 'text-green-400' : 'text-green-600'}`}>{metrics.totalHabits}</p>
           <p className={`${themeConfig.textSecondary} text-xs mt-2`}>{text.activeHabits}</p>
         </div>
 
         {/* Add Habit Card */}
-        <div className={`${theme === 'dark' ? 'bg-emerald-500/20 border-emerald-500/30' : 'bg-emerald-50 border-emerald-200'} ${themeConfig.card} rounded-2xl p-6 border flex items-center justify-center cursor-pointer hover:border-emerald-500/50 transition shadow-lg`}>
+        <div className={`${theme === 'dark' ? 'bg-emerald-500/20 border-emerald-500/30' : 'bg-emerald-50 border-emerald-200'} ${themeConfig.card} rounded-[24px] p-6 border flex items-center justify-center cursor-pointer hover:border-emerald-500/50 transition shadow-lg`}>
           <button
             onClick={onAddHabit}
             className="flex flex-col items-center gap-2 text-center"
@@ -1867,12 +2158,12 @@ function DashboardPage({
                   habit={habit}
                   date={selectedDate}
                   completion={completion}
-                  onUpdate={onUpdateProgress}
-                  onDelete={onDeleteHabit}
+                  onToggleTimer={onToggleHabitTimer}
                   theme={theme}
                   themeConfig={themeConfig}
                   language={language}
                   isMobile={isMobile}
+                  activeTimer={activeTimer}
                 />
               );
             })}
@@ -1889,9 +2180,13 @@ function DashboardPage({
               <BarChart
                 data={weekDates.map((date: string) => ({
                   day: parseLocalDate(date).toLocaleDateString(locale, { weekday: 'short' }),
-                  completed: habits.filter(
-                    h => h.completions.find(c => c.date === date && c.completed)
-                  ).length,
+                  progress: habits.reduce((sum, habit) => {
+                    if (habit.createdAt && habit.createdAt > date) {
+                      return sum;
+                    }
+                    const completion = habit.completions.find((entry) => entry.date === date);
+                    return sum + getHabitProgressRatio(habit, completion);
+                  }, 0),
                 }))}
               >
                 <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? 'rgba(100, 116, 139, 0.2)' : 'rgba(200, 200, 200, 0.2)'} />
@@ -1905,7 +2200,7 @@ function DashboardPage({
                     color: theme === 'dark' ? '#e2e8f0' : '#1f2937',
                   }}
                 />
-                <Bar dataKey="completed" fill="url(#colorGradient)" radius={[8, 8, 0, 0]} />
+                <Bar dataKey="progress" fill="url(#colorGradient)" radius={[8, 8, 0, 0]} maxBarSize={42} />
                 <defs>
                   <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#3b82f6" />
@@ -2041,7 +2336,7 @@ function HabitsPage({
                     ></div>
                   </div>
                   <p className={`${themeConfig.textSecondary} text-xs`}>
-                    {completion?.current || 0} / {habit.goal} {getUnitLabel(language, habit.unit)}
+                    {formatHabitCurrentValue(habit, completion?.current || 0)} / {formatHabitGoalValue(habit)} {isTimedHabit(habit.unit) ? '' : getUnitLabel(language, habit.unit)}
                   </p>
                 </div>
 
@@ -2085,8 +2380,7 @@ function CalendarPage({
   const year = currentMonth.getFullYear();
   const month = currentMonth.getMonth();
   const atMinMonth = year === minMonth.getFullYear() && month === minMonth.getMonth();
-  const text = translations[language];
-  const weekStartIndex = getWeekStartIndex(language);
+  const weekStartIndex = getWeekStartIndex();
   const weekdayLabels = getWeekdayLabels(language);
   const firstDay = new Date(year, month, 1);
   const lastDay = new Date(year, month + 1, 0);
@@ -2107,8 +2401,12 @@ function CalendarPage({
 
   const getCompletionRate = (dateStr: string) => {
     if (habits.length === 0) return 0;
-    const completed = habits.filter(h => h.completions.find(c => c.date === dateStr && c.completed)).length;
-    return Math.round((completed / habits.length) * 100);
+    const activeHabits = habits.filter((habit) => !habit.createdAt || habit.createdAt <= dateStr);
+    const progress = activeHabits.reduce((sum, habit) => {
+      const completion = habit.completions.find((entry) => entry.date === dateStr);
+      return sum + getHabitProgressRatio(habit, completion);
+    }, 0);
+    return Math.round((progress / Math.max(activeHabits.length, 1)) * 100);
   };
 
   return (
@@ -2226,7 +2524,7 @@ function CalendarPage({
                   ></div>
                 </div>
                 <p className={`${themeConfig.textSecondary} text-xs mt-2`}>
-                  {completion?.current || 0} / {habit.goal} {getUnitLabel(language, habit.unit)}
+                  {formatHabitCurrentValue(habit, completion?.current || 0)} / {formatHabitGoalValue(habit)} {isTimedHabit(habit.unit) ? '' : getUnitLabel(language, habit.unit)}
                   {completion?.time && ` · ${completion.time}`}
                 </p>
               </div>
@@ -2264,10 +2562,14 @@ function StatsPage({
       const date = new Date(today);
       date.setDate(date.getDate() - i);
       const dateStr = formatLocalDate(date);
-      const completed = habits.filter(h => h.completions.find(c => c.date === dateStr && c.completed)).length;
+      const activeHabits = habits.filter((habit) => !habit.createdAt || habit.createdAt <= dateStr);
+      const progress = activeHabits.reduce((sum, habit) => {
+        const completion = habit.completions.find((entry) => entry.date === dateStr);
+        return sum + getHabitProgressRatio(habit, completion);
+      }, 0);
       data.push({
         date: date.toLocaleDateString(locale, { month: 'short', day: 'numeric' }),
-        completed,
+        completed: Math.round((progress / Math.max(activeHabits.length, 1)) * 100),
       });
     }
     return data;
@@ -2708,136 +3010,173 @@ function HabitCard({
   habit,
   date,
   completion,
-  onUpdate,
-  onDelete,
+  onToggleTimer,
   theme,
   themeConfig,
   language,
   isMobile,
+  activeTimer,
 }: {
   habit: Habit;
   date: string;
   completion?: HabitCompletion;
-  onUpdate: (habitId: string, date: string, current: number, time?: string) => void;
-  onDelete: (habitId: string) => void;
+  onToggleTimer: (habitId: string, date: string) => void;
   theme: Theme;
   themeConfig: ThemeConfig;
   language: Language;
   isMobile: boolean;
+  activeTimer: ActiveTimer | null;
 }) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [currentValue, setCurrentValue] = useState(completion?.current || 0);
-  const [time, setTime] = useState(completion?.time || getCurrentTimeString());
+  const currentValue = completion?.current || 0;
+  const percentage = Math.min((currentValue / habit.goal) * 100, 100);
+  const isRunning = activeTimer?.habitId === habit.id && activeTimer.date === date;
+  const timerLocked = Boolean(activeTimer && activeTimer.habitId !== habit.id);
+  const timedHabit = isTimedHabit(habit.unit);
+  const elapsedSeconds = timedHabit ? (currentValue / habit.goal) * getHabitGoalSeconds(habit) : 0;
+  const remainingSeconds = timedHabit ? Math.max(getHabitGoalSeconds(habit) - elapsedSeconds, 0) : 0;
+  const buttonDisabled = timedHabit ? timerLocked || percentage >= 100 : false;
   const text = translations[language];
 
-  useEffect(() => {
-    setCurrentValue(completion?.current || 0);
-    setTime(completion?.time || getCurrentTimeString());
-  }, [completion?.current, completion?.time]);
-
-  const percentage = Math.min((currentValue / habit.goal) * 100, 100);
-
   return (
-    <div className={`${themeConfig.card} rounded-xl p-4 border ${themeConfig.border} flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0 hover:border-emerald-500/50 transition shadow-lg`}>
-      <div className="flex items-center gap-4 flex-1 w-full">
-        <button
-          onClick={() => {
-            if (!isMobile) return;
-            const nextTime = getCurrentTimeString();
-            setCurrentValue(habit.goal);
-            setTime(nextTime);
-            onUpdate(habit.id, date, habit.goal, nextTime);
-          }}
-          disabled={!isMobile}
-          aria-disabled={!isMobile}
-          className={`flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center transition ${
-            completion?.completed
-              ? 'bg-green-500/20 text-green-500'
-              : `${themeConfig.bgTertiary} ${themeConfig.textSecondary} hover:bg-emerald-500/20`
-          } ${isMobile ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'}`}
-        >
-          {completion?.completed && <Check className="w-6 h-6" />}
-        </button>
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-lg">{habit.icon}</span>
-            <h4 className={`${themeConfig.text} font-semibold`}>{habit.name}</h4>
+    <div className={`group relative overflow-hidden rounded-[24px] border ${themeConfig.border} ${themeConfig.card} p-4 shadow-lg transition hover:-translate-y-0.5 hover:border-emerald-500/40`}>
+      <div className={`pointer-events-none absolute inset-x-0 top-0 h-20 opacity-80 ${
+        theme === 'dark'
+          ? 'bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.16),_transparent_58%)]'
+          : 'bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.10),_transparent_62%)]'
+      }`} />
+      <div className="relative flex items-center gap-4 flex-1 w-full">
+        {!timedHabit ? (
+          <label className={`flex-shrink-0 inline-flex items-center gap-2 ${isMobile ? 'self-start px-2.5 py-2 rounded-2xl' : 'px-3 py-2 rounded-xl'} border ${themeConfig.border} ${themeConfig.bgTertiary} ${themeConfig.text} cursor-pointer whitespace-nowrap shadow-sm`}>
+            <input
+              type="checkbox"
+              checked={percentage >= 100}
+              onChange={() => onToggleTimer(habit.id, date)}
+              className="h-4 w-4 accent-emerald-500"
+            />
+            <span className={`${isMobile ? 'text-xs font-semibold' : 'text-sm font-medium'}`}>{text.completedCheckbox}</span>
+          </label>
+        ) : !isMobile ? (
+          <button
+            onClick={() => onToggleTimer(habit.id, date)}
+            disabled={buttonDisabled}
+            aria-disabled={buttonDisabled}
+            className={`flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center transition ${
+              percentage >= 100
+                ? 'bg-green-500/20 text-green-500'
+                : isRunning
+                ? 'bg-amber-500/20 text-amber-500'
+                : `${themeConfig.bgTertiary} ${themeConfig.textSecondary} hover:bg-emerald-500/20 hover:text-emerald-500`
+            } ${buttonDisabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}`}
+            aria-label={isRunning ? 'Pause habit timer' : 'Start habit timer'}
+          >
+            {percentage >= 100 ? (
+              <Check className="w-6 h-6" />
+            ) : isRunning ? (
+              <Pause className="w-6 h-6" />
+            ) : (
+              <Play className="w-6 h-6 ml-0.5" />
+            )}
+          </button>
+        ) : (
+          <div className="flex-shrink-0 w-0" aria-hidden="true" />
+        )}
+
+        <div className="flex-1 min-w-0">
+          <div className="mb-3 flex items-start justify-between gap-3">
+            <div className="flex min-w-0 items-start gap-3">
+              <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${habit.color} text-lg text-white shadow-lg`}>
+                <span>{habit.icon}</span>
+              </div>
+              <div className="min-w-0">
+                <h4 className={`${themeConfig.text} truncate text-base font-semibold`}>{habit.name}</h4>
+                <div className="mt-1 flex flex-wrap gap-2">
+                  <span className={`rounded-full px-2.5 py-1 text-[11px] font-medium ${
+                    theme === 'dark' ? 'bg-slate-800 text-slate-300' : 'bg-slate-100 text-slate-600'
+                  }`}>
+                    {text.category}: {getCategoryLabel(language, habit.category)}
+                  </span>
+                  <span className={`rounded-full px-2.5 py-1 text-[11px] font-medium ${
+                    theme === 'dark' ? 'bg-slate-800 text-slate-300' : 'bg-slate-100 text-slate-600'
+                  }`}>
+                    {text.goal}: {formatHabitGoalValue(habit)} {timedHabit ? '' : getUnitLabel(language, habit.unit)}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              {timedHabit && isMobile && (
+                <button
+                  onClick={() => onToggleTimer(habit.id, date)}
+                  disabled={buttonDisabled}
+                  aria-disabled={buttonDisabled}
+                  className={`w-10 h-10 rounded-lg flex items-center justify-center transition ${
+                    percentage >= 100
+                      ? 'bg-green-500/20 text-green-500'
+                      : isRunning
+                      ? 'bg-amber-500/20 text-amber-500'
+                      : `${themeConfig.bgTertiary} ${themeConfig.textSecondary} hover:bg-emerald-500/20 hover:text-emerald-500`
+                  } ${buttonDisabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}`}
+                  aria-label={isRunning ? 'Pause habit timer' : 'Start habit timer'}
+                >
+                  {percentage >= 100 ? (
+                    <Check className="w-5 h-5" />
+                  ) : isRunning ? (
+                    <Pause className="w-5 h-5" />
+                  ) : (
+                    <Play className="w-5 h-5 ml-0.5" />
+                  )}
+                </button>
+              )}
+              <div className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${
+                percentage >= 100
+                  ? 'bg-green-500/15 text-green-500'
+                  : isRunning
+                  ? 'bg-amber-500/15 text-amber-500'
+                  : theme === 'dark'
+                  ? 'bg-slate-800 text-slate-300'
+                  : 'bg-slate-100 text-slate-600'
+              }`}>
+                {Math.round(percentage)}%
+              </div>
+            </div>
           </div>
-          <div className={`h-2 ${theme === 'dark' ? 'bg-slate-700/50' : 'bg-slate-200'} rounded-full overflow-hidden w-full sm:max-w-xs`}>
+
+          <div className={`h-2 ${theme === 'dark' ? 'bg-slate-700/50' : 'bg-slate-200'} rounded-full overflow-hidden w-full`}>
             <div
-              className={`h-full bg-gradient-to-r ${habit.color} transition-all`}
+              className={`h-full bg-gradient-to-r ${habit.color} transition-all duration-500`}
               style={{ width: `${percentage}%` }}
             ></div>
           </div>
+
           <p className={`${themeConfig.textSecondary} text-xs mt-1`}>
-            {currentValue} / {habit.goal} {getUnitLabel(language, habit.unit)}
-            {completion?.time && ` · ${completion.time}`}
+            {formatHabitCurrentValue(habit, currentValue)} / {formatHabitGoalValue(habit)} {timedHabit ? '' : getUnitLabel(language, habit.unit)}
+            {timedHabit && ` • ${formatDuration(remainingSeconds)}`}
+            {completion?.time && percentage >= 100 && ` • ${completion.time}`}
           </p>
+
+          {timerLocked && percentage < 100 && (
+            <p className={`${themeConfig.textSecondary} text-[11px] mt-1`}>
+              Another habit is running now.
+            </p>
+          )}
+
+          {!timedHabit && (
+            <p className={`${themeConfig.textSecondary} text-[11px] mt-1`}>
+              {text.completedCheckbox}
+            </p>
+          )}
         </div>
       </div>
-
-      {/* Edit Progress */}
-      {isEditing ? (
-        <div className="hidden sm:flex gap-2 ml-4">
-          <label className={`flex items-center gap-2 px-2 py-1 ${themeConfig.input} ${themeConfig.text} rounded text-sm`}>
-            <input
-              type="checkbox"
-              checked={currentValue >= habit.goal}
-              onChange={(e) => setCurrentValue(e.target.checked ? habit.goal : 0)}
-              className="w-4 h-4 accent-green-500"
-            />
-            {text.completedCheckbox}
-          </label>
-          <input
-            type="time"
-            value={time}
-            onChange={(e) => setTime(e.target.value)}
-            className={`px-2 py-1 ${themeConfig.input} ${themeConfig.text} rounded text-sm`}
-          />
-          <button
-            onClick={() => {
-              onUpdate(habit.id, date, currentValue, time);
-              setIsEditing(false);
-            }}
-            className="p-2 bg-green-500/20 hover:bg-green-500/30 text-green-500 rounded transition"
-          >
-            <Save className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => setIsEditing(false)}
-            className="p-2 bg-red-500/20 hover:bg-red-500/30 text-red-500 rounded transition"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-      ) : (
-        <div className="hidden sm:flex gap-2 ml-4">
-          <button
-            onClick={() => setIsEditing(true)}
-            className={`p-2 hover:bg-emerald-500/20 rounded-lg transition text-emerald-500`}
-          >
-            <Edit2 className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => onDelete(habit.id)}
-            className="p-2 hover:bg-red-500/20 rounded-lg transition text-red-500"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-      )}
     </div>
   );
 }
 
 function ReminderToast({
-  theme,
   themeConfig,
   title,
   message,
   onClose,
 }: {
-  theme: Theme;
   themeConfig: ThemeConfig;
   title: string;
   message: string;
@@ -3016,8 +3355,3 @@ function AddHabitModal({
 }
 
 // Animation styles live in app/globals.css to avoid module-level side effects.
-
-
-
-
-
