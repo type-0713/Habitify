@@ -3132,6 +3132,11 @@ function HabitCard({
   const remainingSeconds = timedHabit ? Math.max(getHabitGoalSeconds(habit) - elapsedSeconds, 0) : 0;
   const buttonDisabled = timedHabit ? timerLocked || percentage >= 100 : false;
   const text = translations[language];
+  const detailItems = [
+    `${formatHabitCurrentValue(habit, currentValue)} / ${formatHabitGoalValue(habit)}${timedHabit ? '' : ` ${getUnitLabel(language, habit.unit)}`}`,
+    timedHabit ? `Remaining: ${formatDuration(remainingSeconds)}` : null,
+    completion?.time && percentage >= 100 ? completion.time : null,
+  ].filter(Boolean) as string[];
 
   return (
     <div className={`group relative overflow-hidden rounded-[24px] border ${themeConfig.border} ${themeConfig.card} p-4 shadow-lg transition hover:-translate-y-0.5 hover:border-emerald-500/40`}>
@@ -3140,9 +3145,9 @@ function HabitCard({
           ? 'bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.16),_transparent_58%)]'
           : 'bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.10),_transparent_62%)]'
       }`} />
-      <div className="relative flex items-center gap-4 flex-1 w-full">
+      <div className="relative flex items-start gap-4 flex-1 w-full">
         {!timedHabit ? (
-          <label className={`flex-shrink-0 inline-flex items-center gap-2 ${isMobile ? 'self-start px-2.5 py-2 rounded-2xl' : 'px-3 py-2 rounded-xl'} border ${themeConfig.border} ${themeConfig.bgTertiary} ${themeConfig.text} cursor-pointer whitespace-nowrap shadow-sm`}>
+          <label className={`mt-1 flex-shrink-0 inline-flex items-center gap-2 ${isMobile ? 'self-start px-2.5 py-2 rounded-2xl' : 'px-3 py-2 rounded-xl'} border ${themeConfig.border} ${themeConfig.bgTertiary} ${themeConfig.text} cursor-pointer whitespace-nowrap shadow-sm`}>
             <input
               type="checkbox"
               checked={percentage >= 100}
@@ -3156,7 +3161,7 @@ function HabitCard({
             onClick={() => onToggleTimer(habit.id, date)}
             disabled={buttonDisabled}
             aria-disabled={buttonDisabled}
-            className={`flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center transition ${
+            className={`mt-1 flex-shrink-0 w-12 h-12 rounded-2xl border ${themeConfig.border} flex items-center justify-center transition ${
               percentage >= 100
                 ? 'bg-green-500/20 text-green-500'
                 : isRunning
@@ -3184,8 +3189,8 @@ function HabitCard({
                 <span>{habit.icon}</span>
               </div>
               <div className="min-w-0">
-                <h4 className={`${themeConfig.text} truncate text-base font-semibold`}>{habit.name}</h4>
-                <div className="mt-1 flex flex-wrap gap-2">
+                <h4 className={`${themeConfig.text} truncate text-xl font-semibold leading-tight`}>{habit.name}</h4>
+                <div className="mt-2 flex flex-wrap gap-2">
                   <span className={`rounded-full px-2.5 py-1 text-[11px] font-medium ${
                     theme === 'dark' ? 'bg-slate-800 text-slate-300' : 'bg-slate-100 text-slate-600'
                   }`}>
@@ -3205,7 +3210,7 @@ function HabitCard({
                   onClick={() => onToggleTimer(habit.id, date)}
                   disabled={buttonDisabled}
                   aria-disabled={buttonDisabled}
-                  className={`w-10 h-10 rounded-lg flex items-center justify-center transition ${
+                  className={`w-10 h-10 rounded-xl border ${themeConfig.border} flex items-center justify-center transition ${
                     percentage >= 100
                       ? 'bg-green-500/20 text-green-500'
                       : isRunning
@@ -3244,20 +3249,25 @@ function HabitCard({
             ></div>
           </div>
 
-          <p className={`${themeConfig.textSecondary} text-xs mt-1`}>
-            {formatHabitCurrentValue(habit, currentValue)} / {formatHabitGoalValue(habit)} {timedHabit ? '' : getUnitLabel(language, habit.unit)}
-            {timedHabit && ` • ${formatDuration(remainingSeconds)}`}
-            {completion?.time && percentage >= 100 && ` • ${completion.time}`}
-          </p>
+          <div className={`${themeConfig.textSecondary} mt-3 flex flex-wrap gap-x-3 gap-y-1 text-xs`}>
+            {detailItems.map((item) => (
+              <span
+                key={item}
+                className={`rounded-full px-2.5 py-1 ${theme === 'dark' ? 'bg-slate-900/80' : 'bg-slate-100/90'}`}
+              >
+                {item}
+              </span>
+            ))}
+          </div>
 
           {timerLocked && percentage < 100 && (
-            <p className={`${themeConfig.textSecondary} text-[11px] mt-1`}>
+            <p className={`${themeConfig.textSecondary} text-[11px] mt-2`}>
               Another habit is running now.
             </p>
           )}
 
           {!timedHabit && (
-            <p className={`${themeConfig.textSecondary} text-[11px] mt-1`}>
+            <p className={`${themeConfig.textSecondary} text-[11px] mt-2`}>
               {text.completedCheckbox}
             </p>
           )}
