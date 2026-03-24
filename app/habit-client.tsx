@@ -299,7 +299,6 @@ const translations = {
     monthlyResetTitle: 'Oylik tozalash',
     resetNoticePrefix: "Mahalliy ma'lumotlar tozalandi",
     closeNotice: 'Bildirishnomani yopish',
-    noHabitsFound: "Qidiruv bo'yicha hech narsa topilmadi.",
     weekdaysShort: ['Du', 'Se', 'Ch', 'Pa', 'Ju', 'Sh', 'Ya'],
   },
 };
