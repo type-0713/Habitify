@@ -1411,24 +1411,26 @@ function HabitTrackerApp() {
 
       {/* Main Content */}
       <main className="min-w-0 flex-1 overflow-auto overflow-x-hidden">
-        <Header
-          user={userProfile!}
-          onMenuClick={() => setMobileSidebarOpen(true)}
-          onProfileClick={() => setCurrentPage('profile')}
-          metrics={calculateMetrics()}
-          theme={theme}
-          soundEnabled={soundEnabled}
-          onSoundToggle={() => {
-            setSoundEnabled((prev) => {
-              const nextValue = !prev;
-              if (!nextValue) {
-                setReminderToast(null);
-              }
-              return nextValue;
-            });
-          }}
-          language={language}
-        />
+        {!mobileSidebarOpen && (
+          <Header
+            user={userProfile!}
+            onMenuClick={() => setMobileSidebarOpen(true)}
+            onProfileClick={() => setCurrentPage('profile')}
+            metrics={calculateMetrics()}
+            theme={theme}
+            soundEnabled={soundEnabled}
+            onSoundToggle={() => {
+              setSoundEnabled((prev) => {
+                const nextValue = !prev;
+                if (!nextValue) {
+                  setReminderToast(null);
+                }
+                return nextValue;
+              });
+            }}
+            language={language}
+          />
+        )}
 
         {resetNotice && (
           <div className="px-6 md:px-8 pt-4">
