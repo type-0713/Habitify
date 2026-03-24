@@ -1996,7 +1996,7 @@ function Header({
             : 'border-white/80 bg-white/82 shadow-[0_24px_60px_-34px_rgba(15,23,42,0.22)]'
         } section-reveal spotlight-card`}
       >
-        <div className="flex items-start justify-between gap-3 md:items-center">
+        <div className="flex items-start justify-between gap-3 md:items-center md:gap-4">
           <button
             onClick={onMenuClick}
             className={`md:hidden flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border transition ${themeConfig.hover} ${
@@ -2008,27 +2008,27 @@ function Header({
           </button>
 
           <div className="hidden min-w-0 flex-1 items-center gap-4 md:flex">
-            <div className="min-w-0 flex-1">
-              <h2 className={`truncate text-sm font-bold leading-tight sm:text-xl ${themeConfig.text}`}>
+            <div className="min-w-0 flex-1 md:max-w-[420px]">
+              <h2 className={`truncate text-base font-bold leading-tight lg:text-[1.8rem] ${themeConfig.text}`}>
                 {getGreeting(language)}, {user.name}!
               </h2>
-              <p className={`${themeConfig.textSecondary} mt-1 text-[11px] sm:text-sm`}>
+              <p className={`${themeConfig.textSecondary} mt-1 text-sm`}>
                 {metrics.completedToday} / {metrics.totalHabits} {text.habitsCompletedToday}
               </p>
             </div>
           </div>
 
-          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3 md:flex-nowrap">
             <div
-              className={`hidden items-center gap-3 rounded-2xl border px-3 py-2 md:flex ${
+              className={`hidden min-w-[240px] items-center gap-3 rounded-2xl border px-4 py-3 md:flex ${
                 theme === 'dark' ? 'border-slate-700 bg-slate-800/75' : 'border-slate-200 bg-white/92'
               }`}
             >
               <div className="min-w-[88px]">
                 <p className={`text-[10px] uppercase tracking-[0.18em] ${themeConfig.textSecondary}`}>{text.todaysProgress}</p>
-                <p className={`text-sm font-semibold ${themeConfig.text}`}>{completionRatio}%</p>
+                <p className={`mt-1 text-sm font-semibold ${themeConfig.text}`}>{completionRatio}%</p>
               </div>
-              <div className={`h-2 w-24 overflow-hidden rounded-full ${theme === 'dark' ? 'bg-slate-700' : 'bg-slate-200'}`}>
+              <div className={`h-2 w-full overflow-hidden rounded-full ${theme === 'dark' ? 'bg-slate-700' : 'bg-slate-200'}`}>
                 <div
                   className="h-full rounded-full bg-gradient-to-r from-emerald-500 via-sky-500 to-indigo-500 transition-all duration-500"
                   style={{ width: `${completionRatio}%` }}
@@ -2060,13 +2060,13 @@ function Header({
             <button
               type="button"
               onClick={onProfileClick}
-              className={`flex items-center gap-2 rounded-2xl border p-1.5 transition hover-lift sm:px-2 sm:py-1.5 ${
+              className={`flex items-center gap-3 rounded-2xl border p-1.5 transition hover-lift md:min-w-[210px] md:justify-between sm:px-2 sm:py-1.5 ${
                 theme === 'dark' ? 'border-slate-700 bg-slate-800/80' : 'border-slate-200 bg-white/92'
               }`}
               aria-label={text.profile}
             >
               <div className="hidden text-right sm:block">
-                <p className={`max-w-[120px] truncate text-xs font-semibold ${themeConfig.text}`}>{user.name}</p>
+                <p className={`max-w-[132px] truncate text-sm font-semibold ${themeConfig.text}`}>{user.name}</p>
                 <p className={`text-[11px] ${themeConfig.textSecondary}`}>{text.profile}</p>
               </div>
               <div className="h-10 w-10 overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-400 via-sky-400 to-indigo-500 text-sm font-semibold text-white shadow-lg ring-2 ring-sky-400/30 float-gentle">
