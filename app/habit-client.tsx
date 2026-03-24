@@ -1364,6 +1364,7 @@ function HabitTrackerApp() {
         joinDate: user.createdAt || getTodayDate(),
       }
     : null;
+  const todayMetrics = calculateMetrics();
 
   if (!isSignedIn) {
     return <AuthPage theme={theme} language={language} onLogin={handleLogin} authError={authError} />;
@@ -1416,7 +1417,7 @@ function HabitTrackerApp() {
             user={userProfile!}
             onMenuClick={() => setMobileSidebarOpen(true)}
             onProfileClick={() => setCurrentPage('profile')}
-            metrics={calculateMetrics()}
+            metrics={todayMetrics}
             theme={theme}
             soundEnabled={soundEnabled}
             onSoundToggle={() => {
@@ -1462,7 +1463,7 @@ function HabitTrackerApp() {
             <DashboardPage
               habits={habits}
               selectedDate={getTodayDate()}
-              metrics={calculateMetrics()}
+              metrics={todayMetrics}
               onToggleHabitTimer={handleToggleHabitTimer}
               onAddHabit={() => setShowAddHabit(true)}
               theme={theme}
@@ -1505,7 +1506,7 @@ function HabitTrackerApp() {
           {currentPage === 'stats' && (
             <StatsPage
               habits={habits}
-              metrics={calculateMetrics()}
+              metrics={todayMetrics}
               theme={theme}
               themeConfig={themeConfig}
               language={language}
