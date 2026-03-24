@@ -12,7 +12,7 @@ import {
   signOut,
 } from 'firebase/auth';
 import { firebaseAuth } from './lib/firebase';
-import { Check, Plus, Flame, Menu, LogOut, Home, ListTodo, BarChart3, Bell, User, Calendar, Edit2, Save, X, ChevronLeft, ChevronRight, Sun, Moon, Apple, Chrome, Mail, LockKeyhole, Eye, EyeOff, Play, Pause } from 'lucide-react';
+import { Check, Plus, Flame, Menu, LogOut, Home, ListTodo, BarChart3, Bell, User, Calendar, Edit2, Save, X, ChevronLeft, ChevronRight, Sun, Moon, Apple, Chrome, Mail, LockKeyhole, Eye, EyeOff, Play, Pause, Sparkles } from 'lucide-react';
 
 const ResponsiveContainer = dynamic(() => import('recharts').then((m) => m.ResponsiveContainer), { ssr: false });
 const BarChart = dynamic(() => import('recharts').then((m) => m.BarChart), { ssr: false });
@@ -535,24 +535,69 @@ const setLocalStorage = <T,>(key: string, value: T) => {
   }
 };
 
-const playNotificationSound = (enabled: boolean, frequency: number = 880, durationSeconds: number = 0.15) => {
+type SoundCue = 'success' | 'complete' | 'reminder' | 'add' | 'start' | 'pause';
+
+const soundCueMap: Record<SoundCue, Array<{ frequency: number; duration: number; delay: number; gain?: number; type?: OscillatorType }>> = {
+  success: [
+    { frequency: 659.25, duration: 0.11, delay: 0, gain: 0.03, type: 'triangle' },
+    { frequency: 783.99, duration: 0.12, delay: 0.1, gain: 0.035, type: 'triangle' },
+    { frequency: 987.77, duration: 0.18, delay: 0.22, gain: 0.04, type: 'sine' },
+  ],
+  complete: [
+    { frequency: 523.25, duration: 0.08, delay: 0, gain: 0.025, type: 'triangle' },
+    { frequency: 659.25, duration: 0.09, delay: 0.08, gain: 0.03, type: 'triangle' },
+    { frequency: 783.99, duration: 0.1, delay: 0.16, gain: 0.03, type: 'triangle' },
+    { frequency: 1046.5, duration: 0.24, delay: 0.28, gain: 0.04, type: 'sine' },
+  ],
+  reminder: [
+    { frequency: 440, duration: 0.1, delay: 0, gain: 0.025, type: 'sine' },
+    { frequency: 554.37, duration: 0.14, delay: 0.12, gain: 0.03, type: 'triangle' },
+  ],
+  add: [
+    { frequency: 587.33, duration: 0.08, delay: 0, gain: 0.02, type: 'triangle' },
+    { frequency: 783.99, duration: 0.12, delay: 0.09, gain: 0.026, type: 'triangle' },
+  ],
+  start: [
+    { frequency: 493.88, duration: 0.08, delay: 0, gain: 0.018, type: 'sine' },
+    { frequency: 659.25, duration: 0.1, delay: 0.08, gain: 0.022, type: 'triangle' },
+  ],
+  pause: [
+    { frequency: 587.33, duration: 0.07, delay: 0, gain: 0.018, type: 'triangle' },
+    { frequency: 440, duration: 0.1, delay: 0.08, gain: 0.018, type: 'sine' },
+  ],
+};
+
+const playNotificationSound = (enabled: boolean, cue: SoundCue = 'success') => {
   if (!enabled || typeof window === 'undefined') return;
   const AudioContextCtor = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof window.AudioContext }).webkitAudioContext;
   if (!AudioContextCtor) return;
   try {
     const context = new AudioContextCtor();
-    const oscillator = context.createOscillator();
-    const gain = context.createGain();
-    oscillator.type = 'sine';
-    oscillator.frequency.value = frequency;
-    gain.gain.value = 0.05;
-    oscillator.connect(gain);
-    gain.connect(context.destination);
-    oscillator.start();
-    oscillator.stop(context.currentTime + durationSeconds);
-    oscillator.onended = () => {
+    const now = context.currentTime;
+    const steps = soundCueMap[cue];
+
+    steps.forEach((step) => {
+      const oscillator = context.createOscillator();
+      const gain = context.createGain();
+      const startAt = now + step.delay;
+      const endAt = startAt + step.duration;
+      const peakGain = step.gain ?? 0.025;
+
+      oscillator.type = step.type ?? 'sine';
+      oscillator.frequency.setValueAtTime(step.frequency, startAt);
+      gain.gain.setValueAtTime(0.0001, startAt);
+      gain.gain.exponentialRampToValueAtTime(peakGain, startAt + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, endAt);
+      oscillator.connect(gain);
+      gain.connect(context.destination);
+      oscillator.start(startAt);
+      oscillator.stop(endAt);
+    });
+
+    const totalDuration = steps.reduce((max, step) => Math.max(max, step.delay + step.duration), 0);
+    window.setTimeout(() => {
       context.close();
-    };
+    }, Math.ceil((totalDuration + 0.08) * 1000));
   } catch (error) {
     console.error('Error playing notification sound:', error);
   }
@@ -732,6 +777,8 @@ function HabitTrackerApp() {
   const [profileOverrides, setProfileOverrides] = useState<ProfileOverrides>({});
   const [resetNotice, setResetNotice] = useState<string | null>(null);
   const [reminderToast, setReminderToast] = useState<{ title: string; message: string } | null>(null);
+  const [celebrationToast, setCelebrationToast] = useState<{ title: string; message: string } | null>(null);
+  const [celebrationBurst, setCelebrationBurst] = useState(0);
   const [soundEnabled, setSoundEnabled] = useState(() => getLocalStorage<boolean>('sound_enabled', true) ?? true);
   const [language, setLanguage] = useState<Language>(() => normalizeLanguage(getLocalStorage<string>('language', 'en')));
   const [isMounted, setIsMounted] = useState(false);
@@ -760,6 +807,11 @@ function HabitTrackerApp() {
   const locale = getLocale(language);
   const text = translations[language];
   const minMonth = getMonthStart(new Date());
+
+  const launchCelebration = (title: string, message: string) => {
+    setCelebrationToast({ title, message });
+    setCelebrationBurst((prev) => prev + 1);
+  };
 
   const handleMonthChange = (date: Date) => {
     const nextMonth = getMonthStart(date);
@@ -790,7 +842,7 @@ function HabitTrackerApp() {
         setCurrentMonth(getMonthStart(now));
         const resetDateLabel = now.toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' });
         setResetNotice(`${text.resetNoticePrefix} ${resetDateLabel}.`);
-        playNotificationSound(soundEnabled, 740);
+        playNotificationSound(soundEnabled, 'reminder');
       }
     };
     checkMonthlyReset();
@@ -942,7 +994,9 @@ function HabitTrackerApp() {
         setActiveTimer((currentTimer) => (
           currentTimer?.habitId === activeTimer.habitId ? null : currentTimer
         ));
-        playNotificationSound(soundEnabled, 920);
+        playNotificationSound(soundEnabled, 'complete');
+        setCelebrationToast({ title: 'Habit completed', message: 'Beautiful work. That session is fully done.' });
+        setCelebrationBurst((prev) => prev + 1);
       }
     }, 1000);
 
@@ -962,6 +1016,12 @@ function HabitTrackerApp() {
       return () => window.clearTimeout(timeoutId);
     }
   }, [activeTimer, habits]);
+
+  useEffect(() => {
+    if (!celebrationToast) return;
+    const timeoutId = window.setTimeout(() => setCelebrationToast(null), 3800);
+    return () => window.clearTimeout(timeoutId);
+  }, [celebrationToast]);
 
   // Daily reminder after 14:00 if any habit is still incomplete.
   useEffect(() => {
@@ -996,7 +1056,7 @@ function HabitTrackerApp() {
 
       const message = text.reminderBody.replace('{count}', String(incomplete.length));
       setReminderToast({ title: text.reminderTitle, message });
-      playNotificationSound(soundEnabled, 660);
+      playNotificationSound(soundEnabled, 'reminder');
       setLocalStorage(alertKey, todayStr);
       window.setTimeout(() => {
         setReminderToast(null);
@@ -1110,37 +1170,53 @@ function HabitTrackerApp() {
         reminderTime: '09:00',
       });
       setShowAddHabit(false);
-      playNotificationSound(soundEnabled, 880);
+      playNotificationSound(soundEnabled, 'add');
+      launchCelebration('New habit added', `${newHabit.name} is ready for today.`);
     }
   };
 
   // Update Habit Completion
   const handleUpdateHabitCompletion = (habitId: string, date: string, current: number, time?: string) => {
+    let completedHabitName = '';
+    let becameCompleted = false;
+
     setHabits((prev) => prev.map(h => {
       if (h.id === habitId) {
         const completions = [...h.completions];
         const existingIndex = completions.findIndex(c => c.date === date);
+        const wasCompleted = existingIndex >= 0 ? completions[existingIndex].completed : false;
+        const nextCompleted = current >= h.goal;
 
         if (existingIndex >= 0) {
           completions[existingIndex] = {
             ...completions[existingIndex],
             current,
-            completed: current >= h.goal,
+            completed: nextCompleted,
             time: time || completions[existingIndex].time,
           };
         } else {
           completions.push({
             date,
-            completed: current >= h.goal,
+            completed: nextCompleted,
             current,
             time,
           });
+        }
+
+        if (!wasCompleted && nextCompleted) {
+          becameCompleted = true;
+          completedHabitName = h.name;
         }
 
         return { ...h, completions };
       }
       return h;
     }));
+
+    if (becameCompleted) {
+      playNotificationSound(soundEnabled, 'complete');
+      launchCelebration('Habit completed', `${completedHabitName} finished successfully.`);
+    }
   };
 
   const handleToggleHabitTimer = (habitId: string, date: string) => {
@@ -1162,6 +1238,7 @@ function HabitTrackerApp() {
 
     if (activeTimer?.habitId === habitId && activeTimer.date === date) {
       setActiveTimer(null);
+      playNotificationSound(soundEnabled, 'pause');
       return;
     }
 
@@ -1174,6 +1251,7 @@ function HabitTrackerApp() {
     }
 
     setActiveTimer({ habitId, date });
+    playNotificationSound(soundEnabled, 'start');
   };
 
   // Delete Habit
@@ -1367,7 +1445,14 @@ function HabitTrackerApp() {
           </div>
         )}
 
-        <div className={`p-6 md:p-8 max-w-7xl mx-auto ${themeConfig.bgSecondary}`}>
+        <div className={`relative overflow-hidden rounded-[32px] p-6 md:p-8 max-w-7xl mx-auto ${themeConfig.bgSecondary}`}>
+          <div className={`pointer-events-none absolute -top-20 right-0 h-48 w-48 rounded-full blur-3xl ${
+            theme === 'dark' ? 'bg-emerald-500/10' : 'bg-emerald-200/50'
+          }`} />
+          <div className={`pointer-events-none absolute bottom-0 left-0 h-56 w-56 rounded-full blur-3xl ${
+            theme === 'dark' ? 'bg-sky-500/10' : 'bg-sky-200/50'
+          }`} />
+          <div className="relative">
           {currentPage === 'dashboard' && (
             <DashboardPage
               habits={habits}
@@ -1436,6 +1521,7 @@ function HabitTrackerApp() {
               isMobile={isMobile}
             />
           )}
+          </div>
         </div>
       </main>
 
@@ -1458,6 +1544,17 @@ function HabitTrackerApp() {
           title={reminderToast.title}
           message={reminderToast.message}
           onClose={() => setReminderToast(null)}
+        />
+      )}
+
+      {celebrationToast && (
+        <CelebrationToast
+          key={celebrationBurst}
+          theme={theme}
+          themeConfig={themeConfig}
+          title={celebrationToast.title}
+          message={celebrationToast.message}
+          onClose={() => setCelebrationToast(null)}
         />
       )}
     </div>
@@ -3203,6 +3300,70 @@ function ReminderToast({
         <div className="mt-3 flex items-center gap-2 text-xs text-slate-500">
           <Image src="/icon.png" alt="Habitify" width={18} height={18} className="rounded-md" />
           <span className={themeConfig.textSecondary}>Habitify</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CelebrationToast({
+  theme,
+  themeConfig,
+  title,
+  message,
+  onClose,
+}: {
+  theme: Theme;
+  themeConfig: ThemeConfig;
+  title: string;
+  message: string;
+  onClose: () => void;
+}) {
+  const particles = Array.from({ length: 10 }, (_, index) => index);
+
+  return (
+    <div className="pointer-events-none fixed inset-0 z-50 flex items-start justify-center px-4 pt-20 sm:justify-end sm:items-end sm:pt-0 sm:pb-8">
+      <div className="relative pointer-events-auto w-full max-w-sm">
+        {particles.map((particle) => (
+          <span
+            key={particle}
+            className={`absolute h-2.5 w-2.5 rounded-full ${
+              particle % 3 === 0 ? 'bg-amber-400' : particle % 3 === 1 ? 'bg-sky-400' : 'bg-emerald-400'
+            } animate-bounce opacity-80`}
+            style={{
+              left: `${10 + particle * 8}%`,
+              top: particle % 2 === 0 ? '18%' : '8%',
+              animationDelay: `${particle * 40}ms`,
+              animationDuration: '1.2s',
+            }}
+          />
+        ))}
+        <div className={`relative overflow-hidden rounded-[28px] border p-5 shadow-2xl backdrop-blur-xl ${
+          theme === 'dark'
+            ? `${themeConfig.card} border-emerald-500/30`
+            : 'bg-white/95 border-emerald-200'
+        }`}>
+          <div className={`pointer-events-none absolute inset-0 ${
+            theme === 'dark'
+              ? 'bg-[radial-gradient(circle_at_top_right,_rgba(16,185,129,0.16),_transparent_52%)]'
+              : 'bg-[radial-gradient(circle_at_top_right,_rgba(16,185,129,0.14),_transparent_55%)]'
+          }`} />
+          <div className="relative flex items-start gap-3">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 via-orange-500 to-pink-500 text-white shadow-lg">
+              <Sparkles className="h-5 w-5" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className={`text-sm font-semibold ${themeConfig.text}`}>{title}</p>
+              <p className={`mt-1 text-xs sm:text-sm ${themeConfig.textSecondary}`}>{message}</p>
+            </div>
+            <button
+              onClick={onClose}
+              className={`rounded-lg p-1.5 transition ${themeConfig.hover}`}
+              aria-label="Close celebration"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
         </div>
       </div>
     </div>
