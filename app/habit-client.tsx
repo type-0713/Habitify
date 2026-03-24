@@ -3247,9 +3247,13 @@ function HabitCard({
             </div>
           </div>
 
-          <div className={`h-2 ${theme === 'dark' ? 'bg-slate-700/50' : 'bg-slate-200'} rounded-full overflow-hidden w-full`}>
+          <div className={`relative h-2.5 w-full overflow-hidden rounded-full ${
+            theme === 'dark'
+              ? 'bg-[linear-gradient(90deg,rgba(30,41,59,0.92)_0%,rgba(51,65,85,0.7)_100%)]'
+              : 'bg-[linear-gradient(90deg,rgba(226,232,240,0.9)_0%,rgba(203,213,225,0.72)_100%)]'
+          }`}>
             <div
-              className={`h-full bg-gradient-to-r ${habit.color} transition-all duration-500`}
+              className={`h-full rounded-full bg-gradient-to-r ${habit.color} shadow-[0_0_18px_rgba(59,130,246,0.18)] transition-all duration-500`}
               style={{ width: `${percentage}%` }}
             ></div>
           </div>
