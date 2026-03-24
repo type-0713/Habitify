@@ -399,6 +399,7 @@ interface UserProfile {
 interface Metrics {
   totalHabits: number;
   completedToday: number;
+  todayProgress: number;
   weeklyCompletion: number;
   currentStreak: number;
   bestStreak: number;
@@ -1332,8 +1333,9 @@ function HabitTrackerApp() {
     };
 
     return {
-      totalHabits: habits.length,
+      totalHabits: activeHabits.length,
       completedToday,
+      todayProgress: Math.round((totalProgress / Math.max(activeHabits.length, 1)) * 100),
       weeklyCompletion: Math.round((totalProgress / Math.max(activeHabits.length, 1)) * 100),
       currentStreak: getCurrentStreak(),
       bestStreak: getBestStreak(),
@@ -1412,6 +1414,7 @@ function HabitTrackerApp() {
         <Header
           user={userProfile!}
           onMenuClick={() => setMobileSidebarOpen(true)}
+          onProfileClick={() => setCurrentPage('profile')}
           metrics={calculateMetrics()}
           theme={theme}
           soundEnabled={soundEnabled}
@@ -1964,6 +1967,7 @@ function Sidebar({
 function Header({
   user,
   onMenuClick,
+  onProfileClick,
   metrics,
   theme,
   soundEnabled,
@@ -1972,6 +1976,7 @@ function Header({
 }: {
   user: UserProfile;
   onMenuClick: () => void;
+  onProfileClick: () => void;
   metrics: Metrics;
   theme: Theme;
   soundEnabled: boolean;
@@ -1980,7 +1985,7 @@ function Header({
 }) {
   const themeConfig = themes[theme];
   const text = translations[language];
-  const completionRatio = metrics.totalHabits > 0 ? Math.round((metrics.completedToday / metrics.totalHabits) * 100) : 0;
+  const completionRatio = metrics.todayProgress;
 
   return (
     <header className="sticky top-0 z-50 px-3 pt-3 sm:px-4 sm:pt-4">
@@ -2059,9 +2064,13 @@ function Header({
             )}
           </button>
 
-          <div className={`flex items-center gap-2 rounded-2xl border px-2 py-1.5 ${
+          <button
+            type="button"
+            onClick={onProfileClick}
+            className={`flex items-center gap-2 rounded-2xl border px-2 py-1.5 transition hover-lift ${
             theme === 'dark' ? 'border-slate-700 bg-slate-800/80' : 'border-slate-200 bg-white/92'
-          }`}>
+          }`}
+          >
             <div className="hidden text-right sm:block">
               <p className={`max-w-[120px] truncate text-xs font-semibold ${themeConfig.text}`}>{user.name}</p>
               <p className={`text-[11px] ${themeConfig.textSecondary}`}>{text.profile}</p>
@@ -2082,7 +2091,7 @@ function Header({
                 </div>
               )}
             </div>
-          </div>
+          </button>
         </div>
       </div>
     </header>
