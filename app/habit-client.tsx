@@ -428,7 +428,7 @@ interface ActiveTimer {
 const themes = {
   dark: {
     bg: 'bg-gradient-to-br from-[#0b1220] via-[#0c1424] to-[#111b2e]',
-    bgSecondary: 'bg-[#0f1624]',
+    bgSecondary: 'bg-[linear-gradient(180deg,rgba(15,22,36,0.96)_0%,rgba(11,18,32,0.94)_100%)]',
     bgTertiary: 'bg-[#121c2f]',
     border: 'border-[#223049]',
     text: 'text-slate-100',
@@ -439,13 +439,13 @@ const themes = {
     gradient: 'from-emerald-400 via-sky-500 to-indigo-500',
   },
   light: {
-    bg: 'bg-gradient-to-br from-[#f8f7ff] via-[#f5fbff] to-[#f3fff7]',
-    bgSecondary: 'bg-[#fdfcff]',
-    bgTertiary: 'bg-[#eef4ff]',
-    border: 'border-[#e1e7f3]',
+    bg: 'bg-[linear-gradient(135deg,#f8fbff_0%,#f7fbf8_35%,#fffaf2_100%)]',
+    bgSecondary: 'bg-[linear-gradient(180deg,rgba(255,255,255,0.78)_0%,rgba(247,251,255,0.92)_100%)]',
+    bgTertiary: 'bg-[linear-gradient(135deg,#f3f7ff_0%,#eefaf7_100%)]',
+    border: 'border-[#dfe8f4]',
     text: 'text-slate-900',
     textSecondary: 'text-slate-600',
-    card: 'bg-white/90 shadow-[0_22px_60px_-35px_rgba(30,58,138,0.25)]',
+    card: 'bg-[linear-gradient(135deg,rgba(255,255,255,0.95)_0%,rgba(248,251,255,0.92)_55%,rgba(245,252,248,0.95)_100%)] shadow-[0_22px_60px_-35px_rgba(30,58,138,0.20)]',
     input: 'bg-white border-[#d6deee] placeholder:text-slate-400',
     hover: 'hover:bg-[#edf3ff]',
     gradient: 'from-emerald-500 via-sky-500 to-indigo-500',
@@ -1408,7 +1408,7 @@ function HabitTrackerApp() {
       />
 
       {/* Main Content */}
-      <main className="flex-1 overflow-auto">
+      <main className="min-w-0 flex-1 overflow-auto overflow-x-hidden">
         <Header
           user={userProfile!}
           onMenuClick={() => setMobileSidebarOpen(true)}
@@ -1445,7 +1445,7 @@ function HabitTrackerApp() {
           </div>
         )}
 
-        <div className={`relative overflow-hidden rounded-[32px] p-6 md:p-8 max-w-7xl mx-auto ${themeConfig.bgSecondary}`}>
+        <div className={`relative w-full rounded-[28px] p-4 sm:p-5 md:p-8 max-w-7xl mx-auto ${themeConfig.bgSecondary}`}>
           <div className={`pointer-events-none absolute -top-20 right-0 h-48 w-48 rounded-full blur-3xl ${
             theme === 'dark' ? 'bg-emerald-500/10' : 'bg-emerald-200/50'
           }`} />
@@ -1982,7 +1982,7 @@ function Header({
   const text = translations[language];
 
   return (
-    <header className={`${theme === 'dark' ? 'bg-slate-800/50 border-slate-700' : 'bg-white shadow-md border-slate-200'} backdrop-blur-xl border-b sticky top-0 z-40`}>
+    <header className={`${theme === 'dark' ? 'bg-slate-800/50 border-slate-700' : 'bg-white/75 shadow-sm border-slate-200/80'} backdrop-blur-xl border-b sticky top-0 z-40`}>
       <div className="px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-3">
         <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
           <button
@@ -2073,11 +2073,16 @@ function DashboardPage({
 
   return (
     <div className="space-y-8">
-      <section className={`relative overflow-hidden rounded-[28px] border ${themeConfig.border} ${themeConfig.card} p-6 shadow-lg sm:p-8`}>
+      <section className={`relative overflow-hidden rounded-[28px] border ${themeConfig.border} ${themeConfig.card} p-5 shadow-lg sm:p-6 lg:p-8`}>
         <div className={`pointer-events-none absolute inset-y-0 right-0 w-1/2 ${
           theme === 'dark'
             ? 'bg-[radial-gradient(circle_at_top_right,_rgba(56,189,248,0.16),_transparent_58%)]'
-            : 'bg-[radial-gradient(circle_at_top_right,_rgba(59,130,246,0.12),_transparent_60%)]'
+            : 'bg-[radial-gradient(circle_at_top_right,_rgba(59,130,246,0.10),_transparent_60%)]'
+        }`} />
+        <div className={`pointer-events-none absolute inset-y-0 left-0 w-1/2 ${
+          theme === 'dark'
+            ? 'bg-[radial-gradient(circle_at_bottom_left,_rgba(16,185,129,0.12),_transparent_55%)]'
+            : 'bg-[radial-gradient(circle_at_bottom_left,_rgba(16,185,129,0.10),_transparent_58%)]'
         }`} />
         <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl">
@@ -2094,7 +2099,7 @@ function DashboardPage({
             <p className={`mt-2 text-sm ${themeConfig.textSecondary}`}>
               {selectedDateLabel}
             </p>
-            <div className="mt-5 flex flex-wrap gap-3">
+            <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
               <div className={`rounded-2xl border px-4 py-3 ${
                 theme === 'dark' ? 'border-slate-700 bg-slate-900/70' : 'border-slate-200 bg-white/85'
               }`}>
@@ -2150,7 +2155,7 @@ function DashboardPage({
       </section>
 
       {/* Metrics Grid */}
-      <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {/* Progress Card */}
         <div className={`${themeConfig.card} rounded-[24px] p-6 border ${themeConfig.border} shadow-lg`}>
           <h3 className={`${themeConfig.textSecondary} text-sm font-medium mb-4`}>{text.todaysProgress}</h3>
@@ -3139,11 +3144,11 @@ function HabitCard({
   ].filter(Boolean) as string[];
 
   return (
-    <div className={`group relative overflow-hidden rounded-[24px] border ${themeConfig.border} ${themeConfig.card} p-4 shadow-lg transition hover:-translate-y-0.5 hover:border-emerald-500/40`}>
+    <div className={`group relative overflow-hidden rounded-[24px] border ${themeConfig.border} ${themeConfig.card} p-4 shadow-lg transition hover:-translate-y-0.5 hover:border-emerald-500/30`}>
       <div className={`pointer-events-none absolute inset-x-0 top-0 h-20 opacity-80 ${
         theme === 'dark'
-          ? 'bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.16),_transparent_58%)]'
-          : 'bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.10),_transparent_62%)]'
+          ? 'bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.14),_transparent_58%)]'
+          : 'bg-[radial-gradient(circle_at_top_left,_rgba(99,102,241,0.08),_transparent_62%)]'
       }`} />
       <div className="relative flex items-start gap-4 flex-1 w-full">
         {!timedHabit ? (
@@ -3192,12 +3197,12 @@ function HabitCard({
                 <h4 className={`${themeConfig.text} truncate text-xl font-semibold leading-tight`}>{habit.name}</h4>
                 <div className="mt-2 flex flex-wrap gap-2">
                   <span className={`rounded-full px-2.5 py-1 text-[11px] font-medium ${
-                    theme === 'dark' ? 'bg-slate-800 text-slate-300' : 'bg-slate-100 text-slate-600'
+                    theme === 'dark' ? 'bg-slate-800/90 text-slate-300' : 'bg-white/85 text-slate-600 border border-slate-200/80'
                   }`}>
                     {text.category}: {getCategoryLabel(language, habit.category)}
                   </span>
                   <span className={`rounded-full px-2.5 py-1 text-[11px] font-medium ${
-                    theme === 'dark' ? 'bg-slate-800 text-slate-300' : 'bg-slate-100 text-slate-600'
+                    theme === 'dark' ? 'bg-slate-800/90 text-slate-300' : 'bg-white/85 text-slate-600 border border-slate-200/80'
                   }`}>
                     {text.goal}: {formatHabitGoalValue(habit)} {timedHabit ? '' : getUnitLabel(language, habit.unit)}
                   </span>
@@ -3253,7 +3258,7 @@ function HabitCard({
             {detailItems.map((item) => (
               <span
                 key={item}
-                className={`rounded-full px-2.5 py-1 ${theme === 'dark' ? 'bg-slate-900/80' : 'bg-slate-100/90'}`}
+                className={`rounded-full px-2.5 py-1 ${theme === 'dark' ? 'bg-slate-900/80' : 'bg-white/85 border border-slate-200/80'}`}
               >
                 {item}
               </span>
