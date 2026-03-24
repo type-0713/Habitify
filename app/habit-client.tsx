@@ -1996,7 +1996,7 @@ function Header({
             : 'border-white/80 bg-white/82 shadow-[0_24px_60px_-34px_rgba(15,23,42,0.22)]'
         } section-reveal spotlight-card`}
       >
-        <div className="flex items-start justify-between gap-3">
+        <div className="flex items-start justify-between gap-3 md:items-center">
           <button
             onClick={onMenuClick}
             className={`md:hidden flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border transition ${themeConfig.hover} ${
@@ -2006,6 +2006,17 @@ function Header({
           >
             <Menu className="h-5 w-5" />
           </button>
+
+          <div className="hidden min-w-0 flex-1 items-center gap-4 md:flex">
+            <div className="min-w-0 flex-1">
+              <h2 className={`truncate text-sm font-bold leading-tight sm:text-xl ${themeConfig.text}`}>
+                {getGreeting(language)}, {user.name}!
+              </h2>
+              <p className={`${themeConfig.textSecondary} mt-1 text-[11px] sm:text-sm`}>
+                {metrics.completedToday} / {metrics.totalHabits} {text.habitsCompletedToday}
+              </p>
+            </div>
+          </div>
 
           <div className="flex shrink-0 items-center gap-2 sm:gap-3">
             <div
@@ -2078,7 +2089,7 @@ function Header({
           </div>
         </div>
 
-        <div className="mt-3 min-w-0 hidden md:block">
+        <div className="mt-3 min-w-0 md:hidden">
           <h2 className={`truncate text-sm font-bold leading-tight sm:text-xl ${themeConfig.text}`}>
             {getGreeting(language)}, {user.name}!
           </h2>
