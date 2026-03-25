@@ -7,12 +7,28 @@ import { ArrowLeft, Compass, Home, SearchSlash } from 'lucide-react';
 
 type Language = 'en' | 'ru' | 'uz';
 type Theme = 'dark' | 'light';
+
 type Preferences = {
   language: Language;
   theme: Theme;
 };
 
-const copy = {
+type NotFoundCopy = {
+  badge: string;
+  title: string;
+  description: string;
+  primary: string;
+  secondary: string;
+  cards: Array<{ title: string; description: string }>;
+  statusLabel: string;
+  unavailable: string;
+  causes: string;
+  causeList: string[];
+  action: string;
+  actionBody: string;
+};
+
+const copy: Record<Language, NotFoundCopy> = {
   en: {
     badge: 'Recovery Mode',
     title: 'This page broke the streak.',
@@ -77,22 +93,22 @@ const copy = {
   },
   uz: {
     badge: 'Tiklash rejimi',
-    title: 'Bu sahifa seriyani uzib qo‘ydi.',
-    description: 'So‘ralgan route mavjud emas, o‘chirilgan yoki link eskirgan. Ilovaning qolgan qismi normal ishlaydi.',
+    title: "Bu sahifa seriyani uzib qo'ydi.",
+    description: "So'ralgan route mavjud emas, o'chirilgan yoki link eskirgan. Ilovaning qolgan qismi normal ishlaydi.",
     primary: 'Dashboardga qaytish',
-    secondary: 'Xavfsiz route ochish',
+    secondary: "Xavfsiz route ochish",
     cards: [
       {
         title: 'Route topilmadi',
-        description: 'Bu manzil joriy build ichidagi faol sahifaga bog‘lanmagan.',
+        description: "Bu manzil joriy build ichidagi faol sahifaga bog'lanmagan.",
       },
       {
-        title: 'Ishonchli yo‘l',
+        title: "Ishonchli yo'l",
         description: 'Dashboardga qayting va navigatsiyani ilova ichidan davom ettiring.',
       },
       {
         title: 'State saqlangan',
-        description: 'Bu xato auth yoki saqlangan habit ma’lumotlaringizga zarar bermaydi.',
+        description: "Bu xato auth yoki saqlangan habit ma'lumotlaringizga zarar bermaydi.",
       },
     ],
     statusLabel: 'Route holati',
@@ -100,62 +116,130 @@ const copy = {
     causes: 'Ehtimoliy sabablar',
     causeList: [
       'URL ichida xato bor',
-      'Route o‘chirilgan yoki nomi o‘zgargan',
+      "Route o'chirilgan yoki nomi o'zgargan",
       'Eski bookmark yoki eski tashqi link ishlatilgan',
     ],
     action: 'Tavsiya etilgan amal',
-    actionBody: 'Dashboard route orqali qayting va kerakli sahifaga ilova ichidan qayta o‘ting.',
+    actionBody: "Dashboard route orqali qayting va kerakli sahifaga ilova ichidan qayta o'ting.",
   },
-} satisfies Record<
-  Language,
-  {
-    badge: string;
-    title: string;
-    description: string;
-    primary: string;
-    secondary: string;
-    cards: Array<{ title: string; description: string }>;
-    statusLabel: string;
-    unavailable: string;
-    causes: string;
-    causeList: string[];
-    action: string;
-    actionBody: string;
-  }
->;
+};
 
 const icons = [SearchSlash, Compass, Home] as const;
 const delayClasses = ['section-delay-1', 'section-delay-2', 'section-delay-3'] as const;
+const fallbackPreferences: Preferences = {
+  language: 'en',
+  theme: 'light',
+};
 
-const getFallbackPreferences = (): Preferences => ({
-  language: 'en' as Language,
-  theme: 'dark' as Theme,
-});
+let cachedPreferences = fallbackPreferences;
+
+const normalizeLanguage = (value: unknown): Language => {
+  if (value === 'en' || value === 'ru' || value === 'uz') {
+    return value;
+  }
+  return fallbackPreferences.language;
+};
+
+const normalizeTheme = (value: unknown): Theme => {
+  if (value === 'dark' || value === 'light') {
+    return value;
+  }
+  return fallbackPreferences.theme;
+};
+
+const readStoredPreference = (key: 'language' | 'theme'): unknown => {
+  try {
+    const rawValue = window.localStorage.getItem(key);
+    if (rawValue === null) {
+      return null;
+    }
+
+    try {
+      return JSON.parse(rawValue);
+    } catch {
+      return rawValue;
+    }
+  } catch {
+    return null;
+  }
+};
+
+const getFallbackPreferences = (): Preferences => fallbackPreferences;
 
 const getClientPreferences = (): Preferences => {
   if (typeof window === 'undefined') {
-    return getFallbackPreferences();
+    return fallbackPreferences;
   }
 
-  try {
-    const savedLanguage = window.localStorage.getItem('language');
-    const savedTheme = window.localStorage.getItem('theme');
+  const nextPreferences: Preferences = {
+    language: normalizeLanguage(readStoredPreference('language')),
+    theme: normalizeTheme(readStoredPreference('theme')),
+  };
 
-    return {
-      language:
-        savedLanguage === 'en' || savedLanguage === 'ru' || savedLanguage === 'uz'
-          ? savedLanguage
-          : 'en',
-      theme: savedTheme === 'dark' || savedTheme === 'light' ? savedTheme : 'dark',
-    };
-  } catch {
-    return getFallbackPreferences();
+  if (
+    cachedPreferences.language === nextPreferences.language &&
+    cachedPreferences.theme === nextPreferences.theme
+  ) {
+    return cachedPreferences;
   }
+
+  cachedPreferences = nextPreferences;
+  return cachedPreferences;
+};
+
+const getCustomEventKey = (event: Event): string => {
+  if (!(event instanceof CustomEvent)) {
+    return '';
+  }
+
+  const detail = event.detail;
+  if (!detail || typeof detail !== 'object' || !('key' in detail)) {
+    return '';
+  }
+
+  const key = (detail as { key?: unknown }).key;
+  return typeof key === 'string' ? key : '';
+};
+
+const subscribeToPreferences = (callback: () => void) => {
+  if (typeof window === 'undefined') {
+    return () => undefined;
+  }
+
+  const listener = (event?: Event) => {
+    if (event instanceof StorageEvent && event.key && event.key !== 'language' && event.key !== 'theme') {
+      return;
+    }
+
+    const customKey = event ? getCustomEventKey(event) : '';
+    if (customKey && customKey !== 'language' && customKey !== 'theme') {
+      return;
+    }
+
+    const previousPreferences = cachedPreferences;
+    const nextPreferences = getClientPreferences();
+
+    if (nextPreferences !== previousPreferences) {
+      callback();
+    }
+  };
+
+  window.addEventListener('storage', listener);
+  window.addEventListener('habitify:storage', listener as EventListener);
+  window.addEventListener('focus', listener);
+  document.addEventListener('visibilitychange', listener);
+
+  return () => {
+    window.removeEventListener('storage', listener);
+    window.removeEventListener('habitify:storage', listener as EventListener);
+    window.removeEventListener('focus', listener);
+    document.removeEventListener('visibilitychange', listener);
+  };
 };
 
 export default function NotFound() {
   const preferences = useSyncExternalStore(
-    () => () => undefined,
+    subscribeToPreferences,
     getClientPreferences,
     getFallbackPreferences,
   );
@@ -164,6 +248,7 @@ export default function NotFound() {
 
   return (
     <main
+      suppressHydrationWarning
       className={`relative min-h-screen overflow-hidden ${
         isDark
           ? 'bg-[linear-gradient(140deg,#08101d_0%,#0e1729_34%,#172554_68%,#052e2b_100%)] text-slate-50'
@@ -172,7 +257,7 @@ export default function NotFound() {
     >
       <div className="mesh-grid" />
       <div className={`comet-trail left-[8%] top-20 hidden lg:block ${isDark ? '' : 'opacity-70'}`} />
-      <div className={`pointer-events-none absolute -left-20 top-16 h-72 w-72 rounded-full blur-3xl ${isDark ? 'bg-emerald-400/18' : 'bg-emerald-300/45'} orbital-halo`} />
+      <div className={`pointer-events-none absolute -left-20 top-16 h-72 w-72 rounded-full blur-3xl ${isDark ? 'bg-amber-400/18' : 'bg-amber-300/45'} orbital-halo`} />
       <div className={`pointer-events-none absolute right-0 top-0 h-80 w-80 rounded-full blur-3xl ${isDark ? 'bg-sky-400/16' : 'bg-sky-300/40'} orbital-halo-reverse`} />
       <div className={`pointer-events-none absolute bottom-0 left-1/2 h-96 w-96 -translate-x-1/2 rounded-full blur-3xl ${isDark ? 'bg-amber-300/10' : 'bg-amber-200/45'} orbital-halo`} />
 
@@ -182,8 +267,8 @@ export default function NotFound() {
             <div
               className={`inline-flex items-center gap-3 rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.28em] backdrop-blur-xl ${
                 isDark
-                  ? 'border-white/12 bg-white/8 text-emerald-200 shadow-[0_20px_60px_-35px_rgba(16,185,129,0.55)]'
-                  : 'border-emerald-200 bg-white/80 text-emerald-700 shadow-[0_20px_60px_-35px_rgba(16,185,129,0.25)]'
+                  ? 'border-white/12 bg-white/8 text-amber-200 shadow-[0_20px_60px_-35px_rgba(245,158,11,0.45)]'
+                  : 'border-amber-200 bg-white/80 text-amber-700 shadow-[0_20px_60px_-35px_rgba(245,158,11,0.22)]'
               }`}
             >
               <Image src="/icon.png" alt="Habitify" width={22} height={22} className="rounded-md" />
@@ -211,7 +296,7 @@ export default function NotFound() {
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link
                 href="/"
-                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[linear-gradient(135deg,#10b981_0%,#0ea5e9_56%,#2563eb_100%)] px-6 py-3 text-sm font-semibold text-white shadow-[0_24px_55px_-28px_rgba(14,165,233,0.65)] transition hover:-translate-y-0.5"
+                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[linear-gradient(135deg,#f59e0b_0%,#f97316_52%,#0ea5e9_100%)] px-6 py-3 text-sm font-semibold text-white shadow-[0_24px_55px_-28px_rgba(249,115,22,0.5)] transition hover:-translate-y-0.5"
               >
                 <Home className="h-4 w-4" />
                 {text.primary}
@@ -220,8 +305,8 @@ export default function NotFound() {
                 href="/"
                 className={`inline-flex items-center justify-center gap-2 rounded-2xl px-6 py-3 text-sm font-semibold backdrop-blur-xl transition ${
                   isDark
-                    ? 'border border-white/14 bg-white/8 text-slate-100 hover:border-emerald-300/35 hover:bg-white/12'
-                    : 'border border-slate-200 bg-white/82 text-slate-800 hover:border-emerald-300 hover:bg-white'
+                    ? 'border border-white/14 bg-white/8 text-slate-100 hover:border-amber-300/35 hover:bg-white/12'
+                    : 'border border-slate-200 bg-white/82 text-slate-800 hover:border-amber-300 hover:bg-white'
                 }`}
               >
                 <ArrowLeft className="h-4 w-4" />
@@ -230,7 +315,7 @@ export default function NotFound() {
             </div>
 
             <div className="mt-10 grid gap-4 sm:grid-cols-3">
-              {text.cards.map((card: { title: string; description: string }, index: number) => {
+              {text.cards.map((card, index) => {
                 const Icon = icons[index] ?? SearchSlash;
 
                 return (
@@ -240,7 +325,7 @@ export default function NotFound() {
                       isDark ? 'border-white/10 bg-white/8' : 'border-white/80 bg-white/72 shadow-[0_24px_60px_-40px_rgba(15,23,42,0.2)]'
                     } ${delayClasses[index] ?? ''}`}
                   >
-                    <Icon className={`h-5 w-5 ${index === 0 ? 'text-rose-300' : index === 1 ? 'text-sky-300' : 'text-emerald-300'}`} />
+                    <Icon className={`h-5 w-5 ${index === 0 ? 'text-rose-300' : index === 1 ? 'text-sky-300' : 'text-amber-300'}`} />
                     <p className={`mt-4 text-sm font-semibold ${isDark ? 'text-white' : 'text-slate-900'}`}>{card.title}</p>
                     <p className={`mt-2 text-sm leading-6 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>{card.description}</p>
                   </div>
@@ -272,7 +357,7 @@ export default function NotFound() {
                 <div className={`glass-band rounded-2xl p-4 ${isDark ? 'bg-slate-950/30' : 'bg-white/85'}`}>
                   <p className={`text-xs uppercase tracking-[0.24em] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{text.causes}</p>
                   <ul className={`mt-3 space-y-3 text-sm leading-6 ${isDark ? 'text-slate-200' : 'text-slate-700'}`}>
-                    {text.causeList.map((item: string) => (
+                    {text.causeList.map((item) => (
                       <li key={item}>{item}</li>
                     ))}
                   </ul>
