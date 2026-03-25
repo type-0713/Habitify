@@ -530,7 +530,7 @@ const themes = {
     textSecondary: 'text-slate-300/80',
     card: 'bg-[linear-gradient(160deg,rgba(22,29,44,0.95)_0%,rgba(16,23,37,0.92)_46%,rgba(10,17,30,0.96)_100%)] shadow-[0_30px_90px_-44px_rgba(2,8,23,0.85)]',
     input: 'bg-[linear-gradient(135deg,rgba(24,33,49,0.98)_0%,rgba(17,24,39,0.97)_100%)] border-[#3b4a6b] placeholder:text-slate-500',
-    hover: 'hover:bg-[#1a2740] focus-visible:bg-[#1a2740]',
+    hover: 'hover:bg-[#1a2740] focus-visible:bg-[#1a2740] hover:border-amber-400/20 focus-visible:border-amber-400/30',
     gradient: 'from-amber-300 via-orange-500 to-sky-500',
   },
   light: {
@@ -542,7 +542,7 @@ const themes = {
     textSecondary: 'text-slate-600',
     card: 'bg-[linear-gradient(135deg,rgba(255,250,243,0.98)_0%,rgba(255,255,255,0.97)_42%,rgba(241,248,255,0.99)_100%)] shadow-[0_26px_80px_-42px_rgba(71,85,105,0.24)]',
     input: 'bg-[linear-gradient(135deg,#fffdf8_0%,#ffffff_52%,#f4f9ff_100%)] border-[#d5e0ef] placeholder:text-slate-400',
-    hover: 'hover:bg-[#edf3ff] focus-visible:bg-[#edf3ff]',
+    hover: 'hover:bg-[#edf3ff] focus-visible:bg-[#edf3ff] hover:border-amber-200 focus-visible:border-amber-300',
     gradient: 'from-amber-400 via-orange-500 to-sky-500',
   },
 };
@@ -1723,7 +1723,7 @@ function HabitTrackerApp() {
               </div>
               <button
                 onClick={() => setResetNotice(null)}
-                className={`p-2 rounded-lg transition ${themeConfig.hover}`}
+                className={`icon-button-soft p-2 rounded-lg transition ${themeConfig.hover}`}
                 aria-label={text.closeNotice}
               >
                 <X className="w-4 h-4" />
@@ -1921,9 +1921,9 @@ function AuthPage({
         <div className={`${theme === 'dark' ? 'bg-slate-900/72 border-slate-800' : 'bg-white/88 border-amber-100'} spotlight-card glow-pulse aurora-panel prism-surface premium-shell edge-glow rounded-[32px] border shadow-[0_30px_80px_-40px_rgba(15,23,42,0.35)] overflow-hidden backdrop-blur-xl`}>
           <div className="ambient-specks opacity-40" />
           <div className="grid gap-0 md:grid-cols-[1.25fr_1fr]">
-              <div className="relative p-7 md:p-10 section-reveal section-delay-1">
-              <div className="ambient-specks opacity-30" />
-              <div className="flex items-center gap-3 mb-8">
+              <div className="relative p-6 md:p-8 section-reveal section-delay-1">
+                <div className="ambient-specks opacity-30" />
+              <div className="flex items-center gap-3 mb-6 md:mb-7">
                 <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-amber-400 via-orange-500 to-orange-600 flex items-center justify-center shadow-lg shadow-orange-500/25">
                   <Check className="w-6 h-6 text-white" />
                 </div>
@@ -1933,15 +1933,15 @@ function AuthPage({
                 </div>
               </div>
 
-              <div className={`inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold tracking-[0.22em] ${theme === 'dark' ? 'bg-slate-800 text-amber-300 border border-slate-700' : 'bg-amber-50 text-amber-700 border border-amber-200'}`}>
+              <div className={`chip-hover inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold tracking-[0.22em] ${theme === 'dark' ? 'bg-slate-800 text-amber-300 border border-slate-700' : 'bg-amber-50 text-amber-700 border border-amber-200'}`}>
                 {authCopy.badge}
               </div>
               <h1 className="text-3xl md:text-4xl font-bold" style={{ fontFamily: "'Fraunces', 'Space Grotesk', serif" }}>
                 {text.signInTitle}
               </h1>
-              <p className={`mt-3 max-w-xl text-sm leading-6 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>{text.signInSubtitle}</p>
+              <p className={`mt-2.5 max-w-xl text-sm leading-6 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>{text.signInSubtitle}</p>
 
-              <div className="mt-8 grid gap-4">
+              <div className="mt-6 grid gap-3.5">
                 <div>
                   <label className={`block text-xs mb-2 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{text.emailLabel}</label>
                   <div className="relative">
@@ -1951,7 +1951,7 @@ function AuthPage({
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder={text.emailPlaceholder}
-                      className={`w-full pl-10 pr-4 py-3 rounded-2xl ${theme === 'dark' ? 'bg-slate-800/90 border-slate-700 text-slate-100 placeholder:text-slate-500' : 'bg-slate-50/90 border-slate-200 text-slate-900 placeholder:text-slate-400'} border focus:outline-none focus:ring-2 focus:ring-amber-400 transition`}
+                      className={`w-full pl-10 pr-4 py-2.5 rounded-2xl ${theme === 'dark' ? 'bg-slate-800/90 border-slate-700 text-slate-100 placeholder:text-slate-500' : 'bg-slate-50/90 border-slate-200 text-slate-900 placeholder:text-slate-400'} border focus:outline-none focus:ring-2 focus:ring-amber-400 transition`}
                     />
                   </div>
                 </div>
@@ -1964,7 +1964,7 @@ function AuthPage({
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder={text.passwordPlaceholder}
-                      className={`w-full pl-10 pr-10 py-3 rounded-2xl ${theme === 'dark' ? 'bg-slate-800/90 border-slate-700 text-slate-100 placeholder:text-slate-500' : 'bg-slate-50/90 border-slate-200 text-slate-900 placeholder:text-slate-400'} border focus:outline-none focus:ring-2 focus:ring-amber-400 transition`}
+                      className={`w-full pl-10 pr-10 py-2.5 rounded-2xl ${theme === 'dark' ? 'bg-slate-800/90 border-slate-700 text-slate-100 placeholder:text-slate-500' : 'bg-slate-50/90 border-slate-200 text-slate-900 placeholder:text-slate-400'} border focus:outline-none focus:ring-2 focus:ring-amber-400 transition`}
                     />
                     <button
                       type="button"
@@ -1978,10 +1978,10 @@ function AuthPage({
                 </div>
               </div>
 
-              <div className="mt-6 space-y-4">
+              <div className="mt-5 space-y-3.5">
                 <button
                   onClick={() => handleProvider('email')}
-                  className="w-full rounded-2xl px-4 py-3.5 bg-gradient-to-r from-amber-400 via-orange-500 to-sky-500 text-white font-semibold tracking-wide shadow-lg shadow-orange-500/20 hover:from-amber-300 hover:to-sky-400 transition"
+                  className="gradient-action w-full rounded-2xl px-4 py-3 bg-gradient-to-r from-amber-400 via-orange-500 to-sky-500 text-white font-semibold tracking-wide shadow-lg shadow-orange-500/20 hover:from-amber-300 hover:to-sky-400 transition"
                 >
                   {text.continueWithEmail}
                 </button>
@@ -1999,24 +1999,24 @@ function AuthPage({
                   <div className={`h-px flex-1 ${theme === 'dark' ? 'bg-slate-800' : 'bg-slate-200'}`} />
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                   <button
                     onClick={() => handleProvider('google')}
-                    className={`w-full flex items-center justify-center gap-2 px-3 py-3 rounded-2xl border ${theme === 'dark' ? 'border-slate-700 bg-slate-800 hover:bg-slate-700' : 'border-slate-200 bg-white hover:bg-amber-50'} transition shadow-sm`}
+                    className={`ghost-action hover-lift w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-2xl border ${theme === 'dark' ? 'border-slate-700 bg-slate-800 hover:bg-slate-700' : 'border-slate-200 bg-white hover:bg-amber-50'} transition shadow-sm`}
                   >
                     <Chrome className="w-4 h-4" />
                     <span className="text-xs">{text.continueWithGoogle}</span>
                   </button>
                   <button
                     onClick={() => handleProvider('apple')}
-                    className={`w-full flex items-center justify-center gap-2 px-3 py-3 rounded-2xl border ${theme === 'dark' ? 'border-slate-700 bg-slate-800 hover:bg-slate-700' : 'border-slate-200 bg-white hover:bg-amber-50'} transition shadow-sm`}
+                    className={`ghost-action hover-lift w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-2xl border ${theme === 'dark' ? 'border-slate-700 bg-slate-800 hover:bg-slate-700' : 'border-slate-200 bg-white hover:bg-amber-50'} transition shadow-sm`}
                   >
                     <Apple className="w-4 h-4" />
                     <span className="text-xs">{text.continueWithApple}</span>
                   </button>
                   <button
                     onClick={() => handleProvider('microsoft')}
-                    className={`w-full flex items-center justify-center gap-2 px-3 py-3 rounded-2xl border ${theme === 'dark' ? 'border-slate-700 bg-slate-800 hover:bg-slate-700' : 'border-slate-200 bg-white hover:bg-amber-50'} transition shadow-sm`}
+                    className={`ghost-action hover-lift w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-2xl border ${theme === 'dark' ? 'border-slate-700 bg-slate-800 hover:bg-slate-700' : 'border-slate-200 bg-white hover:bg-amber-50'} transition shadow-sm`}
                   >
                     <span className={`inline-flex h-5 w-5 items-center justify-center rounded-md text-[10px] font-bold ${theme === 'dark' ? 'bg-slate-700 text-slate-100' : 'bg-slate-100 text-slate-700'}`}>M</span>
                     <span className="text-xs">{authCopy.microsoftLabel}</span>
@@ -2025,57 +2025,57 @@ function AuthPage({
               </div>
             </div>
 
-              <div className={`relative hidden md:flex flex-col justify-between p-10 section-reveal section-delay-2 ${theme === 'dark' ? 'bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800' : 'bg-[linear-gradient(160deg,#fff3d6_0%,#ffffff_45%,#eaf9ff_100%)]'}`}>
+              <div className={`relative hidden md:flex flex-col p-7 lg:p-8 section-reveal section-delay-2 ${theme === 'dark' ? 'bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800' : 'bg-[linear-gradient(160deg,#fff3d6_0%,#ffffff_45%,#eaf9ff_100%)]'}`}>
                 <div className={`absolute inset-0 ${theme === 'dark' ? 'bg-[radial-gradient(circle_at_top,_rgba(245,158,11,0.18),_transparent_55%)]' : 'bg-[radial-gradient(circle_at_top,_rgba(245,158,11,0.24),_transparent_55%)]'}`} />
                 <div className="ambient-specks opacity-40" />
                 <div className="relative">
-                  <div className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-semibold tracking-[0.2em] ${theme === 'dark' ? 'bg-slate-800 text-amber-200 border border-slate-700' : 'bg-white/80 text-amber-700 border border-amber-100 shadow-sm'}`}>
+                  <div className={`chip-hover inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-semibold tracking-[0.2em] ${theme === 'dark' ? 'bg-slate-800 text-amber-200 border border-slate-700' : 'bg-white/80 text-amber-700 border border-amber-100 shadow-sm'}`}>
                     HABIT FLOW
                   </div>
-                  <h2 className="mt-5 text-2xl font-semibold" style={{ fontFamily: "'Fraunces', 'Space Grotesk', serif" }}>{authCopy.featureTitle}</h2>
-                  <p className={`mt-3 leading-7 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>
+                  <h2 className="mt-4 text-2xl font-semibold" style={{ fontFamily: "'Fraunces', 'Space Grotesk', serif" }}>{authCopy.featureTitle}</h2>
+                  <p className={`mt-2.5 text-sm leading-6 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>
                     {authCopy.featureDescription}
                   </p>
                 </div>
-                <div className={`relative mt-6 overflow-hidden rounded-[28px] border p-5 prism-surface ${
+                <div className={`relative mt-5 overflow-hidden rounded-[26px] border p-4 prism-surface ${
                   theme === 'dark' ? 'border-slate-700 bg-slate-950/35' : 'border-white/80 bg-white/85'
                 }`}>
-                  <div className={`pointer-events-none absolute -right-5 -top-5 h-24 w-24 rounded-full blur-2xl ${theme === 'dark' ? 'bg-amber-500/18' : 'bg-amber-200/70'} ring-pulse`} />
+                  <div className={`pointer-events-none absolute -right-5 -top-5 h-20 w-20 rounded-full blur-2xl ${theme === 'dark' ? 'bg-amber-500/18' : 'bg-amber-200/70'} ring-pulse`} />
                   <p className={`text-[11px] uppercase tracking-[0.18em] ${theme === 'dark' ? 'text-slate-500' : 'text-slate-500'}`}>Focus snapshot</p>
-                  <div className="mt-3 flex items-end justify-between gap-3">
+                  <div className="mt-2.5 flex items-end justify-between gap-3">
                     <div>
-                      <p className="text-4xl font-bold">87%</p>
+                      <p className="text-[2.5rem] font-bold leading-none">87%</p>
                       <p className={`mt-1 text-xs ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>Clean progress rhythm</p>
                     </div>
-                    <div className={`flex h-14 w-14 items-center justify-center rounded-2xl ${
+                    <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${
                       theme === 'dark' ? 'bg-amber-500/12 text-amber-200' : 'bg-amber-50 text-amber-700'
                     }`}>
                       <Sparkles className="h-6 w-6" />
                     </div>
                   </div>
                 </div>
-                <div className="relative mt-8 grid gap-4">
+                <div className="relative mt-5 grid grid-cols-3 gap-2.5">
                   {[
                     { label: text.habitsCompleted, value: '12' },
                     { label: text.currentStreak, value: '5' },
                     { label: text.bestStreakLabel, value: '18' },
                   ].map((item) => (
-                    <div key={item.label} className={`${theme === 'dark' ? 'bg-slate-800/70 border-slate-700' : 'bg-white/75 border-white/70 shadow-sm'} rounded-2xl border p-4 prism-surface`}>
-                      <p className={`text-xs ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{item.label}</p>
-                      <p className="text-2xl font-bold">{item.value}</p>
+                    <div key={item.label} className={`${theme === 'dark' ? 'bg-slate-800/70 border-slate-700' : 'bg-white/75 border-white/70 shadow-sm'} rounded-[22px] border p-3.5 prism-surface hover-lift`}>
+                      <p className={`text-[11px] leading-4 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{item.label}</p>
+                      <p className="mt-1 text-2xl font-bold leading-none">{item.value}</p>
                     </div>
                   ))}
                 </div>
 
-              <div className={`relative mt-6 rounded-[28px] p-5 prism-surface ${theme === 'dark' ? 'bg-slate-800/70 border border-slate-700' : 'bg-white/80 border border-white shadow-sm'}`}>
+              <div className={`relative mt-4 rounded-[26px] p-4 prism-surface hover-lift ${theme === 'dark' ? 'bg-slate-800/70 border border-slate-700' : 'bg-white/80 border border-white shadow-sm'}`}>
                 <div className="flex items-center justify-between gap-4">
                   <div>
                     <p className={`text-xs uppercase tracking-[0.2em] ${theme === 'dark' ? 'text-slate-500' : 'text-slate-500'}`}>Why Habitify</p>
-                    <p className={`mt-2 text-sm ${theme === 'dark' ? 'text-slate-300' : 'text-slate-700'}`}>Cleaner structure, faster flow, better focus.</p>
+                    <p className={`mt-2 text-sm leading-6 ${theme === 'dark' ? 'text-slate-300' : 'text-slate-700'}`}>Cleaner structure, faster flow, better focus.</p>
                   </div>
-                  <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-amber-300 via-orange-500 to-sky-500" />
+                  <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-amber-300 via-orange-500 to-sky-500" />
                 </div>
-                <div className="mt-4 grid gap-2">
+                <div className="mt-3 grid gap-x-4 gap-y-2 sm:grid-cols-2">
                   {authCopy.highlights.map((highlight) => (
                     <div key={highlight} className="flex items-center gap-2">
                       <span className="h-2 w-2 rounded-full bg-amber-400" />
@@ -2170,7 +2170,7 @@ function Sidebar({
           {isMobile && onClose && (
             <button
               onClick={onClose}
-              className={`p-2 rounded-lg transition ${themeConfig.hover}`}
+              className={`icon-button-soft p-2 rounded-lg transition ${themeConfig.hover}`}
               aria-label="Close menu"
             >
               <X className="w-5 h-5" />
@@ -2206,7 +2206,7 @@ function Sidebar({
       <div className={`relative p-4 border-t ${themeConfig.border}`}>
         <button
           onClick={() => onThemeChange(theme === 'dark' ? 'light' : 'dark')}
-          className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-[20px] border transition ${
+          className={`ghost-action hover-lift w-full flex items-center justify-center gap-2 px-4 py-3 rounded-[20px] border transition ${
             theme === 'dark' 
               ? 'border-slate-700 bg-slate-900/45 text-amber-300 hover:bg-slate-800/90' 
               : 'border-white/80 bg-white/70 text-slate-700 hover:bg-white'
@@ -2229,7 +2229,7 @@ function Sidebar({
             <button
               key={lang}
               onClick={() => onLanguageChange(lang)}
-              className={`px-3 py-1.5 rounded-2xl text-xs font-medium transition ${
+              className={`chip-hover px-3 py-1.5 rounded-2xl text-xs font-medium transition ${
                 language === lang
                   ? theme === 'dark'
                     ? 'border border-amber-400/25 bg-[linear-gradient(135deg,rgba(245,158,11,0.18),rgba(56,189,248,0.18))] text-slate-50 shadow-[0_14px_28px_-20px_rgba(56,189,248,0.45)]'
@@ -2245,7 +2245,7 @@ function Sidebar({
 
       {/* User Profile */}
       <div className={`relative p-4 border-t ${themeConfig.border} space-y-4`}>
-        <div className={`rounded-[24px] border p-3 glass-lux ${theme === 'dark' ? 'border-slate-700 bg-slate-900/45' : 'border-white/80 bg-white/68'}`}>
+        <div className={`rounded-[24px] border p-3 glass-lux hover-lift ${theme === 'dark' ? 'border-slate-700 bg-slate-900/45' : 'border-white/80 bg-white/68'}`}>
           <div className={`flex items-center gap-3 ${!showLabels && 'justify-center'}`}>
           <div className="w-10 h-10 bg-gradient-to-br from-amber-300 via-orange-400 to-sky-500 rounded-full flex items-center justify-center text-base font-semibold shadow-lg overflow-hidden ring-2 ring-orange-300/40 shrink-0">
             {user.avatarUrl ? (
@@ -2277,7 +2277,7 @@ function Sidebar({
               onClose();
             }
           }}
-          className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-[20px] border border-red-500/15 transition text-sm font-medium"
+          className="ghost-action hover-lift w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-[20px] border border-red-500/15 transition text-sm font-medium"
         >
           <LogOut className="w-4 h-4" />
           {showLabels && text.logout}
@@ -2335,7 +2335,7 @@ function Header({
         <div className="flex items-center justify-between gap-2.5 md:gap-4">
           <button
             onClick={onMenuClick}
-            className={`md:hidden flex h-10 w-10 shrink-0 items-center justify-center rounded-[18px] border transition sm:h-11 sm:w-11 sm:rounded-2xl ${themeConfig.hover} ${
+            className={`icon-button-soft md:hidden flex h-10 w-10 shrink-0 items-center justify-center rounded-[18px] border transition sm:h-11 sm:w-11 sm:rounded-2xl ${themeConfig.hover} ${
               theme === 'dark' ? 'border-slate-700 bg-slate-800/85 text-slate-100' : 'border-slate-200 bg-white/90 text-slate-700'
             }`}
             aria-label="Open menu"
@@ -2355,7 +2355,7 @@ function Header({
                 {headerPills.map((pill, index) => (
                   <span
                     key={pill}
-                    className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] ${
+                    className={`chip-hover rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] ${
                       index === 1
                         ? theme === 'dark'
                           ? 'bg-amber-500/12 text-amber-200'
@@ -2378,7 +2378,7 @@ function Header({
 
           <div className="flex shrink-0 items-center gap-2 sm:gap-3 md:flex-nowrap">
             <div
-              className={`hidden min-w-[260px] items-center gap-4 rounded-[24px] border px-4 py-3 md:flex prism-surface ${
+              className={`hidden min-w-[260px] items-center gap-4 rounded-[24px] border px-4 py-3 md:flex prism-surface hover-lift ghost-action ${
                 theme === 'dark' ? 'border-slate-700 bg-slate-800/75' : 'border-slate-200 bg-white/92'
               }`}
             >
@@ -2388,9 +2388,9 @@ function Header({
                 <p className={`mt-1 text-[11px] ${themeConfig.textSecondary}`}>{metrics.completedToday}/{metrics.totalHabits}</p>
               </div>
               <div className="flex flex-1 items-center gap-3">
-                <div className={`h-2 w-full overflow-hidden rounded-full ${theme === 'dark' ? 'bg-slate-700' : 'bg-slate-200'}`}>
+                <div className={`soft-progress h-2 w-full overflow-hidden rounded-full ${theme === 'dark' ? 'bg-slate-700' : 'bg-slate-200'}`}>
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-amber-400 via-orange-500 to-sky-500 transition-all duration-500"
+                    className="soft-progress-fill h-full rounded-full bg-gradient-to-r from-amber-400 via-orange-500 to-sky-500 transition-all duration-500"
                     style={{ width: `${completionRatio}%` }}
                   />
                 </div>
@@ -2406,7 +2406,7 @@ function Header({
             <button
               onClick={onSoundToggle}
               aria-pressed={soundEnabled}
-              className={`relative flex h-10 w-10 items-center justify-center rounded-2xl border transition hover-lift sm:h-11 sm:w-11 ${
+              className={`icon-button-soft relative flex h-10 w-10 items-center justify-center rounded-2xl border transition hover-lift sm:h-11 sm:w-11 ${
                 theme === 'dark'
                   ? 'border-slate-700 bg-slate-800/80 text-slate-100 hover:bg-slate-700'
                   : 'border-slate-200 bg-white/92 text-slate-700 hover:bg-slate-50'
@@ -2427,7 +2427,7 @@ function Header({
             <button
               type="button"
               onClick={onProfileClick}
-              className={`flex items-center gap-2 rounded-[18px] border p-1 transition hover-lift md:min-w-[210px] md:justify-between sm:gap-3 sm:rounded-2xl sm:px-2 sm:py-1.5 ${
+              className={`ghost-action flex items-center gap-2 rounded-[18px] border p-1 transition hover-lift md:min-w-[210px] md:justify-between sm:gap-3 sm:rounded-2xl sm:px-2 sm:py-1.5 ${
                 theme === 'dark' ? 'border-slate-700 bg-slate-800/80' : 'border-slate-200 bg-white/92'
               }`}
               aria-label={text.profile}
@@ -2459,7 +2459,7 @@ function Header({
         <div className="mt-2.5 md:hidden">
           <div className="flex items-center gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
             <div
-              className={`inline-flex max-w-[58vw] shrink-0 items-center gap-2 rounded-[18px] border px-3 py-2 prism-surface ${
+              className={`ghost-action inline-flex max-w-[58vw] shrink-0 items-center gap-2 rounded-[18px] border px-3 py-2 prism-surface ${
                 theme === 'dark' ? 'border-slate-700 bg-slate-800/80' : 'border-slate-200 bg-white/90'
               }`}
             >
@@ -2475,7 +2475,7 @@ function Header({
             {headerPills.slice(0, 2).map((pill, index) => (
               <span
                 key={pill}
-                className={`shrink-0 rounded-full px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] ${
+                className={`chip-hover shrink-0 rounded-full px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] ${
                   index === 1
                     ? theme === 'dark'
                       ? 'bg-amber-500/12 text-amber-200'
@@ -2490,16 +2490,16 @@ function Header({
             ))}
 
             <div
-              className={`inline-flex shrink-0 items-center gap-2 rounded-full px-2.5 py-1.5 ${
+              className={`chip-hover inline-flex shrink-0 items-center gap-2 rounded-full px-2.5 py-1.5 ${
                 theme === 'dark' ? 'bg-amber-500/14 text-amber-200' : 'bg-amber-50 text-amber-700'
               }`}
             >
               <span className="text-[11px] font-semibold">
                 {completionRatio}% {text.complete.toLowerCase()}
               </span>
-              <div className={`h-1.5 w-16 overflow-hidden rounded-full ${theme === 'dark' ? 'bg-slate-700' : 'bg-slate-200'}`}>
+              <div className={`soft-progress h-1.5 w-16 overflow-hidden rounded-full ${theme === 'dark' ? 'bg-slate-700' : 'bg-slate-200'}`}>
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-amber-400 via-orange-500 to-sky-500 transition-all duration-500"
+                  className="soft-progress-fill h-full rounded-full bg-gradient-to-r from-amber-400 via-orange-500 to-sky-500 transition-all duration-500"
                   style={{ width: `${completionRatio}%` }}
                 />
               </div>
@@ -2622,12 +2622,12 @@ function DashboardPage({
             <p className={`mt-2 text-sm ${themeConfig.textSecondary}`}>{selectedDateLabel}</p>
             <p className={`mt-3 max-w-2xl text-sm leading-6 ${themeConfig.textSecondary}`}>{dashboardSummary}</p>
             <div className="mt-4 flex flex-wrap gap-2">
-              <span className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] ${
+              <span className={`chip-hover rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] ${
                 theme === 'dark' ? 'bg-slate-800/90 text-slate-300' : 'bg-white/85 text-slate-700 border border-slate-200'
               }`}>
                 {selectedDateLabel}
               </span>
-              <span className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] ${
+              <span className={`chip-hover rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] ${
                 hasActiveTimer
                   ? theme === 'dark'
                     ? 'bg-amber-500/12 text-amber-200'
@@ -2663,9 +2663,9 @@ function DashboardPage({
               {weekSnapshot.map((item, index) => (
                 <div
                   key={item.date}
-                  className={`min-w-0 rounded-2xl border px-2.5 py-3 section-reveal ${
-                    index % 4 === 0 ? 'section-delay-1' : index % 4 === 1 ? 'section-delay-2' : index % 4 === 2 ? 'section-delay-3' : 'section-delay-4'
-                  } ${
+                    className={`min-w-0 rounded-2xl border px-2.5 py-3 section-reveal hover-lift chip-hover prism-surface ${
+                      index % 4 === 0 ? 'section-delay-1' : index % 4 === 1 ? 'section-delay-2' : index % 4 === 2 ? 'section-delay-3' : 'section-delay-4'
+                    } ${
                     item.isSelected
                       ? theme === 'dark'
                         ? 'border-amber-400/30 bg-amber-500/10'
@@ -2679,9 +2679,9 @@ function DashboardPage({
                     <p className={`max-w-full truncate text-[10px] font-semibold uppercase tracking-[0.12em] ${themeConfig.textSecondary}`}>{item.label}</p>
                     <span className={`text-[11px] font-semibold ${themeConfig.text}`}>{item.progress}%</span>
                   </div>
-                  <div className={`mt-3 h-1.5 overflow-hidden rounded-full ${theme === 'dark' ? 'bg-slate-700' : 'bg-slate-200'}`}>
+                  <div className={`soft-progress mt-3 h-1.5 overflow-hidden rounded-full ${theme === 'dark' ? 'bg-slate-700' : 'bg-slate-200'}`}>
                     <div
-                      className="h-full rounded-full bg-gradient-to-r from-amber-400 via-orange-500 to-sky-500 transition-all duration-500"
+                      className="soft-progress-fill h-full rounded-full bg-gradient-to-r from-amber-400 via-orange-500 to-sky-500 transition-all duration-500"
                       style={{ width: `${item.progress}%` }}
                     />
                   </div>
@@ -2690,12 +2690,12 @@ function DashboardPage({
             </div>
           </div>
 
-          <div className={`grid w-full gap-3 rounded-[28px] border p-4 sm:min-w-[360px] section-reveal section-delay-2 spotlight-card aurora-panel prism-surface ${
+          <div className={`grid w-full gap-3 rounded-[28px] border p-4 sm:min-w-[360px] section-reveal section-delay-2 spotlight-card aurora-panel prism-surface hover-lift ghost-action ${
             theme === 'dark' ? 'border-slate-700 bg-slate-900/80' : 'border-white/80 bg-white/90'
           }`}>
             <div className="mesh-grid opacity-30" />
             <div className="ambient-specks opacity-40" />
-            <div className={`relative overflow-hidden rounded-[24px] border px-4 py-4 ${
+            <div className={`relative overflow-hidden rounded-[24px] border px-4 py-4 hover-lift ${
               theme === 'dark' ? 'border-slate-700 bg-slate-950/35' : 'border-slate-200 bg-white/82'
             }`}>
               <div className={`pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full blur-2xl ${theme === 'dark' ? 'bg-amber-500/18' : 'bg-amber-200/70'} ring-pulse`} />
@@ -2717,9 +2717,9 @@ function DashboardPage({
                   {hasActiveTimer ? <Pause className="h-6 w-6" /> : <Sparkles className="h-6 w-6" />}
                 </div>
               </div>
-              <div className={`mt-4 h-2 overflow-hidden rounded-full ${theme === 'dark' ? 'bg-slate-700' : 'bg-slate-200'}`}>
+              <div className={`soft-progress mt-4 h-2 overflow-hidden rounded-full ${theme === 'dark' ? 'bg-slate-700' : 'bg-slate-200'}`}>
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-amber-400 via-orange-500 to-sky-500 transition-all duration-500"
+                  className="soft-progress-fill h-full rounded-full bg-gradient-to-r from-amber-400 via-orange-500 to-sky-500 transition-all duration-500"
                   style={{ width: `${metrics.todayProgress}%` }}
                 />
               </div>
@@ -2731,22 +2731,22 @@ function DashboardPage({
               </div>
               <button
                 onClick={onAddHabit}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-amber-400 via-orange-500 to-sky-500 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-orange-500/20 transition hover:scale-[1.02] sm:w-auto"
+                className="gradient-action inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-amber-400 via-orange-500 to-sky-500 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-orange-500/20 transition hover:scale-[1.02] sm:w-auto"
               >
                 <Plus className="h-4 w-4" />
                 {text.addNewHabit}
               </button>
             </div>
             <div className={`grid grid-cols-3 gap-2`}>
-              <div className={`glass-band rounded-2xl px-3 py-3 prism-surface ${theme === 'dark' ? 'bg-slate-950/20' : 'bg-white/85'}`}>
+              <div className={`glass-band rounded-2xl px-3 py-3 prism-surface hover-lift ${theme === 'dark' ? 'bg-slate-950/20' : 'bg-white/85'}`}>
                 <p className={`text-[11px] uppercase tracking-[0.18em] ${themeConfig.textSecondary}`}>{dashboardCopy.bestPulse}</p>
                 <p className={`mt-1 text-lg font-bold ${themeConfig.text}`}>{metrics.bestStreak}</p>
               </div>
-              <div className={`glass-band rounded-2xl px-3 py-3 prism-surface ${theme === 'dark' ? 'bg-slate-950/20' : 'bg-white/85'}`}>
+              <div className={`glass-band rounded-2xl px-3 py-3 prism-surface hover-lift ${theme === 'dark' ? 'bg-slate-950/20' : 'bg-white/85'}`}>
                 <p className={`text-[11px] uppercase tracking-[0.18em] ${themeConfig.textSecondary}`}>{text.complete}</p>
                 <p className={`mt-1 text-lg font-bold ${themeConfig.text}`}>{metrics.completedToday}</p>
               </div>
-              <div className={`glass-band rounded-2xl px-3 py-3 prism-surface ${theme === 'dark' ? 'bg-slate-950/20' : 'bg-white/85'}`}>
+              <div className={`glass-band rounded-2xl px-3 py-3 prism-surface hover-lift ${theme === 'dark' ? 'bg-slate-950/20' : 'bg-white/85'}`}>
                 <p className={`text-[11px] uppercase tracking-[0.18em] ${themeConfig.textSecondary}`}>{text.totalHabits}</p>
                 <p className={`mt-1 text-lg font-bold ${themeConfig.text}`}>{metrics.totalHabits}</p>
               </div>
@@ -2872,8 +2872,8 @@ function DashboardPage({
             <p className={`${themeConfig.textSecondary} mb-4`}>{text.noHabitsYet}</p>
             <button
               onClick={onAddHabit}
-              className="px-6 py-2 bg-gradient-to-r from-amber-400 via-orange-500 to-sky-500 text-white rounded-lg hover:shadow-lg transition"
-            >
+              className="gradient-action px-6 py-2 bg-gradient-to-r from-amber-400 via-orange-500 to-sky-500 text-white rounded-lg hover:shadow-lg transition"
+              >
               {text.createFirstHabit}
             </button>
           </div>
@@ -2906,7 +2906,7 @@ function DashboardPage({
           <div className="ambient-specks opacity-30" />
           <div className="mb-6 flex items-center justify-between gap-3">
             <h3 className={`${themeConfig.text} font-bold`} style={{ fontFamily: "'Fraunces', 'Space Grotesk', serif" }}>{text.thisWeekOverview}</h3>
-            <span className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] ${theme === 'dark' ? 'bg-slate-800 text-slate-300' : 'bg-white/85 text-slate-700 border border-slate-200'}`}>
+            <span className={`chip-hover rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] ${theme === 'dark' ? 'bg-slate-800 text-slate-300' : 'bg-white/85 text-slate-700 border border-slate-200'}`}>
               7 days
             </span>
           </div>
@@ -2995,21 +2995,21 @@ function HabitsPage({
         <div className="ambient-specks opacity-40" />
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <div className={`inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] ${
+            <div className={`chip-hover inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] ${
               theme === 'dark' ? 'bg-slate-800/85 text-amber-200' : 'bg-amber-50 text-amber-700'
             }`}>
               {text.allHabits}
             </div>
             <h2 className={`mt-4 text-3xl font-bold ${themeConfig.text}`} style={{ fontFamily: "'Fraunces', 'Space Grotesk', serif" }}>{text.habits}</h2>
             <div className="mt-3 flex flex-wrap gap-2">
-              <span className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] ${
-                theme === 'dark' ? 'bg-slate-800 text-slate-300' : 'bg-white/85 text-slate-700 border border-slate-200'
-              }`}>
+               <span className={`chip-hover rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] ${
+                 theme === 'dark' ? 'bg-slate-800 text-slate-300' : 'bg-white/85 text-slate-700 border border-slate-200'
+               }`}>
                 {text.totalHabits}: {habits.length}
               </span>
-              <span className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] ${
-                theme === 'dark' ? 'bg-sky-500/12 text-sky-200' : 'bg-sky-50 text-sky-700'
-              }`}>
+               <span className={`chip-hover rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] ${
+                 theme === 'dark' ? 'bg-sky-500/12 text-sky-200' : 'bg-sky-50 text-sky-700'
+               }`}>
                 {text.searchHabits}: {visibleCount}
               </span>
             </div>
@@ -3022,12 +3022,12 @@ function HabitsPage({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={text.searchPlaceholder}
-                className={`w-full sm:w-72 px-4 py-3 rounded-2xl ${themeConfig.input} ${themeConfig.text} placeholder:opacity-60 focus:outline-none focus:ring-2 focus:ring-amber-400 shadow-[0_18px_40px_-32px_rgba(15,23,42,0.38)]`}
-              />
+               className={`w-full sm:w-72 px-4 py-3 rounded-2xl ${themeConfig.input} ${themeConfig.text} placeholder:opacity-60 focus:outline-none focus:ring-2 focus:ring-amber-400 shadow-[0_18px_40px_-32px_rgba(15,23,42,0.38)]`}
+             />
             </div>
             <button
               onClick={onAddHabit}
-              className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-400 via-orange-500 to-sky-500 text-white rounded-2xl hover:shadow-lg transition"
+              className="gradient-action flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-400 via-orange-500 to-sky-500 text-white rounded-2xl hover:shadow-lg transition"
             >
               <Plus className="w-5 h-5" />
               {text.newHabit}
@@ -3042,7 +3042,7 @@ function HabitsPage({
           <p className={`${themeConfig.textSecondary} mb-4`}>{text.noHabitsCreated}</p>
           <button
             onClick={onAddHabit}
-            className="px-6 py-2 bg-gradient-to-r from-amber-400 via-orange-500 to-sky-500 text-white rounded-lg hover:shadow-lg transition"
+            className="gradient-action px-6 py-2 bg-gradient-to-r from-amber-400 via-orange-500 to-sky-500 text-white rounded-lg hover:shadow-lg transition"
           >
             {text.createYourFirstHabit}
           </button>
@@ -3053,7 +3053,7 @@ function HabitsPage({
           <p className={`${themeConfig.textSecondary} mb-4`}>{text.noHabitsFound}</p>
           <button
             onClick={() => setSearchQuery('')}
-            className="px-6 py-2 bg-gradient-to-r from-amber-400 via-orange-500 to-sky-500 text-white rounded-lg hover:shadow-lg transition"
+            className="gradient-action px-6 py-2 bg-gradient-to-r from-amber-400 via-orange-500 to-sky-500 text-white rounded-lg hover:shadow-lg transition"
           >
             {text.clearSearch}
           </button>
@@ -3066,7 +3066,7 @@ function HabitsPage({
             return (
               <div
                 key={habit.id}
-                className={`${themeConfig.card} rounded-[26px] p-4 border ${themeConfig.border} hover:border-amber-500/50 transition shadow-lg spotlight-card hover-lift section-reveal prism-surface aurora-panel`}
+                className={`${themeConfig.card} rounded-[26px] p-4 border ${themeConfig.border} hover:border-amber-500/50 transition shadow-lg spotlight-card hover-lift section-reveal prism-surface aurora-panel premium-shell edge-glow`}
               >
                 <div className="ambient-specks opacity-30" />
                 <div className={`pointer-events-none absolute inset-x-0 top-0 h-24 ${
@@ -3089,16 +3089,16 @@ function HabitsPage({
                   </div>
                   <button
                     onClick={() => onDeleteHabit(habit.id)}
-                    className="p-2 hover:bg-red-500/20 rounded-xl transition text-red-500"
+                    className="icon-button-soft p-2 hover:bg-red-500/20 rounded-xl transition text-red-500"
                   >
                     <X className="w-4 h-4" />
                   </button>
                 </div>
 
                 <div className="space-y-2">
-                  <div className={`h-2 ${theme === 'dark' ? 'bg-slate-700/50' : 'bg-slate-200'} rounded-full overflow-hidden`}>
+                  <div className={`soft-progress h-2 ${theme === 'dark' ? 'bg-slate-700/50' : 'bg-slate-200'} rounded-full overflow-hidden`}>
                     <div
-                      className={`h-full bg-gradient-to-r ${habit.color} transition-all`}
+                      className={`soft-progress-fill h-full bg-gradient-to-r ${habit.color} transition-all`}
                       style={{
                         width: `${progress}%`,
                       }}
@@ -3108,7 +3108,7 @@ function HabitsPage({
                     <p className={`${themeConfig.textSecondary} text-xs`}>
                       {formatHabitCurrentValue(habit, completion?.current || 0)} / {formatHabitGoalValue(habit)} {isTimedHabit(habit.unit) ? '' : getUnitLabel(language, habit.unit)}
                     </p>
-                    <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${
+                    <span className={`chip-hover rounded-full px-2.5 py-1 text-[11px] font-semibold ${
                       progress >= 100
                         ? 'bg-sky-500/15 text-sky-500'
                         : theme === 'dark'
@@ -3121,12 +3121,12 @@ function HabitsPage({
                 </div>
 
                 <div className={`mt-4 pt-4 border-t ${themeConfig.border} flex items-center justify-between text-xs`}>
-                  <span className={`rounded-full px-2.5 py-1 ${theme === 'dark' ? 'bg-slate-800 text-slate-300' : 'bg-white/90 text-slate-700 border border-slate-200'}`}>
-                    {text.streak}: {getStreak(habit)} {text.days}
-                  </span>
-                  <span className={`rounded-full px-2.5 py-1 ${theme === 'dark' ? 'bg-orange-500/12 text-orange-300' : 'bg-orange-50 text-orange-700'}`}>
-                    {text.best}: {getBestStreak(habit)} {text.days}
-                  </span>
+                    <span className={`chip-hover rounded-full px-2.5 py-1 ${theme === 'dark' ? 'bg-slate-800 text-slate-300' : 'bg-white/90 text-slate-700 border border-slate-200'}`}>
+                      {text.streak}: {getStreak(habit)} {text.days}
+                    </span>
+                    <span className={`chip-hover rounded-full px-2.5 py-1 ${theme === 'dark' ? 'bg-orange-500/12 text-orange-300' : 'bg-orange-50 text-orange-700'}`}>
+                      {text.best}: {getBestStreak(habit)} {text.days}
+                    </span>
                 </div>
               </div>
             );
@@ -3195,7 +3195,7 @@ function CalendarPage({
 
   return (
     <div className="max-w-4xl space-y-6">
-        <div className={`${themeConfig.card} rounded-2xl p-6 border ${themeConfig.border} shadow-lg spotlight-card section-reveal`}>
+        <div className={`${themeConfig.card} rounded-2xl p-6 border ${themeConfig.border} shadow-lg spotlight-card section-reveal prism-surface aurora-panel premium-shell edge-glow`}>
         <div className="flex items-center justify-between mb-6">
           <h2 className={`text-2xl font-bold ${themeConfig.text}`}>
             {currentMonth.toLocaleDateString(locale, { month: 'long', year: 'numeric' })}
@@ -3208,15 +3208,15 @@ function CalendarPage({
                 }
               }}
               disabled={atMinMonth}
-              className={`p-2 rounded-lg transition ${
-                atMinMonth ? 'opacity-40 cursor-not-allowed' : themeConfig.hover
-              }`}
+                className={`icon-button-soft p-2 rounded-lg transition ${
+                  atMinMonth ? 'opacity-40 cursor-not-allowed' : themeConfig.hover
+                }`}
             >
               <ChevronLeft className={`w-5 h-5 ${themeConfig.textSecondary}`} />
             </button>
             <button
               onClick={() => onMonthChange(new Date(year, month + 1))}
-              className={`p-2 rounded-lg transition ${themeConfig.hover}`}
+              className={`icon-button-soft p-2 rounded-lg transition ${themeConfig.hover}`}
             >
               <ChevronRight className={`w-5 h-5 ${themeConfig.textSecondary}`} />
             </button>
@@ -3248,7 +3248,7 @@ function CalendarPage({
               <button
                 key={day}
                 onClick={() => onDateSelect(dateStr)}
-                className={`p-2 sm:p-3 rounded-lg text-center transition relative flex flex-col items-center hover-lift ${
+                className={`p-2 sm:p-3 rounded-lg text-center transition relative flex flex-col items-center hover-lift prism-surface ${
                   isSelected
                     ? 'bg-amber-500/30 border border-amber-500/50'
                     : isToday
@@ -3277,7 +3277,7 @@ function CalendarPage({
       </div>
 
       {/* Selected Date Details */}
-        <div className={`${themeConfig.card} rounded-2xl p-6 border ${themeConfig.border} shadow-lg spotlight-card section-reveal section-delay-2`}>
+        <div className={`${themeConfig.card} rounded-2xl p-6 border ${themeConfig.border} shadow-lg spotlight-card section-reveal section-delay-2 prism-surface aurora-panel premium-shell edge-glow`}>
         <h3 className={`${themeConfig.text} font-bold mb-4`}>
           {parseLocalDate(selectedDate).toLocaleDateString(locale, {
             weekday: 'long',
@@ -3291,7 +3291,7 @@ function CalendarPage({
           {habits.map((habit: Habit) => {
             const completion = habit.completions.find(c => c.date === selectedDate);
             return (
-              <div key={habit.id} className={`${themeConfig.bgTertiary} rounded-lg p-4 hover-lift section-reveal`}>
+              <div key={habit.id} className={`${themeConfig.bgTertiary} rounded-lg p-4 hover-lift section-reveal prism-surface ghost-action`}>
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <span className="text-xl">{habit.icon}</span>
@@ -3299,9 +3299,9 @@ function CalendarPage({
                   </div>
                   {completion?.completed && <Check className="w-5 h-5 text-sky-500" />}
                 </div>
-                <div className={`h-2 ${theme === 'dark' ? 'bg-slate-600' : 'bg-slate-300'} rounded-full overflow-hidden`}>
+                <div className={`soft-progress h-2 ${theme === 'dark' ? 'bg-slate-600' : 'bg-slate-300'} rounded-full overflow-hidden`}>
                   <div
-                    className={`h-full bg-gradient-to-r ${habit.color}`}
+                    className={`soft-progress-fill h-full bg-gradient-to-r ${habit.color}`}
                     style={{
                       width: `${Math.min(((completion?.current || 0) / habit.goal) * 100, 100)}%`,
                     }}
@@ -3392,7 +3392,7 @@ function StatsPage({
         <div className="ambient-specks opacity-40" />
         <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <div className={`inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] ${
+            <div className={`chip-hover inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] ${
               theme === 'dark' ? 'bg-slate-800/85 text-sky-300' : 'bg-sky-50 text-sky-700'
             }`}>
               {text.statisticsTitle}
@@ -3409,7 +3409,7 @@ function StatsPage({
               { label: text.currentStreak, value: `${metrics.currentStreak}${text.days}`, tone: theme === 'dark' ? 'bg-amber-500/12 text-amber-200' : 'bg-amber-50 text-amber-700' },
               { label: text.completion, value: `${averageCompletion}%`, tone: theme === 'dark' ? 'bg-sky-500/12 text-sky-200' : 'bg-sky-50 text-sky-700' },
             ].map((stat) => (
-              <div key={stat.label} className={`rounded-2xl px-4 py-3 ${stat.tone}`}>
+              <div key={stat.label} className={`chip-hover hover-lift rounded-2xl px-4 py-3 ${stat.tone}`}>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] opacity-80">{stat.label}</p>
                 <p className="mt-2 text-2xl font-bold">{stat.value}</p>
               </div>
@@ -3428,7 +3428,7 @@ function StatsPage({
         ].map((stat, idx) => (
           <div
             key={idx}
-            className={`${themeConfig.card} rounded-[24px] p-6 border ${themeConfig.border} shadow-lg spotlight-card hover-lift section-reveal prism-surface aurora-panel`}
+            className={`${themeConfig.card} rounded-[24px] p-6 border ${themeConfig.border} shadow-lg spotlight-card hover-lift section-reveal prism-surface aurora-panel premium-shell edge-glow`}
           >
             <p className={`${themeConfig.textSecondary} text-sm mb-2`}>{stat.label}</p>
             <p className={`text-3xl font-bold ${themeConfig.text}`}>{stat.value}</p>
@@ -3439,7 +3439,7 @@ function StatsPage({
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* 30-Day Trend */}
-        <div className={`${themeConfig.card} rounded-[24px] p-6 border ${themeConfig.border} shadow-lg spotlight-card section-reveal section-delay-1 prism-surface aurora-panel`}>
+        <div className={`${themeConfig.card} rounded-[24px] p-6 border ${themeConfig.border} shadow-lg spotlight-card hover-lift section-reveal section-delay-1 prism-surface aurora-panel premium-shell edge-glow`}>
           <h3 className={`${themeConfig.text} font-bold mb-6`}>{text.trend30Days}</h3>
           {isMounted ? (
             <ResponsiveContainer width="100%" height={300}>
@@ -3480,7 +3480,7 @@ function StatsPage({
         </div>
 
         {/* Habit Distribution */}
-        <div className={`${themeConfig.card} rounded-[24px] p-6 border ${themeConfig.border} shadow-lg spotlight-card section-reveal section-delay-2 prism-surface aurora-panel`}>
+        <div className={`${themeConfig.card} rounded-[24px] p-6 border ${themeConfig.border} shadow-lg spotlight-card hover-lift section-reveal section-delay-2 prism-surface aurora-panel premium-shell edge-glow`}>
           <h3 className={`${themeConfig.text} font-bold mb-6`}>{text.habitDistribution}</h3>
           {isMounted ? (
             <ResponsiveContainer width="100%" height={300}>
@@ -3536,7 +3536,7 @@ function StatsPage({
       </div>
 
       {/* Habit Details */}
-      <div className={`${themeConfig.card} rounded-[24px] p-6 border ${themeConfig.border} shadow-lg spotlight-card section-reveal section-delay-3 prism-surface`}>
+      <div className={`${themeConfig.card} rounded-[24px] p-6 border ${themeConfig.border} shadow-lg spotlight-card section-reveal section-delay-3 prism-surface premium-shell edge-glow`}>
         <h3 className={`${themeConfig.text} font-bold mb-6`}>{text.habitsPerformance}</h3>
         <div className="space-y-4">
           {habits.map((habit: Habit) => {
@@ -3547,7 +3547,7 @@ function StatsPage({
             );
 
             return (
-              <div key={habit.id} className={`flex items-center justify-between p-4 ${themeConfig.bgTertiary} rounded-2xl hover-lift section-reveal prism-surface`}>
+              <div key={habit.id} className={`flex items-center justify-between p-4 ${themeConfig.bgTertiary} rounded-2xl hover-lift section-reveal prism-surface ghost-action`}>
                 <div className="flex items-center gap-3 flex-1">
                   <span className="text-2xl">{habit.icon}</span>
                   <div>
@@ -3640,16 +3640,16 @@ function ProfilePage({
   return (
     <div className="max-w-3xl space-y-6">
       {/* Profile Card */}
-      <div className={`${themeConfig.card} rounded-[30px] p-8 border ${themeConfig.border} shadow-lg spotlight-card glow-pulse section-reveal aurora-panel prism-surface`}>
+      <div className={`${themeConfig.card} rounded-[30px] p-8 border ${themeConfig.border} shadow-lg spotlight-card glow-pulse section-reveal aurora-panel prism-surface premium-shell edge-glow`}>
         <div className="mesh-grid opacity-25" />
         <div className="ambient-specks opacity-35" />
         <div className="mb-6 flex flex-wrap items-center gap-2">
-          <span className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${
+          <span className={`chip-hover rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${
             theme === 'dark' ? 'bg-slate-800/90 text-amber-200' : 'bg-amber-50 text-amber-700'
           }`}>
             {text.profile}
           </span>
-          <span className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${
+          <span className={`chip-hover rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${
             theme === 'dark' ? 'bg-sky-500/12 text-sky-200' : 'bg-sky-50 text-sky-700'
           }`}>
             {language === 'uz' ? "Profil bo'limi" : profileBadgeSecondary}
@@ -3672,7 +3672,7 @@ function ProfilePage({
               )}
             </div>
             <div
-              className={`min-w-0 flex-1 rounded-[24px] border px-4 py-3 glass-lux ${
+              className={`min-w-0 flex-1 rounded-[24px] border px-4 py-3 glass-lux hover-lift ${
                 theme === 'dark' ? 'border-slate-700 bg-slate-900/35' : 'border-white/80 bg-white/70'
               }`}
             >
@@ -3703,13 +3703,13 @@ function ProfilePage({
             <div className="flex gap-2 sm:ml-4 self-start sm:self-auto">
               <button
                 onClick={handleSave}
-                className="p-2 bg-sky-500/15 hover:bg-sky-500/25 text-sky-500 rounded-lg transition"
+                className="icon-button-soft p-2 bg-sky-500/15 hover:bg-sky-500/25 text-sky-500 rounded-lg transition"
               >
                 <Save className="w-5 h-5" />
               </button>
               <button
                 onClick={handleCancel}
-                className="p-2 bg-red-500/20 hover:bg-red-500/30 text-red-500 rounded-lg transition"
+                className="icon-button-soft p-2 bg-red-500/20 hover:bg-red-500/30 text-red-500 rounded-lg transition"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -3717,7 +3717,7 @@ function ProfilePage({
           ) : (
             <button
               onClick={openEditor}
-              className="p-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-500 rounded-lg transition self-start sm:self-auto"
+              className="icon-button-soft p-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-500 rounded-lg transition self-start sm:self-auto"
             >
               <Edit2 className="w-5 h-5" />
             </button>
@@ -3742,15 +3742,15 @@ function ProfilePage({
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className={`${themeConfig.card} rounded-[24px] p-6 border ${themeConfig.border} shadow-lg spotlight-card hover-lift section-reveal section-delay-1 prism-surface`}>
+        <div className={`${themeConfig.card} rounded-[24px] p-6 border ${themeConfig.border} shadow-lg spotlight-card hover-lift section-reveal section-delay-1 prism-surface premium-shell edge-glow`}>
           <p className={`${themeConfig.textSecondary} text-sm mb-2`}>{text.totalHabits}</p>
           <p className={`text-3xl font-bold ${themeConfig.text}`}>{habits.length}</p>
         </div>
-        <div className={`${themeConfig.card} rounded-[24px] p-6 border ${themeConfig.border} shadow-lg spotlight-card hover-lift section-reveal section-delay-2 prism-surface`}>
+        <div className={`${themeConfig.card} rounded-[24px] p-6 border ${themeConfig.border} shadow-lg spotlight-card hover-lift section-reveal section-delay-2 prism-surface premium-shell edge-glow`}>
           <p className={`${themeConfig.textSecondary} text-sm mb-2`}>{text.totalCompleted}</p>
           <p className={`text-3xl font-bold ${theme === 'dark' ? 'text-sky-300' : 'text-sky-600'}`}>{totalCompleted}</p>
         </div>
-        <div className={`${themeConfig.card} rounded-[24px] p-6 border ${themeConfig.border} shadow-lg spotlight-card hover-lift section-reveal section-delay-3 prism-surface`}>
+        <div className={`${themeConfig.card} rounded-[24px] p-6 border ${themeConfig.border} shadow-lg spotlight-card hover-lift section-reveal section-delay-3 prism-surface premium-shell edge-glow`}>
           <p className={`${themeConfig.textSecondary} text-sm mb-2`}>{text.accountAge}</p>
           <p className={`text-3xl font-bold text-amber-500`}>
             {accountAgeDays}
@@ -3768,7 +3768,7 @@ function ProfilePage({
             <p className={themeConfig.textSecondary}>{text.noHabitsYetShort}</p>
           ) : (
             habits.map((habit: Habit) => (
-              <div key={habit.id} className={`flex items-center justify-between p-3 ${themeConfig.bgTertiary} rounded-2xl hover-lift section-reveal prism-surface`}>
+              <div key={habit.id} className={`flex items-center justify-between p-3 ${themeConfig.bgTertiary} rounded-2xl hover-lift section-reveal prism-surface ghost-action`}>
                 <div className="flex items-center gap-2">
                   <span className="text-xl">{habit.icon}</span>
                   <span className={themeConfig.text}>{habit.name}</span>
@@ -3790,7 +3790,7 @@ function ProfilePage({
               <h3 className={`${themeConfig.text} text-lg font-bold`}>{text.profile}</h3>
               <button
                 onClick={handleCancel}
-                className={`p-2 rounded-lg transition ${themeConfig.hover}`}
+                className={`icon-button-soft p-2 rounded-lg transition ${themeConfig.hover}`}
                 aria-label={text.cancel}
               >
                 <X className="w-5 h-5" />
@@ -3830,13 +3830,13 @@ function ProfilePage({
             <div className="mt-6 flex gap-3">
               <button
                 onClick={handleCancel}
-                className={`flex-1 px-4 py-2 ${themeConfig.bgTertiary} ${themeConfig.textSecondary} rounded-lg hover:opacity-80 transition`}
+                className={`ghost-action flex-1 px-4 py-2 ${themeConfig.bgTertiary} ${themeConfig.textSecondary} rounded-lg hover:opacity-80 transition`}
               >
                 {text.cancel}
               </button>
               <button
                 onClick={handleSave}
-                className="flex-1 px-4 py-2 bg-gradient-to-r from-amber-400 via-orange-500 to-sky-500 text-white rounded-lg hover:shadow-lg transition"
+                className="gradient-action flex-1 px-4 py-2 bg-gradient-to-r from-amber-400 via-orange-500 to-sky-500 text-white rounded-lg hover:shadow-lg transition"
               >
                 <Save className="w-4 h-4 inline-block mr-2" />
                 {text.saveChanges}
@@ -3887,7 +3887,7 @@ function HabitCard({
   ].filter(Boolean) as string[];
 
   return (
-    <div className={`group relative overflow-hidden rounded-[24px] border ${themeConfig.border} ${themeConfig.card} p-4 shadow-lg transition hover:-translate-y-0.5 hover:border-amber-500/30 spotlight-card hover-lift section-reveal`}>
+    <div className={`group relative overflow-hidden rounded-[24px] border ${themeConfig.border} ${themeConfig.card} p-4 shadow-lg transition hover:-translate-y-0.5 hover:border-amber-500/30 spotlight-card hover-lift section-reveal prism-surface aurora-panel premium-shell edge-glow`}>
       <div className={`pointer-events-none absolute inset-x-0 top-0 h-20 opacity-80 ${
         theme === 'dark'
           ? 'bg-[radial-gradient(circle_at_top_left,_rgba(245,158,11,0.14),_transparent_58%)]'
@@ -3895,7 +3895,7 @@ function HabitCard({
       }`} />
       <div className="relative flex items-start gap-4 flex-1 w-full">
         {!timedHabit ? (
-          <label className={`mt-1 flex-shrink-0 inline-flex items-center gap-2 ${isMobile ? 'self-start px-2.5 py-2 rounded-2xl' : 'px-3 py-2 rounded-xl'} border ${themeConfig.border} ${themeConfig.bgTertiary} ${themeConfig.text} cursor-pointer whitespace-nowrap shadow-sm`}>
+          <label className={`ghost-action hover-lift mt-1 flex-shrink-0 inline-flex items-center gap-2 ${isMobile ? 'self-start px-2.5 py-2 rounded-2xl' : 'px-3 py-2 rounded-xl'} border ${themeConfig.border} ${themeConfig.bgTertiary} ${themeConfig.text} cursor-pointer whitespace-nowrap shadow-sm`}>
             <input
               type="checkbox"
               checked={percentage >= 100}
@@ -3909,7 +3909,7 @@ function HabitCard({
             onClick={() => onToggleTimer(habit.id, date)}
             disabled={buttonDisabled}
             aria-disabled={buttonDisabled}
-            className={`mt-1 flex-shrink-0 w-12 h-12 rounded-2xl border ${themeConfig.border} flex items-center justify-center transition ${
+            className={`icon-button-soft mt-1 flex-shrink-0 w-12 h-12 rounded-2xl border ${themeConfig.border} flex items-center justify-center transition ${
               percentage >= 100
                 ? 'bg-sky-500/20 text-sky-500'
                 : isRunning
@@ -3939,12 +3939,12 @@ function HabitCard({
               <div className="min-w-0">
                 <h4 className={`${themeConfig.text} truncate text-xl font-semibold leading-tight`}>{habit.name}</h4>
                 <div className="mt-2 flex flex-wrap gap-2">
-                  <span className={`rounded-full px-2.5 py-1 text-[11px] font-medium ${
+                  <span className={`chip-hover rounded-full px-2.5 py-1 text-[11px] font-medium ${
                     theme === 'dark' ? 'bg-slate-800/90 text-slate-300' : 'bg-white/85 text-slate-600 border border-slate-200/80'
                   }`}>
                     {text.category}: {getCategoryLabel(language, habit.category)}
                   </span>
-                  <span className={`rounded-full px-2.5 py-1 text-[11px] font-medium ${
+                  <span className={`chip-hover rounded-full px-2.5 py-1 text-[11px] font-medium ${
                     theme === 'dark' ? 'bg-slate-800/90 text-slate-300' : 'bg-white/85 text-slate-600 border border-slate-200/80'
                   }`}>
                     {text.goal}: {formatHabitGoalValue(habit)} {timedHabit ? '' : getUnitLabel(language, habit.unit)}
@@ -3958,7 +3958,7 @@ function HabitCard({
                   onClick={() => onToggleTimer(habit.id, date)}
                   disabled={buttonDisabled}
                   aria-disabled={buttonDisabled}
-                  className={`w-10 h-10 rounded-xl border ${themeConfig.border} flex items-center justify-center transition ${
+                  className={`icon-button-soft w-10 h-10 rounded-xl border ${themeConfig.border} flex items-center justify-center transition ${
                     percentage >= 100
                       ? 'bg-sky-500/20 text-sky-500'
                     : isRunning
@@ -3990,13 +3990,13 @@ function HabitCard({
             </div>
           </div>
 
-          <div className={`relative h-2.5 w-full overflow-hidden rounded-full ${
+          <div className={`soft-progress relative h-2.5 w-full overflow-hidden rounded-full ${
             theme === 'dark'
               ? 'bg-[linear-gradient(90deg,rgba(30,41,59,0.92)_0%,rgba(51,65,85,0.7)_100%)]'
               : 'bg-[linear-gradient(90deg,rgba(226,232,240,0.9)_0%,rgba(203,213,225,0.72)_100%)]'
           }`}>
             <div
-              className={`h-full rounded-full bg-gradient-to-r ${habit.color} shadow-[0_0_18px_rgba(59,130,246,0.18)] transition-all duration-500`}
+              className={`soft-progress-fill h-full rounded-full bg-gradient-to-r ${habit.color} shadow-[0_0_18px_rgba(59,130,246,0.18)] transition-all duration-500`}
               style={{ width: `${percentage}%` }}
             ></div>
           </div>
@@ -4005,7 +4005,7 @@ function HabitCard({
             {detailItems.map((item) => (
               <span
                 key={item}
-                className={`rounded-full px-2.5 py-1 ${theme === 'dark' ? 'bg-slate-900/80' : 'bg-white/85 border border-slate-200/80'}`}
+                className={`chip-hover rounded-full px-2.5 py-1 ${theme === 'dark' ? 'bg-slate-900/80' : 'bg-white/85 border border-slate-200/80'}`}
               >
                 {item}
               </span>
@@ -4053,7 +4053,7 @@ function ReminderToast({
           </div>
           <button
             onClick={onClose}
-            className={`p-1.5 rounded-lg transition ${themeConfig.hover}`}
+            className={`icon-button-soft p-1.5 rounded-lg transition ${themeConfig.hover}`}
             aria-label="Close"
           >
             <X className="w-4 h-4" />
@@ -4120,7 +4120,7 @@ function CelebrationToast({
             </div>
             <button
               onClick={onClose}
-              className={`rounded-lg p-1.5 transition ${themeConfig.hover}`}
+              className={`icon-button-soft rounded-lg p-1.5 transition ${themeConfig.hover}`}
               aria-label="Close celebration"
             >
               <X className="h-4 w-4" />
@@ -4171,15 +4171,15 @@ function AddHabitModal({
 
   return (
     <div className={`fixed inset-0 ${theme === 'dark' ? 'bg-[linear-gradient(135deg,rgba(2,6,23,0.72),rgba(15,23,42,0.48))]' : 'bg-[linear-gradient(135deg,rgba(255,247,237,0.72),rgba(255,255,255,0.56))]'} backdrop-blur-md flex items-center justify-center p-4 z-50`}>
-      <div className={`${themeConfig.card} rounded-[30px] p-8 max-w-lg w-full border ${themeConfig.border} max-h-[90vh] overflow-y-auto shadow-2xl spotlight-card section-reveal aurora-panel prism-surface`}>
+      <div className={`${themeConfig.card} rounded-[30px] p-8 max-w-lg w-full border ${themeConfig.border} max-h-[90vh] overflow-y-auto shadow-2xl spotlight-card section-reveal aurora-panel prism-surface premium-shell edge-glow`}>
         <div className="ambient-specks opacity-35" />
         <div className="mb-6 flex flex-wrap items-center gap-2">
-          <span className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${
+          <span className={`chip-hover rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${
             theme === 'dark' ? 'bg-slate-800/90 text-amber-200' : 'bg-amber-50 text-amber-700'
           }`}>
             New Habit
           </span>
-          <span className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${
+          <span className={`chip-hover rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${
             theme === 'dark' ? 'bg-sky-500/12 text-sky-200' : 'bg-sky-50 text-sky-700'
           }`}>
             {modalCopy.badgeSecondary}
@@ -4192,7 +4192,7 @@ function AddHabitModal({
           </div>
           <button
             onClick={onClose}
-            className={`rounded-2xl p-2 transition ${themeConfig.hover}`}
+            className={`icon-button-soft rounded-2xl p-2 transition ${themeConfig.hover}`}
             aria-label={text.cancel}
           >
             <X className="h-5 w-5" />
@@ -4279,7 +4279,7 @@ function AddHabitModal({
                   key={icon}
                   type="button"
                   onClick={() => onChange({ ...habit, icon })}
-                  className={`p-3 rounded-2xl text-xl transition ${
+                  className={`chip-hover hover-lift p-3 rounded-2xl text-xl transition ${
                     selectedIcon === icon
                       ? 'bg-amber-500/30 border border-amber-500/50'
                       : `${themeConfig.bgTertiary} border ${themeConfig.border} ${themeConfig.hover}`
@@ -4306,13 +4306,13 @@ function AddHabitModal({
           <div className="flex gap-4 mt-8">
             <button
               onClick={onClose}
-              className={`flex-1 px-4 py-3 ${themeConfig.bgTertiary} ${themeConfig.textSecondary} rounded-2xl hover:opacity-80 transition`}
+              className={`ghost-action flex-1 px-4 py-3 ${themeConfig.bgTertiary} ${themeConfig.textSecondary} rounded-2xl hover:opacity-80 transition`}
             >
               {text.cancel}
             </button>
             <button
               onClick={onAdd}
-              className="flex-1 px-4 py-3 bg-gradient-to-r from-amber-400 via-orange-500 to-sky-500 text-white rounded-2xl hover:shadow-lg transition"
+              className="gradient-action flex-1 px-4 py-3 bg-gradient-to-r from-amber-400 via-orange-500 to-sky-500 text-white rounded-2xl hover:shadow-lg transition"
             >
               {text.addHabit}
             </button>
