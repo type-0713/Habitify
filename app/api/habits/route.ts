@@ -1,20 +1,37 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseSecretKey = process.env.SUPABASE_SECRET_KEY;
-const habitsTable = process.env.NEXT_PUBLIC_SUPABASE_HABITS_TABLE ?? 'habitts';
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
-const getSupabaseBaseUrl = () => {
-  if (!supabaseUrl || !supabaseSecretKey) {
-    throw new Error('Supabase server environment variables are missing.');
+const getSupabaseConfig = () => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+  const serviceRoleKey = process.env.SUPABASE_SECRET_KEY?.trim();
+  const publishableKey = (
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ??
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY
+  )?.trim();
+  const habitsTable = process.env.NEXT_PUBLIC_SUPABASE_HABITS_TABLE?.trim() || 'habitts';
+
+  if (!supabaseUrl) {
+    throw new Error('NEXT_PUBLIC_SUPABASE_URL is missing.');
   }
 
-  return `${supabaseUrl.replace(/\/$/, '')}/rest/v1/${habitsTable}`;
+  const apiKey = serviceRoleKey || publishableKey;
+
+  if (!apiKey) {
+    throw new Error('Supabase API key is missing. Set SUPABASE_SECRET_KEY or NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY.');
+  }
+
+  return {
+    apiKey,
+    baseUrl: `${supabaseUrl.replace(/\/$/, '')}/rest/v1/${habitsTable}`,
+  };
 };
 
-const createHeaders = (extraHeaders?: HeadersInit) => ({
-  apikey: supabaseSecretKey ?? '',
-  Authorization: `Bearer ${supabaseSecretKey ?? ''}`,
+const createHeaders = (apiKey: string, extraHeaders?: HeadersInit) => ({
+  apikey: apiKey,
+  Authorization: `Bearer ${apiKey}`,
   'Content-Type': 'application/json',
   ...extraHeaders,
 });
@@ -50,14 +67,15 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    const { apiKey, baseUrl } = getSupabaseConfig();
     const params = new URLSearchParams();
     params.set('select', 'id,Name,Goal,Unit,Icon,ReminderTime,User,Habitt');
     params.set('User', `eq.${user}`);
     params.set('order', 'id.asc');
 
-    const rows = await proxyRequest<unknown[]>(`${getSupabaseBaseUrl()}?${params.toString()}`, {
+    const rows = await proxyRequest<unknown[]>(`${baseUrl}?${params.toString()}`, {
       method: 'GET',
-      headers: createHeaders(),
+      headers: createHeaders(apiKey),
       cache: 'no-store',
     });
 
@@ -70,6 +88,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const { apiKey, baseUrl } = getSupabaseConfig();
     const body = (await request.json()) as {
       name?: string;
       goal?: number;
@@ -90,9 +109,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid habit payload.' }, { status: 400 });
     }
 
-    const rows = await proxyRequest<unknown[]>(getSupabaseBaseUrl(), {
+    const rows = await proxyRequest<unknown[]>(baseUrl, {
       method: 'POST',
-      headers: createHeaders({ Prefer: 'return=representation' }),
+      headers: createHeaders(apiKey, { Prefer: 'return=representation' }),
       body: JSON.stringify([
         {
           Name: name,
@@ -122,6 +141,7 @@ export async function DELETE(request: NextRequest) {
   }
 
   try {
+    const { apiKey, baseUrl } = getSupabaseConfig();
     const params = new URLSearchParams();
     params.set('User', `eq.${user}`);
 
@@ -129,9 +149,9 @@ export async function DELETE(request: NextRequest) {
       params.set('id', `eq.${id}`);
     }
 
-    await proxyRequest<void>(`${getSupabaseBaseUrl()}?${params.toString()}`, {
+    await proxyRequest<void>(`${baseUrl}?${params.toString()}`, {
       method: 'DELETE',
-      headers: createHeaders(),
+      headers: createHeaders(apiKey),
     });
 
     return new NextResponse(null, { status: 204 });

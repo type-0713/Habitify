@@ -563,6 +563,13 @@ body::after {
   border-radius: 0.35rem;
 }
 
+@supports (content-visibility: auto) {
+  .content-auto {
+    content-visibility: auto;
+    contain-intrinsic-size: 1px 360px;
+  }
+}
+
 @media (hover: hover) and (pointer: fine) {
   :where(button:not(:disabled), a[href]):hover {
     filter: saturate(1.03) brightness(1.01);
@@ -612,6 +619,89 @@ body::after {
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.16),
       0 22px 44px -28px rgba(15, 23, 42, 0.4);
+  }
+}
+
+@media (max-width: 768px), (hover: none) and (pointer: coarse) {
+  body {
+    background-attachment: scroll;
+  }
+
+  body::after,
+  .mesh-grid,
+  .ambient-specks,
+  .comet-trail,
+  .orbital-halo,
+  .orbital-halo-reverse {
+    display: none !important;
+  }
+
+  body::before {
+    background:
+      radial-gradient(circle at 18% 18%, rgba(245, 158, 11, 0.08), transparent 28%),
+      radial-gradient(circle at 82% 16%, rgba(59, 130, 246, 0.08), transparent 26%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.01), transparent 34%, rgba(15, 23, 42, 0.02) 100%);
+  }
+
+  .section-reveal,
+  .float-gentle,
+  .glow-pulse,
+  .ring-pulse,
+  .hover-lift,
+  .chip-hover,
+  .gradient-action,
+  .ghost-action,
+  .icon-button-soft,
+  .spotlight-card,
+  .prism-surface::before,
+  .aurora-panel::before,
+  .spotlight-card::before,
+  .spotlight-card::after,
+  .premium-shell::before,
+  .premium-shell::after,
+  .edge-glow::before {
+    animation: none !important;
+    transition-duration: 0ms !important;
+  }
+
+  .prism-surface::before,
+  .aurora-panel::before,
+  .spotlight-card::before,
+  .spotlight-card::after,
+  .premium-shell::before,
+  .premium-shell::after,
+  .edge-glow::before {
+    display: none !important;
+  }
+
+  .hover-lift:hover,
+  .hover-lift:focus-within,
+  .spotlight-card:hover,
+  .spotlight-card:focus-within,
+  .chip-hover:hover,
+  .chip-hover:focus-visible,
+  .gradient-action:hover,
+  .gradient-action:focus-visible,
+  .ghost-action:hover,
+  .ghost-action:focus-visible,
+  .icon-button-soft:hover,
+  .icon-button-soft:focus-visible,
+  :where(button, a[href]):active {
+    transform: none !important;
+    filter: none !important;
+  }
+
+  .glass-band,
+  .glass-lux,
+  .ghost-action,
+  .icon-button-soft,
+  .spotlight-card,
+  .prism-surface,
+  .aurora-panel,
+  .premium-shell,
+  [class*="backdrop-blur"] {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
   }
 }
 

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { startTransition, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import {
@@ -510,6 +510,10 @@ interface ActiveTimer {
   date: string;
 }
 
+interface LiveTimerProgress {
+  current: number;
+}
+
 interface HabitMeta {
   color: string;
   createdAt: string;
@@ -632,9 +636,24 @@ const setLocalStorage = <T,>(key: string, value: T) => {
 
 const getHabitMetaStorageKey = (userId: string) => `habit_meta_${userId}`;
 
+const normalizeUserEmail = (value: string | null | undefined) => value?.trim().toLowerCase() ?? '';
+
 const getHabitOwner = (user: AuthUser | null) => {
-  const rawValue = user?.email?.trim() || user?.id || '';
-  return rawValue.toLowerCase();
+  return normalizeUserEmail(user?.email);
+};
+
+const getFirebaseUserEmail = (firebaseUser: {
+  email: string | null;
+  providerData: Array<{ email?: string | null } | null>;
+}) => {
+  const primaryEmail = normalizeUserEmail(firebaseUser.email);
+  if (primaryEmail) {
+    return primaryEmail;
+  }
+
+  return firebaseUser.providerData
+    .map((provider) => normalizeUserEmail(provider?.email))
+    .find(Boolean) ?? '';
 };
 
 const normalizeReminderTime = (value: string | null | undefined) => {
@@ -708,34 +727,36 @@ const mergeHabitRowWithMeta = (row: SupabaseHabitRow, meta?: HabitMeta): Habit =
 });
 
 type SoundCue = 'success' | 'complete' | 'reminder' | 'add' | 'start' | 'pause';
+const SOUND_GAIN_MULTIPLIER = 2.4;
+const MAX_NOTIFICATION_GAIN = 0.12;
 
 const soundCueMap: Record<SoundCue, Array<{ frequency: number; duration: number; delay: number; gain?: number; type?: OscillatorType }>> = {
   success: [
-    { frequency: 659.25, duration: 0.11, delay: 0, gain: 0.03, type: 'triangle' },
-    { frequency: 783.99, duration: 0.12, delay: 0.1, gain: 0.035, type: 'triangle' },
-    { frequency: 987.77, duration: 0.18, delay: 0.22, gain: 0.04, type: 'sine' },
+    { frequency: 659.25, duration: 0.11, delay: 0, gain: 0.04, type: 'triangle' },
+    { frequency: 783.99, duration: 0.12, delay: 0.1, gain: 0.05, type: 'triangle' },
+    { frequency: 987.77, duration: 0.18, delay: 0.22, gain: 0.06, type: 'sine' },
   ],
   complete: [
-    { frequency: 523.25, duration: 0.08, delay: 0, gain: 0.025, type: 'triangle' },
-    { frequency: 659.25, duration: 0.09, delay: 0.08, gain: 0.03, type: 'triangle' },
-    { frequency: 783.99, duration: 0.1, delay: 0.16, gain: 0.03, type: 'triangle' },
-    { frequency: 1046.5, duration: 0.24, delay: 0.28, gain: 0.04, type: 'sine' },
+    { frequency: 523.25, duration: 0.08, delay: 0, gain: 0.038, type: 'triangle' },
+    { frequency: 659.25, duration: 0.09, delay: 0.08, gain: 0.046, type: 'triangle' },
+    { frequency: 783.99, duration: 0.1, delay: 0.16, gain: 0.046, type: 'triangle' },
+    { frequency: 1046.5, duration: 0.24, delay: 0.28, gain: 0.06, type: 'sine' },
   ],
   reminder: [
-    { frequency: 440, duration: 0.1, delay: 0, gain: 0.025, type: 'sine' },
-    { frequency: 554.37, duration: 0.14, delay: 0.12, gain: 0.03, type: 'triangle' },
+    { frequency: 440, duration: 0.1, delay: 0, gain: 0.04, type: 'sine' },
+    { frequency: 554.37, duration: 0.14, delay: 0.12, gain: 0.05, type: 'triangle' },
   ],
   add: [
-    { frequency: 587.33, duration: 0.08, delay: 0, gain: 0.02, type: 'triangle' },
-    { frequency: 783.99, duration: 0.12, delay: 0.09, gain: 0.026, type: 'triangle' },
+    { frequency: 587.33, duration: 0.08, delay: 0, gain: 0.032, type: 'triangle' },
+    { frequency: 783.99, duration: 0.12, delay: 0.09, gain: 0.042, type: 'triangle' },
   ],
   start: [
-    { frequency: 493.88, duration: 0.08, delay: 0, gain: 0.018, type: 'sine' },
-    { frequency: 659.25, duration: 0.1, delay: 0.08, gain: 0.022, type: 'triangle' },
+    { frequency: 493.88, duration: 0.08, delay: 0, gain: 0.03, type: 'sine' },
+    { frequency: 659.25, duration: 0.1, delay: 0.08, gain: 0.038, type: 'triangle' },
   ],
   pause: [
-    { frequency: 587.33, duration: 0.07, delay: 0, gain: 0.018, type: 'triangle' },
-    { frequency: 440, duration: 0.1, delay: 0.08, gain: 0.018, type: 'sine' },
+    { frequency: 587.33, duration: 0.07, delay: 0, gain: 0.03, type: 'triangle' },
+    { frequency: 440, duration: 0.1, delay: 0.08, gain: 0.03, type: 'sine' },
   ],
 };
 
@@ -753,7 +774,7 @@ const playNotificationSound = (enabled: boolean, cue: SoundCue = 'success') => {
       const gain = context.createGain();
       const startAt = now + step.delay;
       const endAt = startAt + step.duration;
-      const peakGain = step.gain ?? 0.025;
+      const peakGain = Math.min((step.gain ?? 0.025) * SOUND_GAIN_MULTIPLIER, MAX_NOTIFICATION_GAIN);
 
       oscillator.type = step.type ?? 'sine';
       oscillator.frequency.setValueAtTime(step.frequency, startAt);
@@ -933,6 +954,100 @@ const getAuthErrorMessage = (code: string, fallback: string) => {
   return fallback;
 };
 
+const useBodyScrollLock = (locked: boolean) => {
+  useEffect(() => {
+    if (!locked || typeof document === 'undefined') {
+      return;
+    }
+
+    const { body, documentElement } = document;
+    const previousBodyOverflow = body.style.overflow;
+    const previousBodyOverscroll = body.style.overscrollBehavior;
+    const previousDocumentOverflow = documentElement.style.overflow;
+
+    body.style.overflow = 'hidden';
+    body.style.overscrollBehavior = 'none';
+    documentElement.style.overflow = 'hidden';
+
+    return () => {
+      body.style.overflow = previousBodyOverflow;
+      body.style.overscrollBehavior = previousBodyOverscroll;
+      documentElement.style.overflow = previousDocumentOverflow;
+    };
+  }, [locked]);
+};
+
+const calculateMetricsForHabits = (habits: Habit[], date: string): Metrics => {
+  const isHabitActiveOn = (habit: Habit, dateStr: string) => {
+    return !habit.createdAt || habit.createdAt <= dateStr;
+  };
+
+  const activeHabits = habits.filter((habit) => isHabitActiveOn(habit, date));
+  const totalProgress = activeHabits.reduce((sum, habit) => {
+    const completion = habit.completions.find((entry) => entry.date === date);
+    return sum + getHabitProgressRatio(habit, completion);
+  }, 0);
+  const completedToday = activeHabits.filter((habit) => {
+    const completion = habit.completions.find((entry) => entry.date === date);
+    return getHabitProgressRatio(habit, completion) >= 1;
+  }).length;
+
+  const isDayFullyCompleted = (dateStr: string) => {
+    const currentActiveHabits = habits.filter((habit) => isHabitActiveOn(habit, dateStr));
+    if (currentActiveHabits.length === 0) return false;
+    return currentActiveHabits.every((habit) => habit.completions.find((completion) => completion.date === dateStr && completion.completed));
+  };
+
+  const getCurrentStreak = () => {
+    if (habits.length === 0) return 0;
+    let streak = 0;
+    const checkDate = new Date();
+    while (true) {
+      const dateStr = formatLocalDate(checkDate);
+      if (!isDayFullyCompleted(dateStr)) break;
+      streak++;
+      checkDate.setDate(checkDate.getDate() - 1);
+    }
+    return streak;
+  };
+
+  const getBestStreakValue = () => {
+    if (habits.length === 0) return 0;
+    const validDates = habits
+      .map((habit) => habit.createdAt)
+      .filter((value): value is string => Boolean(value));
+    const startDate = validDates.length > 0
+      ? parseLocalDate(validDates.reduce((min, value) => (value < min ? value : min)))
+      : new Date();
+    const today = new Date();
+    let best = 0;
+    let current = 0;
+    const cursor = new Date(startDate);
+
+    while (cursor <= today) {
+      const dateStr = formatLocalDate(cursor);
+      if (isDayFullyCompleted(dateStr)) {
+        current++;
+        best = Math.max(best, current);
+      } else {
+        current = 0;
+      }
+      cursor.setDate(cursor.getDate() + 1);
+    }
+
+    return best;
+  };
+
+  return {
+    totalHabits: activeHabits.length,
+    completedToday,
+    todayProgress: Math.round((totalProgress / Math.max(activeHabits.length, 1)) * 100),
+    weeklyCompletion: Math.round((totalProgress / Math.max(activeHabits.length, 1)) * 100),
+    currentStreak: getCurrentStreak(),
+    bestStreak: getBestStreakValue(),
+  };
+};
+
 // Main App Component
 export default function HabitClientApp() {
   return <HabitTrackerApp />;
@@ -964,6 +1079,7 @@ function HabitTrackerApp() {
   const [selectedDate, setSelectedDate] = useState<string>(getTodayDate());
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [activeTimer, setActiveTimer] = useState<ActiveTimer | null>(null);
+  const [liveTimerProgress, setLiveTimerProgress] = useState<LiveTimerProgress | null>(null);
   const timerTickRef = useRef<number | null>(null);
 
   const [newHabit, setNewHabit] = useState<NewHabitDraft>({
@@ -980,28 +1096,28 @@ function HabitTrackerApp() {
   const text = translations[language];
   const minMonth = getMonthStart(new Date());
   const habitOwner = getHabitOwner(user);
-  const handleThemeChange = (nextTheme: Theme) => {
+  const handleThemeChange = useCallback((nextTheme: Theme) => {
     setTheme(nextTheme);
     setLocalStorage('theme', nextTheme);
-  };
-  const handleLanguageChange = (nextLanguage: Language) => {
+  }, []);
+  const handleLanguageChange = useCallback((nextLanguage: Language) => {
     setLanguage(nextLanguage);
     setLocalStorage('language', nextLanguage);
-  };
+  }, []);
 
-  const launchCelebration = (title: string, message: string) => {
+  const launchCelebration = useCallback((title: string, message: string) => {
     setCelebrationToast({ title, message });
     setCelebrationBurst((prev) => prev + 1);
-  };
+  }, []);
 
-  const handleMonthChange = (date: Date) => {
+  const handleMonthChange = useCallback((date: Date) => {
     const nextMonth = getMonthStart(date);
     if (nextMonth < minMonth) {
       setCurrentMonth(minMonth);
       return;
     }
     setCurrentMonth(nextMonth);
-  };
+  }, [minMonth]);
 
   // Monthly reset only clears local completion/profile state.
   useEffect(() => {
@@ -1173,7 +1289,7 @@ function HabitTrackerApp() {
       setAuthUser({
         id: firebaseUser.uid,
         name: firebaseUser.displayName || 'User',
-        email: firebaseUser.email || '',
+        email: getFirebaseUserEmail(firebaseUser),
         provider,
         createdAt,
         avatarUrl: firebaseUser.photoURL || undefined,
@@ -1190,79 +1306,110 @@ function HabitTrackerApp() {
     }
   }, [habits, isSignedIn, user?.id]);
 
+  // Update Habit Completion
+  const handleUpdateHabitCompletion = useCallback((habitId: string, date: string, current: number, time?: string) => {
+    let completedHabitName = '';
+    let becameCompleted = false;
+
+    setHabits((prev) => prev.map(h => {
+      if (h.id === habitId) {
+        const completions = [...h.completions];
+        const existingIndex = completions.findIndex(c => c.date === date);
+        const wasCompleted = existingIndex >= 0 ? completions[existingIndex].completed : false;
+        const nextCompleted = current >= h.goal;
+
+        if (existingIndex >= 0) {
+          completions[existingIndex] = {
+            ...completions[existingIndex],
+            current,
+            completed: nextCompleted,
+            time: time || completions[existingIndex].time,
+          };
+        } else {
+          completions.push({
+            date,
+            completed: nextCompleted,
+            current,
+            time,
+          });
+        }
+
+        if (!wasCompleted && nextCompleted) {
+          becameCompleted = true;
+          completedHabitName = h.name;
+        }
+
+        return { ...h, completions };
+      }
+      return h;
+    }));
+
+    if (becameCompleted) {
+      playNotificationSound(soundEnabled, 'complete');
+      launchCelebration('Habit completed', `${completedHabitName} finished successfully.`);
+    }
+  }, [launchCelebration, soundEnabled]);
+
   useEffect(() => {
     if (!activeTimer) {
       timerTickRef.current = null;
       return;
     }
 
+    const timerHabit = habits.find((habit) => habit.id === activeTimer.habitId);
+    if (!timerHabit || !isTimedHabit(timerHabit.unit)) {
+      return;
+    }
+
     timerTickRef.current = Date.now();
+    const timerIntervalMs = isMobile ? 5000 : 2000;
 
     const intervalId = window.setInterval(() => {
       const now = Date.now();
       const lastTick = timerTickRef.current ?? now;
       const elapsedSeconds = Math.max(1, Math.round((now - lastTick) / 1000));
       timerTickRef.current = now;
-      let shouldStop = false;
 
-      setHabits((prev) =>
-        prev.map((habit) => {
-          if (habit.id !== activeTimer.habitId || !isTimedHabit(habit.unit)) {
-            return habit;
-          }
+      startTransition(() => {
+        let completed = false;
+        let nextCurrentValue = 0;
 
-          const completions = [...habit.completions];
-          const existingIndex = completions.findIndex((completion) => completion.date === activeTimer.date);
-          const existingCompletion = existingIndex >= 0
-            ? completions[existingIndex]
-            : { date: activeTimer.date, completed: false, current: 0 };
-          const increment = habit.unit === 'hours' ? elapsedSeconds / 3600 : elapsedSeconds / 60;
-          const nextCurrent = Math.min(habit.goal, existingCompletion.current + increment);
-          const completed = nextCurrent >= habit.goal;
-          const nextCompletion: HabitCompletion = {
-            ...existingCompletion,
-            current: nextCurrent,
-            completed,
-            time: completed ? getCurrentTimeString() : existingCompletion.time,
-          };
+        setLiveTimerProgress((prev) => {
+          const baseCurrent = prev?.current ?? 0;
+          const increment = timerHabit.unit === 'hours' ? elapsedSeconds / 3600 : elapsedSeconds / 60;
+          nextCurrentValue = Math.min(timerHabit.goal, baseCurrent + increment);
+          completed = nextCurrentValue >= timerHabit.goal;
+          return { current: nextCurrentValue };
+        });
 
-          if (existingIndex >= 0) {
-            completions[existingIndex] = nextCompletion;
-          } else {
-            completions.push(nextCompletion);
-          }
-
-          if (completed) {
-            shouldStop = true;
-          }
-
-          return { ...habit, completions };
-        }),
-      );
-
-      if (shouldStop) {
-        setActiveTimer((currentTimer) => (
-          currentTimer?.habitId === activeTimer.habitId ? null : currentTimer
-        ));
-        playNotificationSound(soundEnabled, 'complete');
-        setCelebrationToast({ title: 'Habit completed', message: 'Beautiful work. That session is fully done.' });
-        setCelebrationBurst((prev) => prev + 1);
-      }
-    }, 1000);
+        if (completed) {
+          handleUpdateHabitCompletion(activeTimer.habitId, activeTimer.date, timerHabit.goal, getCurrentTimeString());
+          setActiveTimer((currentTimer) => (
+            currentTimer?.habitId === activeTimer.habitId ? null : currentTimer
+          ));
+          setLiveTimerProgress(null);
+          playNotificationSound(soundEnabled, 'complete');
+          setCelebrationToast({ title: 'Habit completed', message: 'Beautiful work. That session is fully done.' });
+          setCelebrationBurst((prev) => prev + 1);
+        }
+      });
+    }, timerIntervalMs);
 
     return () => {
       window.clearInterval(intervalId);
     };
-  }, [activeTimer, soundEnabled]);
+  }, [activeTimer, habits, handleUpdateHabitCompletion, isMobile, soundEnabled]);
 
   useEffect(() => {
     if (!activeTimer) return;
 
     const timerHabit = habits.find((habit) => habit.id === activeTimer.habitId);
-    const timerCompletion = timerHabit?.completions.find((entry) => entry.date === activeTimer.date);
 
-    if (!timerHabit || getHabitProgressRatio(timerHabit, timerCompletion) >= 1) {
-      const timeoutId = window.setTimeout(() => setActiveTimer(null), 0);
+    if (!timerHabit) {
+      const timeoutId = window.setTimeout(() => {
+        setActiveTimer(null);
+        setLiveTimerProgress(null);
+      }, 0);
       return () => window.clearTimeout(timeoutId);
     }
   }, [activeTimer, habits]);
@@ -1387,15 +1534,17 @@ function HabitTrackerApp() {
   };
 
   // Logout Handler
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     void signOut(firebaseAuth);
     setProfileOverrides({});
     setCurrentPage('dashboard');
     setHabits([]);
-  };
+    setActiveTimer(null);
+    setLiveTimerProgress(null);
+  }, []);
 
   // Add Habit
-  const handleAddHabit = async () => {
+  const handleAddHabit = useCallback(async () => {
     const trimmedName = newHabit.name.trim();
     const parsedGoal = parseFloat(newHabit.goal);
 
@@ -1440,53 +1589,9 @@ function HabitTrackerApp() {
         message: 'Habitni Supabase ga saqlab bo‘lmadi. Iltimos qayta urinib ko‘ring.',
       });
     }
-  };
+  }, [habitOwner, launchCelebration, newHabit, soundEnabled]);
 
-  // Update Habit Completion
-  const handleUpdateHabitCompletion = (habitId: string, date: string, current: number, time?: string) => {
-    let completedHabitName = '';
-    let becameCompleted = false;
-
-    setHabits((prev) => prev.map(h => {
-      if (h.id === habitId) {
-        const completions = [...h.completions];
-        const existingIndex = completions.findIndex(c => c.date === date);
-        const wasCompleted = existingIndex >= 0 ? completions[existingIndex].completed : false;
-        const nextCompleted = current >= h.goal;
-
-        if (existingIndex >= 0) {
-          completions[existingIndex] = {
-            ...completions[existingIndex],
-            current,
-            completed: nextCompleted,
-            time: time || completions[existingIndex].time,
-          };
-        } else {
-          completions.push({
-            date,
-            completed: nextCompleted,
-            current,
-            time,
-          });
-        }
-
-        if (!wasCompleted && nextCompleted) {
-          becameCompleted = true;
-          completedHabitName = h.name;
-        }
-
-        return { ...h, completions };
-      }
-      return h;
-    }));
-
-    if (becameCompleted) {
-      playNotificationSound(soundEnabled, 'complete');
-      launchCelebration('Habit completed', `${completedHabitName} finished successfully.`);
-    }
-  };
-
-  const handleToggleHabitTimer = (habitId: string, date: string) => {
+  const handleToggleHabitTimer = useCallback((habitId: string, date: string) => {
     const targetHabit = habits.find((habit) => habit.id === habitId);
 
     if (!targetHabit) return;
@@ -1504,7 +1609,11 @@ function HabitTrackerApp() {
     }
 
     if (activeTimer?.habitId === habitId && activeTimer.date === date) {
+      if (liveTimerProgress) {
+        handleUpdateHabitCompletion(habitId, date, liveTimerProgress.current);
+      }
       setActiveTimer(null);
+      setLiveTimerProgress(null);
       playNotificationSound(soundEnabled, 'pause');
       return;
     }
@@ -1517,12 +1626,13 @@ function HabitTrackerApp() {
       return;
     }
 
+    setLiveTimerProgress({ current: completion?.current || 0 });
     setActiveTimer({ habitId, date });
     playNotificationSound(soundEnabled, 'start');
-  };
+  }, [activeTimer, habits, handleUpdateHabitCompletion, liveTimerProgress, soundEnabled]);
 
   // Delete Habit
-  const deleteHabit = async (habitId: string) => {
+  const deleteHabit = useCallback(async (habitId: string) => {
     if (!habitOwner) return;
 
     try {
@@ -1535,10 +1645,10 @@ function HabitTrackerApp() {
         message: 'Habitni Supabase dan o‘chirib bo‘lmadi. Iltimos qayta urinib ko‘ring.',
       });
     }
-  };
+  }, [habitOwner]);
 
   // Update Profile
-  const updateProfileState = (updates: Partial<UserProfile>) => {
+  const updateProfileState = useCallback((updates: Partial<UserProfile>) => {
     if (!isSignedIn || !user?.id) return;
     const nextOverrides: ProfileOverrides = {
       name: updates.name ?? profileOverrides.name,
@@ -1547,77 +1657,49 @@ function HabitTrackerApp() {
     };
     setProfileOverrides(nextOverrides);
     setLocalStorage(`profile_${user.id}`, nextOverrides);
-  };
-
-  // Calculate metrics
-  const calculateMetrics = (date: string = getTodayDate()): Metrics => {
-    const isHabitActiveOn = (habit: Habit, dateStr: string) => {
-      return !habit.createdAt || habit.createdAt <= dateStr;
-    };
-
-    const activeHabits = habits.filter((habit) => isHabitActiveOn(habit, date));
-    const totalProgress = activeHabits.reduce((sum, habit) => {
-      const completion = habit.completions.find((entry) => entry.date === date);
-      return sum + getHabitProgressRatio(habit, completion);
-    }, 0);
-    const completedToday = activeHabits.filter((habit) => {
-      const completion = habit.completions.find((entry) => entry.date === date);
-      return getHabitProgressRatio(habit, completion) >= 1;
-    }).length;
-
-    const isDayFullyCompleted = (dateStr: string) => {
-      const activeHabits = habits.filter(h => isHabitActiveOn(h, dateStr));
-      if (activeHabits.length === 0) return false;
-      return activeHabits.every(h => h.completions.find(c => c.date === dateStr && c.completed));
-    };
-
-    const getCurrentStreak = () => {
-      if (habits.length === 0) return 0;
-      let streak = 0;
-      const checkDate = new Date();
-      while (true) {
-        const dateStr = formatLocalDate(checkDate);
-        if (!isDayFullyCompleted(dateStr)) break;
-        streak++;
-        checkDate.setDate(checkDate.getDate() - 1);
+  }, [isSignedIn, profileOverrides, user]);
+  const openMobileSidebar = useCallback(() => setMobileSidebarOpen(true), []);
+  const closeMobileSidebar = useCallback(() => setMobileSidebarOpen(false), []);
+  const openAddHabit = useCallback(() => setShowAddHabit(true), []);
+  const closeAddHabit = useCallback(() => setShowAddHabit(false), []);
+  const openProfilePage = useCallback(() => setCurrentPage('profile'), []);
+  const closeResetNotice = useCallback(() => setResetNotice(null), []);
+  const closeReminderToast = useCallback(() => setReminderToast(null), []);
+  const closeCelebrationToast = useCallback(() => setCelebrationToast(null), []);
+  const handleSoundToggle = useCallback(() => {
+    setSoundEnabled((prev) => {
+      const nextValue = !prev;
+      if (!nextValue) {
+        setReminderToast(null);
       }
-      return streak;
-    };
+      return nextValue;
+    });
+  }, []);
 
-    const getBestStreak = () => {
-      if (habits.length === 0) return 0;
-      const validDates = habits
-        .map(h => h.createdAt)
-        .filter((value): value is string => Boolean(value));
-      const startDate = validDates.length > 0
-        ? parseLocalDate(validDates.reduce((min, value) => (value < min ? value : min)))
-        : new Date();
-      const today = new Date();
-      let best = 0;
-      let current = 0;
-      const cursor = new Date(startDate);
-      while (cursor <= today) {
-        const dateStr = formatLocalDate(cursor);
-        if (isDayFullyCompleted(dateStr)) {
-          current++;
-          best = Math.max(best, current);
-        } else {
-          current = 0;
-        }
-        cursor.setDate(cursor.getDate() + 1);
-      }
-      return best;
-    };
+  const todayDateKey = getTodayDate();
+  const todayMetrics = useMemo(
+    () => calculateMetricsForHabits(habits, todayDateKey),
+    [habits, todayDateKey]
+  );
+  const userProfile = useMemo<UserProfile | null>(() => {
+    if (!user) {
+      return null;
+    }
+
+    const baseName = user.name || 'User';
+    const displayName = profileOverrides.name ?? baseName;
+    const displayEmail = profileOverrides.email ?? (user.email ?? '');
 
     return {
-      totalHabits: activeHabits.length,
-      completedToday,
-      todayProgress: Math.round((totalProgress / Math.max(activeHabits.length, 1)) * 100),
-      weeklyCompletion: Math.round((totalProgress / Math.max(activeHabits.length, 1)) * 100),
-      currentStreak: getCurrentStreak(),
-      bestStreak: getBestStreak(),
+      id: user.id,
+      name: displayName,
+      email: displayEmail,
+      avatar: getInitials(displayName),
+      avatarUrl: user.avatarUrl || undefined,
+      bio: profileOverrides.bio ?? 'Building better habits daily!',
+      joinDate: user.createdAt || getTodayDate(),
     };
-  };
+  }, [profileOverrides, user]);
 
   if (!isMounted) {
     return <div className="min-h-screen bg-slate-950" />;
@@ -1627,28 +1709,12 @@ function HabitTrackerApp() {
     return null;
   }
 
-  const baseName = user?.name || 'User';
-  const displayName = profileOverrides.name ?? baseName;
-  const displayEmail = profileOverrides.email ?? (user?.email ?? '');
-  const userProfile: UserProfile | null = user
-    ? {
-        id: user.id,
-        name: displayName,
-        email: displayEmail,
-        avatar: getInitials(displayName),
-        avatarUrl: user.avatarUrl || undefined,
-        bio: profileOverrides.bio ?? 'Building better habits daily!',
-        joinDate: user.createdAt || getTodayDate(),
-      }
-    : null;
-  const todayMetrics = calculateMetrics();
-
   if (!isSignedIn) {
     return <AuthPage theme={theme} language={language} onLogin={handleLogin} authError={authError} />;
   }
 
   return (
-    <div className={`relative flex h-screen ${themeConfig.bg} ${themeConfig.text} overflow-hidden aurora-panel premium-shell`}>
+    <div className={`relative flex h-[100dvh] ${themeConfig.bg} ${themeConfig.text} overflow-hidden aurora-panel premium-shell`}>
       <div className="mesh-grid opacity-60" />
       <div className={`pointer-events-none absolute -left-20 top-0 h-72 w-72 rounded-full blur-3xl orbital-halo ${theme === 'dark' ? 'bg-amber-500/12' : 'bg-amber-200/45'}`} />
       <div className={`pointer-events-none absolute right-0 top-16 h-80 w-80 rounded-full blur-3xl orbital-halo-reverse ${theme === 'dark' ? 'bg-sky-500/12' : 'bg-sky-200/50'}`} />
@@ -1657,9 +1723,9 @@ function HabitTrackerApp() {
         <>
           <div
             className="fixed inset-0 z-40 bg-[linear-gradient(135deg,rgba(15,23,42,0.52),rgba(15,23,42,0.26))] backdrop-blur-[6px] md:hidden"
-            onClick={() => setMobileSidebarOpen(false)}
+            onClick={closeMobileSidebar}
           />
-          <Sidebar
+          <MemoSidebar
             isOpen
             variant="mobile"
             currentPage={currentPage}
@@ -1671,13 +1737,13 @@ function HabitTrackerApp() {
             onThemeChange={handleThemeChange}
             language={language}
             onLanguageChange={handleLanguageChange}
-            onClose={() => setMobileSidebarOpen(false)}
+            onClose={closeMobileSidebar}
           />
         </>
       )}
 
       {/* Sidebar */}
-      <Sidebar
+      <MemoSidebar
         isOpen={sidebarOpen}
         variant="desktop"
         currentPage={currentPage}
@@ -1694,22 +1760,14 @@ function HabitTrackerApp() {
       {/* Main Content */}
       <main className="min-w-0 flex-1 overflow-auto overflow-x-hidden">
         {!mobileSidebarOpen && (
-          <Header
+          <MemoHeader
             user={userProfile!}
-            onMenuClick={() => setMobileSidebarOpen(true)}
-            onProfileClick={() => setCurrentPage('profile')}
+            onMenuClick={openMobileSidebar}
+            onProfileClick={openProfilePage}
             metrics={todayMetrics}
             theme={theme}
             soundEnabled={soundEnabled}
-            onSoundToggle={() => {
-              setSoundEnabled((prev) => {
-                const nextValue = !prev;
-                if (!nextValue) {
-                  setReminderToast(null);
-                }
-                return nextValue;
-              });
-            }}
+            onSoundToggle={handleSoundToggle}
             language={language}
           />
         )}
@@ -1722,7 +1780,7 @@ function HabitTrackerApp() {
                 <p className={`${themeConfig.textSecondary} text-sm break-words`}>{resetNotice}</p>
               </div>
               <button
-                onClick={() => setResetNotice(null)}
+                onClick={closeResetNotice}
                 className={`icon-button-soft p-2 rounded-lg transition ${themeConfig.hover}`}
                 aria-label={text.closeNotice}
               >
@@ -1743,12 +1801,12 @@ function HabitTrackerApp() {
           <div className="comet-trail top-16 right-[14%] hidden lg:block" />
           <div className="relative">
           {currentPage === 'dashboard' && (
-            <DashboardPage
+            <MemoDashboardPage
               habits={habits}
-              selectedDate={getTodayDate()}
+              selectedDate={todayDateKey}
               metrics={todayMetrics}
               onToggleHabitTimer={handleToggleHabitTimer}
-              onAddHabit={() => setShowAddHabit(true)}
+              onAddHabit={openAddHabit}
               theme={theme}
               themeConfig={themeConfig}
               language={language}
@@ -1756,14 +1814,15 @@ function HabitTrackerApp() {
               isMounted={isMounted}
               isMobile={isMobile}
               activeTimer={activeTimer}
+              liveTimerProgress={liveTimerProgress}
             />
           )}
 
           {currentPage === 'habits' && (
-            <HabitsPage
+            <MemoHabitsPage
               habits={habits}
-              selectedDate={getTodayDate()}
-              onAddHabit={() => setShowAddHabit(true)}
+              selectedDate={todayDateKey}
+              onAddHabit={openAddHabit}
               onDeleteHabit={deleteHabit}
               theme={theme}
               themeConfig={themeConfig}
@@ -1772,7 +1831,7 @@ function HabitTrackerApp() {
           )}
 
           {currentPage === 'calendar' && (
-            <CalendarPage
+            <MemoCalendarPage
               habits={habits}
               currentMonth={currentMonth}
               onMonthChange={handleMonthChange}
@@ -1787,7 +1846,7 @@ function HabitTrackerApp() {
           )}
 
           {currentPage === 'stats' && (
-            <StatsPage
+            <MemoStatsPage
               habits={habits}
               metrics={todayMetrics}
               theme={theme}
@@ -1795,11 +1854,12 @@ function HabitTrackerApp() {
               language={language}
               locale={locale}
               isMounted={isMounted}
+              isMobile={isMobile}
             />
           )}
 
           {currentPage === 'profile' && (
-            <ProfilePage
+            <MemoProfilePage
               user={userProfile!}
               habits={habits}
               onUpdate={updateProfileState}
@@ -1816,11 +1876,11 @@ function HabitTrackerApp() {
 
       {/* Add Habit Modal */}
       {showAddHabit && (
-        <AddHabitModal
-          habit={newHabit}
-          onChange={setNewHabit}
-          onAdd={handleAddHabit}
-          onClose={() => setShowAddHabit(false)}
+          <AddHabitModal
+            habit={newHabit}
+            onChange={setNewHabit}
+            onAdd={handleAddHabit}
+            onClose={closeAddHabit}
           theme={theme}
           themeConfig={themeConfig}
           language={language}
@@ -1832,7 +1892,7 @@ function HabitTrackerApp() {
           themeConfig={themeConfig}
           title={reminderToast.title}
           message={reminderToast.message}
-          onClose={() => setReminderToast(null)}
+            onClose={closeReminderToast}
         />
       )}
 
@@ -1843,7 +1903,7 @@ function HabitTrackerApp() {
           themeConfig={themeConfig}
           title={celebrationToast.title}
           message={celebrationToast.message}
-          onClose={() => setCelebrationToast(null)}
+            onClose={closeCelebrationToast}
         />
       )}
     </div>
@@ -2525,6 +2585,7 @@ function DashboardPage({
   isMounted,
   isMobile,
   activeTimer,
+  liveTimerProgress,
 }: {
   habits: Habit[];
   selectedDate: string;
@@ -2538,11 +2599,13 @@ function DashboardPage({
   isMounted: boolean;
   isMobile: boolean;
   activeTimer: ActiveTimer | null;
+  liveTimerProgress: LiveTimerProgress | null;
 }) {
   const weekDates = getWeekDates(getWeekStartIndex());
   const text = translations[language];
   const selectedDateLabel = formatDate(selectedDate, locale);
   const hasActiveTimer = Boolean(activeTimer);
+  const showDesktopExtras = !isMobile;
   const dashboardCopy = language === 'uz'
     ? {
         badge: 'Habitify ritmi',
@@ -2569,25 +2632,28 @@ function DashboardPage({
   const dashboardSummary = dashboardCopy.summary
     .replace('{progress}', String(metrics.todayProgress))
     .replace('{streak}', String(metrics.currentStreak));
-  const snapshotDates = [-1, 0, 1].map((offset) => {
-    const baseDate = parseLocalDate(getTodayDate());
-    baseDate.setDate(baseDate.getDate() + offset);
-    return formatLocalDate(baseDate);
-  });
-  const weekSnapshot = snapshotDates.map((date) => {
-    const activeHabits = habits.filter((habit) => !habit.createdAt || habit.createdAt <= date);
-    const progress = activeHabits.reduce((sum, habit) => {
-      const completion = habit.completions.find((entry) => entry.date === date);
-      return sum + getHabitProgressRatio(habit, completion);
-    }, 0);
+  const weekSnapshot = useMemo(() => {
+    const snapshotDates = [-1, 0, 1].map((offset) => {
+      const baseDate = parseLocalDate(getTodayDate());
+      baseDate.setDate(baseDate.getDate() + offset);
+      return formatLocalDate(baseDate);
+    });
 
-    return {
-      date,
-      label: parseLocalDate(date).toLocaleDateString(locale, { weekday: 'short' }),
-      progress: Math.round((progress / Math.max(activeHabits.length, 1)) * 100),
-      isSelected: date === selectedDate,
-    };
-  });
+    return snapshotDates.map((date) => {
+      const activeHabits = habits.filter((habit) => !habit.createdAt || habit.createdAt <= date);
+      const progress = activeHabits.reduce((sum, habit) => {
+        const completion = habit.completions.find((entry) => entry.date === date);
+        return sum + getHabitProgressRatio(habit, completion);
+      }, 0);
+
+      return {
+        date,
+        label: parseLocalDate(date).toLocaleDateString(locale, { weekday: 'short' }),
+        progress: Math.round((progress / Math.max(activeHabits.length, 1)) * 100),
+        isSelected: date === selectedDate,
+      };
+    });
+  }, [habits, locale, selectedDate]);
 
   return (
     <div className="space-y-8">
@@ -2767,7 +2833,8 @@ function DashboardPage({
       </section>
 
       {/* Metrics Grid */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      {showDesktopExtras && (
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4 content-auto">
         {/* Progress Card */}
         <div className={`${themeConfig.card} rounded-[26px] p-6 border ${themeConfig.border} shadow-lg spotlight-card hover-lift section-reveal section-delay-1 prism-surface aurora-panel premium-shell edge-glow`}>
           <div className="ambient-specks opacity-30" />
@@ -2861,9 +2928,10 @@ function DashboardPage({
           </button>
         </div>
       </div>
+      )}
 
       {/* Today's Habits */}
-      <div className="section-reveal section-delay-2">
+      <div className="section-reveal section-delay-2 content-auto">
         <h3 className={`text-2xl font-bold ${themeConfig.text} mb-6`}>{text.todaysHabits}</h3>
         {habits.length === 0 ? (
           <div className={`${themeConfig.card} rounded-2xl p-12 border ${themeConfig.border} text-center shadow-lg spotlight-card aurora-panel`}>
@@ -2882,7 +2950,7 @@ function DashboardPage({
             {habits.map((habit: Habit) => {
               const completion = habit.completions.find(c => c.date === selectedDate);
               return (
-                <HabitCard
+                <MemoHabitCard
                   key={`${habit.id}-${selectedDate}`}
                   habit={habit}
                   date={selectedDate}
@@ -2893,6 +2961,7 @@ function DashboardPage({
                   language={language}
                   isMobile={isMobile}
                   activeTimer={activeTimer}
+                  liveTimerProgress={liveTimerProgress}
                 />
               );
             })}
@@ -2901,8 +2970,8 @@ function DashboardPage({
       </div>
 
       {/* Week Overview Chart */}
-      {habits.length > 0 && (
-        <div className={`${themeConfig.card} rounded-[28px] p-6 border ${themeConfig.border} shadow-lg spotlight-card section-reveal section-delay-3 prism-surface aurora-panel premium-shell`}>
+      {showDesktopExtras && habits.length > 0 && (
+        <div className={`${themeConfig.card} rounded-[28px] p-6 border ${themeConfig.border} shadow-lg spotlight-card section-reveal section-delay-3 prism-surface aurora-panel premium-shell content-auto`}>
           <div className="ambient-specks opacity-30" />
           <div className="mb-6 flex items-center justify-between gap-3">
             <h3 className={`${themeConfig.text} font-bold`} style={{ fontFamily: "'Fraunces', 'Space Grotesk', serif" }}>{text.thisWeekOverview}</h3>
@@ -2911,7 +2980,7 @@ function DashboardPage({
             </span>
           </div>
           {isMounted ? (
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={isMobile ? 220 : 300}>
               <BarChart
                 data={weekDates.map((date: string) => ({
                   day: parseLocalDate(date).toLocaleDateString(locale, { weekday: 'short' }),
@@ -2935,7 +3004,13 @@ function DashboardPage({
                     color: theme === 'dark' ? '#e2e8f0' : '#1f2937',
                   }}
                 />
-                <Bar dataKey="progress" fill="url(#colorGradient)" radius={[8, 8, 0, 0]} maxBarSize={42} />
+                <Bar
+                  dataKey="progress"
+                  fill="url(#colorGradient)"
+                  radius={[8, 8, 0, 0]}
+                  maxBarSize={42}
+                  isAnimationActive={!isMobile}
+                />
                 <defs>
                   <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#fbbf24" />
@@ -2946,7 +3021,7 @@ function DashboardPage({
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <div className="h-[300px]" />
+            <div className={isMobile ? 'h-[220px]' : 'h-[300px]'} />
           )}
         </div>
       )}
@@ -2975,18 +3050,22 @@ function HabitsPage({
   const text = translations[language];
   const [searchQuery, setSearchQuery] = useState('');
   const normalizedQuery = searchQuery.trim().toLowerCase();
-  const filteredHabits = normalizedQuery
-    ? habits.filter((habit) => {
-        const name = habit.name.toLowerCase();
-        const category = habit.category.toLowerCase();
-        const categoryLabel = getCategoryLabel(language, habit.category).toLowerCase();
-        return (
-          name.includes(normalizedQuery) ||
-          category.includes(normalizedQuery) ||
-          categoryLabel.includes(normalizedQuery)
-        );
-      })
-    : habits;
+  const filteredHabits = useMemo(
+    () =>
+      normalizedQuery
+        ? habits.filter((habit) => {
+            const name = habit.name.toLowerCase();
+            const category = habit.category.toLowerCase();
+            const categoryLabel = getCategoryLabel(language, habit.category).toLowerCase();
+            return (
+              name.includes(normalizedQuery) ||
+              category.includes(normalizedQuery) ||
+              categoryLabel.includes(normalizedQuery)
+            );
+          })
+        : habits,
+    [habits, language, normalizedQuery]
+  );
   const visibleCount = filteredHabits.length;
   return (
     <div className="max-w-6xl space-y-6">
@@ -3059,7 +3138,7 @@ function HabitsPage({
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 content-auto">
           {filteredHabits.map((habit: Habit) => {
             const completion = habit.completions.find(c => c.date === selectedDate);
             const progress = Math.min(((completion?.current || 0) / habit.goal) * 100, 100);
@@ -3329,6 +3408,7 @@ function StatsPage({
   language,
   locale,
   isMounted,
+  isMobile,
 }: {
   habits: Habit[];
   metrics: Metrics;
@@ -3337,9 +3417,12 @@ function StatsPage({
   language: Language;
   locale: string;
   isMounted: boolean;
+  isMobile: boolean;
 }) {
   const text = translations[language];
-  const getMonthData = () => {
+  const chartHeight = isMobile ? 240 : 300;
+  const enableChartEffects = !isMobile;
+  const monthData = useMemo(() => {
     const today = new Date();
     const data = [];
     for (let i = 29; i >= 0; i--) {
@@ -3357,10 +3440,29 @@ function StatsPage({
       });
     }
     return data;
-  };
+  }, [habits, locale]);
 
-  const completedCount = habits.filter(h => getStreak(h) > 0).length;
-  const activeCount = habits.filter(h => getStreak(h) === 0).length;
+  const habitPerformance = useMemo(
+    () =>
+      habits.map((habit) => {
+        const streak = getStreak(habit);
+        const bestStreak = getBestStreak(habit);
+        const completionRate = Math.round(
+          (habit.completions.filter((entry) => entry.completed).length / Math.max(habit.completions.length, 1)) * 100
+        );
+
+        return {
+          habit,
+          streak,
+          bestStreak,
+          completionRate,
+        };
+      }),
+    [habits]
+  );
+
+  const completedCount = habitPerformance.filter(({ streak }) => streak > 0).length;
+  const activeCount = habitPerformance.length - completedCount;
   const pieData =
     completedCount + activeCount > 0
       ? [
@@ -3419,7 +3521,7 @@ function StatsPage({
       </section>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-4 content-auto">
         {[
           { label: text.totalHabits, value: metrics.totalHabits, color: 'blue' },
           { label: text.completedToday, value: metrics.completedToday, color: 'green' },
@@ -3437,13 +3539,14 @@ function StatsPage({
       </div>
 
       {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {!isMobile && (
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 content-auto">
         {/* 30-Day Trend */}
         <div className={`${themeConfig.card} rounded-[24px] p-6 border ${themeConfig.border} shadow-lg spotlight-card hover-lift section-reveal section-delay-1 prism-surface aurora-panel premium-shell edge-glow`}>
           <h3 className={`${themeConfig.text} font-bold mb-6`}>{text.trend30Days}</h3>
           {isMounted ? (
-            <ResponsiveContainer width="100%" height={300}>
-              <AreaChart data={getMonthData()}>
+            <ResponsiveContainer width="100%" height={chartHeight}>
+              <AreaChart data={monthData}>
                 <defs>
                   <linearGradient id="colorCompleted" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8} />
@@ -3471,11 +3574,12 @@ function StatsPage({
                   stroke="#3b82f6"
                   fillOpacity={1}
                   fill="url(#colorCompleted)"
+                  isAnimationActive={enableChartEffects}
                 />
               </AreaChart>
             </ResponsiveContainer>
           ) : (
-            <div className="h-[300px]" />
+            <div className={isMobile ? 'h-[240px]' : 'h-[300px]'} />
           )}
         </div>
 
@@ -3483,7 +3587,7 @@ function StatsPage({
         <div className={`${themeConfig.card} rounded-[24px] p-6 border ${themeConfig.border} shadow-lg spotlight-card hover-lift section-reveal section-delay-2 prism-surface aurora-panel premium-shell edge-glow`}>
           <h3 className={`${themeConfig.text} font-bold mb-6`}>{text.habitDistribution}</h3>
           {isMounted ? (
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={chartHeight}>
               <PieChart>
                 <defs>
                   <linearGradient id="pieGradientA" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -3517,8 +3621,9 @@ function StatsPage({
                   fill="url(#pieGradientA)"
                   stroke={theme === 'dark' ? '#0b0f14' : '#f8f6f1'}
                   strokeWidth={2}
-                  filter="url(#pieGlow)"
+                  filter={enableChartEffects ? 'url(#pieGlow)' : undefined}
                   dataKey="value"
+                  isAnimationActive={enableChartEffects}
                 >
                   {pieData.map((_, index) => (
                     <Cell
@@ -3530,22 +3635,17 @@ function StatsPage({
               </PieChart>
             </ResponsiveContainer>
           ) : (
-            <div className="h-[300px]" />
+            <div className={isMobile ? 'h-[240px]' : 'h-[300px]'} />
           )}
         </div>
       </div>
+      )}
 
       {/* Habit Details */}
-      <div className={`${themeConfig.card} rounded-[24px] p-6 border ${themeConfig.border} shadow-lg spotlight-card section-reveal section-delay-3 prism-surface premium-shell edge-glow`}>
+      <div className={`${themeConfig.card} rounded-[24px] p-6 border ${themeConfig.border} shadow-lg spotlight-card section-reveal section-delay-3 prism-surface premium-shell edge-glow content-auto`}>
         <h3 className={`${themeConfig.text} font-bold mb-6`}>{text.habitsPerformance}</h3>
         <div className="space-y-4">
-          {habits.map((habit: Habit) => {
-            const streak = getStreak(habit);
-            const bestStreak = getBestStreak(habit);
-            const completionRate = Math.round(
-              (habit.completions.filter(c => c.completed).length / Math.max(habit.completions.length, 1)) * 100
-            );
-
+          {habitPerformance.map(({ habit, streak, bestStreak, completionRate }) => {
             return (
               <div key={habit.id} className={`flex items-center justify-between p-4 ${themeConfig.bgTertiary} rounded-2xl hover-lift section-reveal prism-surface ghost-action`}>
                 <div className="flex items-center gap-3 flex-1">
@@ -3596,6 +3696,8 @@ function ProfilePage({
   const [editData, setEditData] = useState(user);
   const [todayDate] = useState(() => getTodayDate());
   const text = translations[language];
+
+  useBodyScrollLock(isMobile && isMobileEditOpen);
   const profileBadgeSecondary = language === 'uz' ? "Profil bo'limi" : language === 'ru' ? 'Центр профиля' : 'Profile hub';
 
   useEffect(() => {
@@ -3783,8 +3885,8 @@ function ProfilePage({
       </div>
 
       {isMobile && isMobileEditOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[linear-gradient(135deg,rgba(15,23,42,0.62),rgba(15,23,42,0.36))] p-4 backdrop-blur-sm">
-          <div className={`${themeConfig.card} w-full max-w-md rounded-[28px] border ${themeConfig.border} p-6 shadow-2xl max-h-[90vh] overflow-y-auto spotlight-card section-reveal aurora-panel prism-surface`}>
+        <div className="fixed inset-0 z-50 flex items-end justify-center overflow-y-auto overscroll-contain bg-[linear-gradient(135deg,rgba(15,23,42,0.62),rgba(15,23,42,0.36))] p-3 backdrop-blur-sm sm:items-center sm:p-4 sm:backdrop-blur-md">
+          <div className={`${themeConfig.card} mt-auto w-full max-w-md rounded-[24px] border ${themeConfig.border} p-4 shadow-2xl max-h-[calc(100dvh-0.75rem)] overflow-y-auto overscroll-contain spotlight-card section-reveal aurora-panel prism-surface sm:mt-0 sm:max-h-[90vh] sm:rounded-[28px] sm:p-6`}>
             <div className="ambient-specks opacity-35" />
             <div className="flex items-center justify-between mb-4">
               <h3 className={`${themeConfig.text} text-lg font-bold`}>{text.profile}</h3>
@@ -3827,7 +3929,7 @@ function ProfilePage({
               </div>
             </div>
 
-            <div className="mt-6 flex gap-3">
+            <div className={`sticky bottom-0 -mx-4 mt-6 flex gap-3 border-t ${theme === 'dark' ? 'border-slate-700/80 bg-slate-950/95' : 'border-slate-200/80 bg-white/95'} px-4 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))] sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:px-0 sm:pt-0 sm:pb-0`}>
               <button
                 onClick={handleCancel}
                 className={`ghost-action flex-1 px-4 py-2 ${themeConfig.bgTertiary} ${themeConfig.textSecondary} rounded-lg hover:opacity-80 transition`}
@@ -3860,6 +3962,7 @@ function HabitCard({
   language,
   isMobile,
   activeTimer,
+  liveTimerProgress,
 }: {
   habit: Habit;
   date: string;
@@ -3870,10 +3973,11 @@ function HabitCard({
   language: Language;
   isMobile: boolean;
   activeTimer: ActiveTimer | null;
+  liveTimerProgress: LiveTimerProgress | null;
 }) {
-  const currentValue = completion?.current || 0;
-  const percentage = Math.min((currentValue / habit.goal) * 100, 100);
   const isRunning = activeTimer?.habitId === habit.id && activeTimer.date === date;
+  const currentValue = isRunning && liveTimerProgress ? liveTimerProgress.current : completion?.current || 0;
+  const percentage = Math.min((currentValue / habit.goal) * 100, 100);
   const timerLocked = Boolean(activeTimer && activeTimer.habitId !== habit.id);
   const timedHabit = isTimedHabit(habit.unit);
   const elapsedSeconds = timedHabit ? (currentValue / habit.goal) * getHabitGoalSeconds(habit) : 0;
@@ -3887,7 +3991,7 @@ function HabitCard({
   ].filter(Boolean) as string[];
 
   return (
-    <div className={`group relative overflow-hidden rounded-[24px] border ${themeConfig.border} ${themeConfig.card} p-4 shadow-lg transition hover:-translate-y-0.5 hover:border-amber-500/30 spotlight-card hover-lift section-reveal prism-surface aurora-panel premium-shell edge-glow`}>
+    <div className={`group relative overflow-hidden rounded-[24px] border ${themeConfig.border} ${themeConfig.card} p-4 shadow-lg transition hover:-translate-y-0.5 hover:border-amber-500/30 spotlight-card hover-lift section-reveal prism-surface aurora-panel premium-shell edge-glow content-auto`}>
       <div className={`pointer-events-none absolute inset-x-0 top-0 h-20 opacity-80 ${
         theme === 'dark'
           ? 'bg-[radial-gradient(circle_at_top_left,_rgba(245,158,11,0.14),_transparent_58%)]'
@@ -4154,6 +4258,7 @@ function AddHabitModal({
   const units = ['min', 'hours', 'reps', 'km', 'liters', 'count', 'pages'];
   const text = translations[language];
   const selectedIcon = normalizeIcon(habit.icon);
+  useBodyScrollLock(true);
   const modalCopy = language === 'uz'
     ? {
         badgeSecondary: 'Tez sozlash',
@@ -4170,10 +4275,10 @@ function AddHabitModal({
       };
 
   return (
-    <div className={`fixed inset-0 ${theme === 'dark' ? 'bg-[linear-gradient(135deg,rgba(2,6,23,0.72),rgba(15,23,42,0.48))]' : 'bg-[linear-gradient(135deg,rgba(255,247,237,0.72),rgba(255,255,255,0.56))]'} backdrop-blur-md flex items-center justify-center p-4 z-50`}>
-      <div className={`${themeConfig.card} rounded-[30px] p-8 max-w-lg w-full border ${themeConfig.border} max-h-[90vh] overflow-y-auto shadow-2xl spotlight-card section-reveal aurora-panel prism-surface premium-shell edge-glow`}>
+    <div className={`fixed inset-0 ${theme === 'dark' ? 'bg-[linear-gradient(135deg,rgba(2,6,23,0.72),rgba(15,23,42,0.48))]' : 'bg-[linear-gradient(135deg,rgba(255,247,237,0.72),rgba(255,255,255,0.56))]'} flex items-end justify-center overflow-y-auto overscroll-contain p-3 z-50 backdrop-blur-sm sm:items-center sm:p-4 sm:backdrop-blur-md`}>
+      <div className={`${themeConfig.card} mt-auto max-w-lg w-full border ${themeConfig.border} max-h-[calc(100dvh-0.75rem)] overflow-y-auto overscroll-contain rounded-[24px] p-4 shadow-2xl spotlight-card section-reveal aurora-panel prism-surface premium-shell edge-glow sm:mt-0 sm:max-h-[90vh] sm:rounded-[30px] sm:p-8`}>
         <div className="ambient-specks opacity-35" />
-        <div className="mb-6 flex flex-wrap items-center gap-2">
+        <div className="mb-4 flex flex-wrap items-center gap-2 sm:mb-6">
           <span className={`chip-hover rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${
             theme === 'dark' ? 'bg-slate-800/90 text-amber-200' : 'bg-amber-50 text-amber-700'
           }`}>
@@ -4185,10 +4290,10 @@ function AddHabitModal({
             {modalCopy.badgeSecondary}
           </span>
         </div>
-        <div className="mb-6 flex items-start justify-between gap-4">
-          <div>
-            <h2 className={`text-2xl font-bold ${themeConfig.text}`}>{text.addHabitTitle}</h2>
-            <p className={`mt-2 text-sm ${themeConfig.textSecondary}`}>{modalCopy.helper}</p>
+        <div className="mb-5 flex items-start justify-between gap-4 sm:mb-6">
+          <div className="min-w-0">
+            <h2 className={`text-xl font-bold sm:text-2xl ${themeConfig.text}`}>{text.addHabitTitle}</h2>
+            <p className={`mt-2 text-sm leading-6 ${themeConfig.textSecondary}`}>{modalCopy.helper}</p>
           </div>
           <button
             onClick={onClose}
@@ -4230,7 +4335,7 @@ function AddHabitModal({
             </select>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label className={`block text-sm font-medium ${themeConfig.textSecondary} mb-2`}>
                 {text.goal}
@@ -4273,7 +4378,7 @@ function AddHabitModal({
               placeholder="emoji yoki text"
               className={`w-full px-4 py-3 mb-3 ${themeConfig.input} rounded-2xl ${themeConfig.text} placeholder-opacity-50 focus:outline-none focus:ring-2 focus:ring-amber-400`}
             />
-            <div className="grid grid-cols-5 gap-2">
+            <div className="grid grid-cols-4 gap-2 sm:grid-cols-5">
               {habitIcons.map((icon) => (
                 <button
                   key={icon}
@@ -4303,7 +4408,7 @@ function AddHabitModal({
             />
           </div>
 
-          <div className="flex gap-4 mt-8">
+          <div className={`sticky bottom-0 -mx-4 mt-6 flex gap-3 border-t ${theme === 'dark' ? 'border-slate-700/80 bg-slate-950/95' : 'border-slate-200/80 bg-white/95'} px-4 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))] sm:static sm:mx-0 sm:mt-8 sm:border-0 sm:bg-transparent sm:px-0 sm:pt-0 sm:pb-0`}>
             <button
               onClick={onClose}
               className={`ghost-action flex-1 px-4 py-3 ${themeConfig.bgTertiary} ${themeConfig.textSecondary} rounded-2xl hover:opacity-80 transition`}
@@ -4322,5 +4427,50 @@ function AddHabitModal({
     </div>
   );
 }
+
+const areHabitCardPropsEqual = (
+  prev: Parameters<typeof HabitCard>[0],
+  next: Parameters<typeof HabitCard>[0],
+) => {
+  if (
+    prev.habit !== next.habit ||
+    prev.completion !== next.completion ||
+    prev.date !== next.date ||
+    prev.onToggleTimer !== next.onToggleTimer ||
+    prev.theme !== next.theme ||
+    prev.themeConfig !== next.themeConfig ||
+    prev.language !== next.language ||
+    prev.isMobile !== next.isMobile
+  ) {
+    return false;
+  }
+
+  if (!isTimedHabit(next.habit.unit)) {
+    return true;
+  }
+
+  const prevIsRunning = Boolean(prev.activeTimer && prev.activeTimer.habitId === prev.habit.id && prev.activeTimer.date === prev.date);
+  const nextIsRunning = Boolean(next.activeTimer && next.activeTimer.habitId === next.habit.id && next.activeTimer.date === next.date);
+  if (prevIsRunning !== nextIsRunning) {
+    return false;
+  }
+
+  if ((prev.liveTimerProgress?.current ?? null) !== (next.liveTimerProgress?.current ?? null) && (prevIsRunning || nextIsRunning)) {
+    return false;
+  }
+
+  const prevLocked = Boolean(prev.activeTimer && prev.activeTimer.habitId !== prev.habit.id);
+  const nextLocked = Boolean(next.activeTimer && next.activeTimer.habitId !== next.habit.id);
+  return prevLocked === nextLocked;
+};
+
+const MemoSidebar = React.memo(Sidebar);
+const MemoHeader = React.memo(Header);
+const MemoDashboardPage = React.memo(DashboardPage);
+const MemoHabitsPage = React.memo(HabitsPage);
+const MemoCalendarPage = React.memo(CalendarPage);
+const MemoStatsPage = React.memo(StatsPage);
+const MemoProfilePage = React.memo(ProfilePage);
+const MemoHabitCard = React.memo(HabitCard, areHabitCardPropsEqual);
 
 // Animation styles live in app/globals.css to avoid module-level side effects.
