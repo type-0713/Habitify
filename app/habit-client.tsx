@@ -217,15 +217,15 @@ const translations = {
     weekdaysShort: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
   },
   uz: {
-    signInTitle: 'Habitify akkauntiga kiring',
-    signInSubtitle: "Email va parol orqali kiring yoki Google, Apple va Microsoft orqali yangi akkaunt yarating.",
+    signInTitle: 'Habitify hisobiga kiring',
+    signInSubtitle: "Email va parol bilan kiring yoki Google, Apple va Microsoft orqali davom eting.",
     nameLabel: 'Ism',
     emailLabel: 'Email',
-    namePlaceholder: 'Ismingiz',
+    namePlaceholder: 'Ismingizni kiriting',
     emailPlaceholder: 'you@example.com',
-    continueWithGoogle: 'Google orqali akkaunt yaratish',
-    continueWithApple: 'Apple orqali akkaunt yaratish',
-    continueWithGitHub: 'Microsoft orqali akkaunt yaratish',
+    continueWithGoogle: 'Google orqali davom etish',
+    continueWithApple: 'Apple orqali davom etish',
+    continueWithGitHub: 'Microsoft orqali davom etish',
     continueWithEmail: 'Email orqali kirish',
     passwordLabel: 'Parol',
     passwordPlaceholder: 'Parolingizni kiriting',
@@ -242,50 +242,50 @@ const translations = {
     soundOn: 'Ovoz yoqilgan',
     soundOff: "Ovoz o'chirilgan",
     reminderTitle: 'Eslatma',
-    reminderBody: 'Bugun {count} ta odat bajarilmay qoldi.',
+    reminderBody: 'Bugun yana {count} ta odatni bajarishingiz kerak.',
     greetingMorning: 'Xayrli tong',
     greetingAfternoon: 'Xayrli kun',
     greetingEvening: 'Xayrli kech',
     habitsCompletedToday: 'ta odat bugun bajarildi',
-    todaysProgress: 'Bugungi jarayon',
-    complete: 'Bajarildi',
+    todaysProgress: "Bugungi ko'rsatkich",
+    complete: 'Bajarilgan',
     habitsCompleted: 'Bajarilgan odatlar',
-    currentStreak: 'Hozirgi seriya',
+    currentStreak: 'Joriy seriya',
     days: 'kun',
-    best: 'Eng yaxshisi',
+    best: 'Eng yaxshi',
     totalHabits: 'Jami odatlar',
     activeHabits: 'Faol odatlar',
-    addNewHabit: "Yangi odat qo'shish",
+    addNewHabit: 'Yangi odat',
     todaysHabits: 'Bugungi odatlar',
-    noHabitsYet: "Hali odatlar yo'q. Birinchi odatni yarating!",
-    createFirstHabit: 'Birinchi odatni yaratish',
+    noHabitsYet: "Hali odat yo'q. Birinchi odatingizni yarating.",
+    createFirstHabit: 'Birinchi odatni yarating',
     thisWeekOverview: "Haftalik ko'rinish",
     allHabits: 'Barcha odatlar',
     newHabit: 'Yangi odat',
-    searchHabits: 'Odatlarni izlash',
+    searchHabits: 'Odatlarni qidirish',
     searchPlaceholder: "Nomi yoki kategoriya bo'yicha qidiring",
     noHabitsFound: 'Qidiruv bo‘yicha hech narsa topilmadi.',
     clearSearch: 'Qidiruvni tozalash',
-    noHabitsCreated: "Hali odatlar yo'q. Bugun boshlang!",
-    createYourFirstHabit: 'Birinchi odatni yaratish',
+    noHabitsCreated: "Hali odat yaratilmagan. Bugundan boshlang.",
+    createYourFirstHabit: 'Birinchi odatni yarating',
     category: 'Kategoriya',
     goal: 'Maqsad',
     streak: 'Seriya',
     bestStreakLabel: 'Eng yaxshi seriya',
     statisticsTitle: 'Statistika',
     completedToday: 'Bugun bajarildi',
-    trend30Days: '30 kunlik trend',
+    trend30Days: "So'nggi 30 kun",
     habitDistribution: 'Odatlar taqsimoti',
     completed: 'Bajarilgan',
     active: 'Faol',
     habitsPerformance: 'Odatlar samaradorligi',
-    completion: 'Bajarilish',
+    completion: 'Bajarilish darajasi',
     bio: "Qisqacha ma'lumot",
-    joined: "Qo'shilgan",
+    joined: "Qo'shilgan sana",
     totalCompleted: 'Jami bajarilgan',
     accountAge: 'Hisob yoshi',
-    yourHabits: 'Odatlaringiz',
-    noHabitsYetShort: "Hali odatlar yo'q",
+    yourHabits: 'Sizning odatlaringiz',
+    noHabitsYetShort: "Hali odat yo'q",
     completedCount: 'bajarildi',
     completedCheckbox: 'Bajarildi',
     addHabitTitle: "Yangi odat qo'shish",
@@ -295,16 +295,100 @@ const translations = {
     icon: 'Belgi',
     reminderTimeOptional: 'Eslatma vaqti (ixtiyoriy)',
     cancel: 'Bekor qilish',
-    saveChanges: 'Saqlash',
-    addHabit: "Qo'shish",
+    saveChanges: "O'zgarishlarni saqlash",
+    addHabit: "Odat qo'shish",
     monthlyResetTitle: 'Oylik tozalash',
-    resetNoticePrefix: "Mahalliy ma'lumotlar tozalandi",
+    resetNoticePrefix: "Mahalliy ma'lumotlar tozalandi:",
     closeNotice: 'Bildirishnomani yopish',
     weekdaysShort: ['Du', 'Se', 'Ch', 'Pa', 'Ju', 'Sh', 'Ya'],
   },
 };
 
 // Normalize legacy text values that were previously saved with broken encoding.
+Object.assign(translations.ru, {
+  signInTitle: 'Вход в Habitify',
+  signInSubtitle: 'Войдите с помощью email и пароля или продолжите через Google, Apple и Microsoft.',
+  nameLabel: 'Имя',
+  namePlaceholder: 'Ваше имя',
+  continueWithGoogle: 'Продолжить через Google',
+  continueWithApple: 'Продолжить через Apple',
+  continueWithGitHub: 'Продолжить через Microsoft',
+  continueWithEmail: 'Войти через Email',
+  passwordLabel: 'Пароль',
+  passwordPlaceholder: 'Введите пароль',
+  authErrorMissingFields: 'Введите email и пароль.',
+  languageLabel: 'Язык',
+  dashboard: 'Главная',
+  habits: 'Привычки',
+  calendar: 'Календарь',
+  statistics: 'Статистика',
+  profile: 'Профиль',
+  light: 'Светлая',
+  dark: 'Тёмная',
+  logout: 'Выйти',
+  soundOn: 'Звук включён',
+  soundOff: 'Звук выключен',
+  reminderTitle: 'Напоминание',
+  reminderBody: 'Сегодня вам осталось выполнить ещё {count} привычек.',
+  greetingMorning: 'Доброе утро',
+  greetingAfternoon: 'Добрый день',
+  greetingEvening: 'Добрый вечер',
+  habitsCompletedToday: 'привычек выполнено сегодня',
+  todaysProgress: 'Прогресс за сегодня',
+  complete: 'Выполнено',
+  habitsCompleted: 'Выполненные привычки',
+  currentStreak: 'Текущая серия',
+  days: 'дней',
+  best: 'Лучший',
+  totalHabits: 'Всего привычек',
+  activeHabits: 'Активные привычки',
+  addNewHabit: 'Новая привычка',
+  todaysHabits: 'Привычки на сегодня',
+  noHabitsYet: 'Пока нет привычек. Создайте первую привычку.',
+  createFirstHabit: 'Создать первую привычку',
+  thisWeekOverview: 'Обзор недели',
+  allHabits: 'Все привычки',
+  newHabit: 'Новая привычка',
+  searchHabits: 'Поиск привычек',
+  searchPlaceholder: 'Поиск по названию или категории',
+  noHabitsFound: 'Ничего не найдено по вашему запросу.',
+  clearSearch: 'Очистить поиск',
+  noHabitsCreated: 'Привычек пока нет. Начните сегодня.',
+  createYourFirstHabit: 'Создать первую привычку',
+  category: 'Категория',
+  goal: 'Цель',
+  streak: 'Серия',
+  bestStreakLabel: 'Лучшая серия',
+  statisticsTitle: 'Статистика',
+  completedToday: 'Выполнено сегодня',
+  trend30Days: 'Последние 30 дней',
+  habitDistribution: 'Распределение привычек',
+  completed: 'Выполнено',
+  active: 'Активные',
+  habitsPerformance: 'Эффективность привычек',
+  completion: 'Процент выполнения',
+  bio: 'О себе',
+  joined: 'Дата регистрации',
+  totalCompleted: 'Всего выполнено',
+  accountAge: 'Возраст аккаунта',
+  yourHabits: 'Ваши привычки',
+  noHabitsYetShort: 'Привычек пока нет',
+  completedCount: 'выполнено',
+  completedCheckbox: 'Выполнено',
+  addHabitTitle: 'Добавить привычку',
+  habitName: 'Название привычки',
+  habitNamePlaceholder: 'например, Утренняя медитация',
+  unit: 'Единица',
+  icon: 'Иконка',
+  reminderTimeOptional: 'Время напоминания (необязательно)',
+  cancel: 'Отмена',
+  saveChanges: 'Сохранить изменения',
+  addHabit: 'Добавить привычку',
+  monthlyResetTitle: 'Ежемесячная очистка',
+  resetNoticePrefix: 'Локальные данные очищены:',
+  closeNotice: 'Закрыть уведомление',
+  weekdaysShort: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
+});
 translations.uz.noHabitsFound = "Qidiruv bo'yicha hech narsa topilmadi.";
 
 const categoryLabels: Record<Language, Record<string, string>> = {
@@ -438,27 +522,27 @@ type HabitMetaMap = Record<string, HabitMeta>;
 // Theme Configuration
 const themes = {
   dark: {
-    bg: 'bg-gradient-to-br from-[#0b1220] via-[#0c1424] to-[#111b2e]',
-    bgSecondary: 'bg-[linear-gradient(180deg,rgba(15,22,36,0.96)_0%,rgba(11,18,32,0.94)_100%)]',
-    bgTertiary: 'bg-[#121c2f]',
-    border: 'border-[#223049]',
+    bg: 'bg-[radial-gradient(circle_at_top_left,#4a2f08_0%,#1a2030_20%,#0b1220_58%,#08111c_100%)]',
+    bgSecondary: 'bg-[linear-gradient(180deg,rgba(24,20,24,0.96)_0%,rgba(13,20,36,0.95)_16%,rgba(9,17,29,0.97)_100%)]',
+    bgTertiary: 'bg-[linear-gradient(135deg,#1c2539_0%,#111a2a_100%)]',
+    border: 'border-[#34405c]',
     text: 'text-slate-100',
-    textSecondary: 'text-slate-400',
-    card: 'bg-[#0f1929]/85 shadow-[0_20px_60px_-35px_rgba(2,8,23,0.7)]',
-    input: 'bg-[#0f1a2b] border-[#263552] placeholder:text-slate-500',
-    hover: 'hover:bg-[#15233a]',
+    textSecondary: 'text-slate-300/80',
+    card: 'bg-[linear-gradient(160deg,rgba(22,29,44,0.95)_0%,rgba(16,23,37,0.92)_46%,rgba(10,17,30,0.96)_100%)] shadow-[0_30px_90px_-44px_rgba(2,8,23,0.85)]',
+    input: 'bg-[linear-gradient(135deg,rgba(24,33,49,0.98)_0%,rgba(17,24,39,0.97)_100%)] border-[#3b4a6b] placeholder:text-slate-500',
+    hover: 'hover:bg-[#1a2740] focus-visible:bg-[#1a2740]',
     gradient: 'from-amber-300 via-orange-500 to-sky-500',
   },
   light: {
-    bg: 'bg-[linear-gradient(135deg,#f8fbff_0%,#f7fbf8_35%,#fffaf2_100%)]',
-    bgSecondary: 'bg-[linear-gradient(180deg,rgba(255,255,255,0.78)_0%,rgba(247,251,255,0.92)_100%)]',
-    bgTertiary: 'bg-[linear-gradient(135deg,#f3f7ff_0%,#eefaf7_100%)]',
-    border: 'border-[#dfe8f4]',
+    bg: 'bg-[linear-gradient(135deg,#fff3df_0%,#fffdf8_42%,#ebf6ff_100%)]',
+    bgSecondary: 'bg-[linear-gradient(180deg,rgba(255,248,238,0.88)_0%,rgba(255,255,255,0.97)_34%,rgba(239,247,255,0.96)_100%)]',
+    bgTertiary: 'bg-[linear-gradient(135deg,#fff8ee_0%,#f3f9ff_100%)]',
+    border: 'border-[#d9e4f2]',
     text: 'text-slate-900',
     textSecondary: 'text-slate-600',
-    card: 'bg-[linear-gradient(135deg,rgba(255,255,255,0.95)_0%,rgba(248,251,255,0.92)_55%,rgba(245,252,248,0.95)_100%)] shadow-[0_22px_60px_-35px_rgba(30,58,138,0.20)]',
-    input: 'bg-white border-[#d6deee] placeholder:text-slate-400',
-    hover: 'hover:bg-[#edf3ff]',
+    card: 'bg-[linear-gradient(135deg,rgba(255,250,243,0.98)_0%,rgba(255,255,255,0.97)_42%,rgba(241,248,255,0.99)_100%)] shadow-[0_26px_80px_-42px_rgba(71,85,105,0.24)]',
+    input: 'bg-[linear-gradient(135deg,#fffdf8_0%,#ffffff_52%,#f4f9ff_100%)] border-[#d5e0ef] placeholder:text-slate-400',
+    hover: 'hover:bg-[#edf3ff] focus-visible:bg-[#edf3ff]',
     gradient: 'from-amber-400 via-orange-500 to-sky-500',
   },
 };
@@ -1564,7 +1648,7 @@ function HabitTrackerApp() {
   }
 
   return (
-    <div className={`relative flex h-screen ${themeConfig.bg} ${themeConfig.text} overflow-hidden aurora-panel`}>
+    <div className={`relative flex h-screen ${themeConfig.bg} ${themeConfig.text} overflow-hidden aurora-panel premium-shell`}>
       <div className="mesh-grid opacity-60" />
       <div className={`pointer-events-none absolute -left-20 top-0 h-72 w-72 rounded-full blur-3xl orbital-halo ${theme === 'dark' ? 'bg-amber-500/12' : 'bg-amber-200/45'}`} />
       <div className={`pointer-events-none absolute right-0 top-16 h-80 w-80 rounded-full blur-3xl orbital-halo-reverse ${theme === 'dark' ? 'bg-sky-500/12' : 'bg-sky-200/50'}`} />
@@ -1632,7 +1716,7 @@ function HabitTrackerApp() {
 
         {resetNotice && (
           <div className="px-6 md:px-8 pt-4">
-            <div className={`${themeConfig.card} spotlight-card section-reveal rounded-xl p-4 border ${themeConfig.border} shadow-lg flex items-start justify-between gap-4`}>
+            <div className={`${themeConfig.card} spotlight-card section-reveal rounded-[24px] p-4 border ${themeConfig.border} shadow-lg flex items-start justify-between gap-4 prism-surface premium-shell`}>
               <div className="min-w-0">
                 <p className={`${themeConfig.text} font-semibold`}>{text.monthlyResetTitle}</p>
                 <p className={`${themeConfig.textSecondary} text-sm break-words`}>{resetNotice}</p>
@@ -1648,7 +1732,7 @@ function HabitTrackerApp() {
           </div>
         )}
 
-        <div className={`relative w-full rounded-[28px] p-4 sm:p-5 md:p-8 max-w-7xl mx-auto section-reveal aurora-panel ${themeConfig.bgSecondary}`}>
+        <div className={`relative w-full rounded-[32px] p-4 sm:p-5 md:p-8 max-w-7xl mx-auto section-reveal aurora-panel premium-shell edge-glow glass-lux border ${theme === 'dark' ? 'border-white/6' : 'border-white/70'} ${themeConfig.bgSecondary}`}>
           <div className="mesh-grid opacity-40" />
           <div className={`pointer-events-none absolute -top-20 right-0 h-48 w-48 rounded-full blur-3xl ${
             theme === 'dark' ? 'bg-amber-500/10' : 'bg-amber-200/50'
@@ -1784,20 +1868,20 @@ function AuthPage({
   const [showPassword, setShowPassword] = useState(false);
   const authCopy = language === 'uz'
     ? {
-        badge: 'SIGN IN',
-        socialLabel: 'Quyidagilar orqali akkaunt yarating',
-        microsoftLabel: 'Microsoft orqali akkaunt yaratish',
-        featureTitle: 'Aniq ritm',
+        badge: 'KIRISH',
+        socialLabel: 'Quyidagilar orqali davom eting',
+        microsoftLabel: 'Microsoft orqali davom etish',
+        featureTitle: 'Kunlik tartib',
         featureDescription: "Odatlaringizni sodda, tez va chiroyli boshqaruv paneli orqali kuzating.",
         highlights: [
-          'Tez start va pauza oqimi',
-          'Kunlik jarayon foizi',
-          "Mobil va kompyuterga mos ko'rinish",
+          'Tez boshlash va pauza boshqaruvi',
+          "Kunlik bajarilish ko'rsatkichi",
+          "Mobil va kompyuter uchun mos dizayn",
         ],
       }
     : language === 'ru'
     ? {
-        badge: 'SIGN IN',
+        badge: 'ВХОД',
         socialLabel: 'Create account with',
         microsoftLabel: 'Create account with Microsoft',
         featureTitle: 'Daily clarity',
@@ -1834,7 +1918,7 @@ function AuthPage({
       <div className="comet-trail left-[8%] top-16 hidden xl:block" />
 
       <div className="relative w-full max-w-5xl section-reveal">
-        <div className={`${theme === 'dark' ? 'bg-slate-900/70 border-slate-800' : 'bg-white/85 border-amber-100'} spotlight-card glow-pulse aurora-panel prism-surface rounded-[32px] border shadow-[0_30px_80px_-40px_rgba(15,23,42,0.35)] overflow-hidden backdrop-blur-xl`}>
+        <div className={`${theme === 'dark' ? 'bg-slate-900/72 border-slate-800' : 'bg-white/88 border-amber-100'} spotlight-card glow-pulse aurora-panel prism-surface premium-shell edge-glow rounded-[32px] border shadow-[0_30px_80px_-40px_rgba(15,23,42,0.35)] overflow-hidden backdrop-blur-xl`}>
           <div className="ambient-specks opacity-40" />
           <div className="grid gap-0 md:grid-cols-[1.25fr_1fr]">
               <div className="relative p-7 md:p-10 section-reveal section-delay-1">
@@ -2045,7 +2129,7 @@ function Sidebar({
     isMobile
       ? 'flex md:hidden fixed inset-y-3 left-3 z-50 rounded-[32px] border shadow-[0_30px_70px_-30px_rgba(15,23,42,0.6)]'
       : 'hidden md:flex'
-  } ${widthClass} ${theme === 'dark' ? 'bg-slate-800/88 border-slate-700' : 'bg-white/96 shadow-xl border-slate-200'} spotlight-card section-reveal backdrop-blur-xl ${isMobile ? '' : 'border-r'} transition-all duration-300 flex flex-col overflow-y-auto`;
+  } ${widthClass} ${theme === 'dark' ? 'bg-slate-800/88 border-slate-700' : 'bg-white/96 shadow-xl border-slate-200'} spotlight-card section-reveal backdrop-blur-xl aurora-panel prism-surface premium-shell edge-glow ${isMobile ? '' : 'border-r'} transition-all duration-300 flex flex-col overflow-y-auto`;
   const menuItems: { id: Page; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
     { id: 'dashboard', label: text.dashboard, icon: Home },
     { id: 'habits', label: text.habits, icon: ListTodo },
@@ -2073,10 +2157,15 @@ function Sidebar({
       <div className={`relative p-6 border-b ${themeConfig.border}`}>
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-amber-400 via-orange-500 to-sky-500 rounded-lg flex items-center justify-center flex-shrink-0 shadow-lg">
+            <div className="w-11 h-11 bg-gradient-to-br from-amber-400 via-orange-500 to-sky-500 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-[0_18px_35px_-18px_rgba(249,115,22,0.8)] ring-1 ring-white/20">
               <Check className="w-6 h-6 text-white" />
             </div>
-            {showLabels && <h1 className={`text-xl font-bold ${themeConfig.text}`}>Habitify</h1>}
+            {showLabels && (
+              <div>
+                <h1 className={`text-xl font-bold ${themeConfig.text}`} style={{ fontFamily: "'Fraunces', 'Space Grotesk', serif" }}>Habitify</h1>
+                <p className={`text-[11px] uppercase tracking-[0.22em] ${themeConfig.textSecondary}`}>Focus system</p>
+              </div>
+            )}
           </div>
           {isMobile && onClose && (
             <button
@@ -2091,15 +2180,15 @@ function Sidebar({
       </div>
 
       {/* Menu Items */}
-      <nav className="relative flex-1 p-4 space-y-2">
+      <nav className="relative flex-1 p-4 space-y-2.5">
         {menuItems.map((item) => (
           <button
             key={item.id}
             onClick={() => handlePageChange(item.id)}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl hover-lift transition ${
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-[20px] border hover-lift transition ${
               currentPage === item.id
-                ? 'bg-gradient-to-r from-amber-400 via-orange-500 to-sky-500 text-white shadow-lg'
-                : `${themeConfig.textSecondary} ${themeConfig.hover}`
+                ? 'border-white/0 bg-gradient-to-r from-amber-400 via-orange-500 to-sky-500 text-white shadow-[0_22px_40px_-24px_rgba(249,115,22,0.85)]'
+                : `${theme === 'dark' ? 'border-slate-700/70 bg-slate-900/35' : 'border-white/80 bg-white/60'} ${themeConfig.textSecondary} ${themeConfig.hover} glass-lux`
             }`}
           >
             <item.icon className="w-5 h-5 flex-shrink-0" />
@@ -2117,10 +2206,10 @@ function Sidebar({
       <div className={`relative p-4 border-t ${themeConfig.border}`}>
         <button
           onClick={() => onThemeChange(theme === 'dark' ? 'light' : 'dark')}
-          className={`w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition ${
+          className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-[20px] border transition ${
             theme === 'dark' 
-              ? 'bg-slate-700/50 text-yellow-400 hover:bg-slate-700' 
-              : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+              ? 'border-slate-700 bg-slate-900/45 text-amber-300 hover:bg-slate-800/90' 
+              : 'border-white/80 bg-white/70 text-slate-700 hover:bg-white'
           }`}
         >
           {theme === 'dark' ? (
@@ -2135,15 +2224,17 @@ function Sidebar({
       {/* Language Toggle */}
       <div className={`relative p-4 border-t ${themeConfig.border}`}>
         {showLabels && <p className={`text-xs ${themeConfig.textSecondary} mb-2`}>{text.languageLabel}</p>}
-        <div className={`flex ${showLabels ? 'gap-2' : 'flex-col gap-2 items-center'}`}>
+        <div className={`flex rounded-[20px] border p-1 ${theme === 'dark' ? 'border-slate-700 bg-slate-900/45' : 'border-white/80 bg-white/70'} ${showLabels ? 'gap-1' : 'flex-col gap-1 items-center'}`}>
           {(['en', 'ru', 'uz'] as Language[]).map((lang) => (
             <button
               key={lang}
               onClick={() => onLanguageChange(lang)}
-              className={`px-2 py-1 rounded-lg text-xs font-medium transition ${
+              className={`px-3 py-1.5 rounded-2xl text-xs font-medium transition ${
                 language === lang
-                  ? 'bg-amber-500 text-white shadow'
-                  : `${themeConfig.bgTertiary} ${themeConfig.textSecondary} hover:opacity-80`
+                  ? theme === 'dark'
+                    ? 'border border-amber-400/25 bg-[linear-gradient(135deg,rgba(245,158,11,0.18),rgba(56,189,248,0.18))] text-slate-50 shadow-[0_14px_28px_-20px_rgba(56,189,248,0.45)]'
+                    : 'border border-amber-200 bg-[linear-gradient(135deg,#fff0c7,#edf7ff)] text-slate-800 shadow-[0_14px_28px_-20px_rgba(245,158,11,0.28)]'
+                  : `${themeConfig.textSecondary} ${themeConfig.hover}`
               }`}
             >
               {lang.toUpperCase()}
@@ -2154,7 +2245,8 @@ function Sidebar({
 
       {/* User Profile */}
       <div className={`relative p-4 border-t ${themeConfig.border} space-y-4`}>
-        <div className={`flex items-center gap-3 ${!showLabels && 'justify-center'}`}>
+        <div className={`rounded-[24px] border p-3 glass-lux ${theme === 'dark' ? 'border-slate-700 bg-slate-900/45' : 'border-white/80 bg-white/68'}`}>
+          <div className={`flex items-center gap-3 ${!showLabels && 'justify-center'}`}>
           <div className="w-10 h-10 bg-gradient-to-br from-amber-300 via-orange-400 to-sky-500 rounded-full flex items-center justify-center text-base font-semibold shadow-lg overflow-hidden ring-2 ring-orange-300/40 shrink-0">
             {user.avatarUrl ? (
               <Image
@@ -2175,6 +2267,7 @@ function Sidebar({
               <p className={`text-xs ${themeConfig.textSecondary} truncate`}>{user.email}</p>
             </div>
           )}
+          </div>
         </div>
 
         <button
@@ -2184,7 +2277,7 @@ function Sidebar({
               onClose();
             }
           }}
-          className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-lg transition text-sm font-medium"
+          className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-[20px] border border-red-500/15 transition text-sm font-medium"
         >
           <LogOut className="w-4 h-4" />
           {showLabels && text.logout}
@@ -2230,19 +2323,19 @@ function Header({
   ];
 
   return (
-    <header className="sticky top-0 z-50 px-3 pt-3 sm:px-4 sm:pt-4">
+    <header className="sticky top-0 z-50 px-2.5 pt-2.5 sm:px-4 sm:pt-4">
       <div
-        className={`mx-auto max-w-7xl rounded-[28px] border px-3 py-3 shadow-[0_20px_60px_-32px_rgba(15,23,42,0.45)] backdrop-blur-2xl transition sm:px-5 sm:py-4 ${
+        className={`mx-auto max-w-7xl rounded-[24px] border px-2.5 py-2.5 shadow-[0_20px_60px_-32px_rgba(15,23,42,0.45)] backdrop-blur-2xl transition sm:rounded-[28px] sm:px-5 sm:py-4 ${
           theme === 'dark'
             ? 'border-slate-700/80 bg-slate-900/72'
             : 'border-white/80 bg-white/82 shadow-[0_24px_60px_-34px_rgba(15,23,42,0.22)]'
-        } section-reveal spotlight-card aurora-panel prism-surface`}
+        } section-reveal spotlight-card aurora-panel prism-surface premium-shell edge-glow`}
       >
         <div className="ambient-specks opacity-40" />
-        <div className="flex items-start justify-between gap-3 md:items-center md:gap-4">
+        <div className="flex items-center justify-between gap-2.5 md:gap-4">
           <button
             onClick={onMenuClick}
-            className={`md:hidden flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border transition ${themeConfig.hover} ${
+            className={`md:hidden flex h-10 w-10 shrink-0 items-center justify-center rounded-[18px] border transition sm:h-11 sm:w-11 sm:rounded-2xl ${themeConfig.hover} ${
               theme === 'dark' ? 'border-slate-700 bg-slate-800/85 text-slate-100' : 'border-slate-200 bg-white/90 text-slate-700'
             }`}
             aria-label="Open menu"
@@ -2334,7 +2427,7 @@ function Header({
             <button
               type="button"
               onClick={onProfileClick}
-              className={`flex items-center gap-3 rounded-2xl border p-1.5 transition hover-lift md:min-w-[210px] md:justify-between sm:px-2 sm:py-1.5 ${
+              className={`flex items-center gap-2 rounded-[18px] border p-1 transition hover-lift md:min-w-[210px] md:justify-between sm:gap-3 sm:rounded-2xl sm:px-2 sm:py-1.5 ${
                 theme === 'dark' ? 'border-slate-700 bg-slate-800/80' : 'border-slate-200 bg-white/92'
               }`}
               aria-label={text.profile}
@@ -2343,7 +2436,7 @@ function Header({
                 <p className={`max-w-[132px] truncate text-sm font-semibold ${themeConfig.text}`}>{user.name}</p>
                 <p className={`text-[11px] ${themeConfig.textSecondary}`}>{text.profile}</p>
               </div>
-              <div className="h-10 w-10 overflow-hidden rounded-2xl bg-gradient-to-br from-amber-300 via-orange-400 to-sky-500 text-sm font-semibold text-white shadow-lg ring-2 ring-orange-300/40 float-gentle">
+              <div className="h-9 w-9 overflow-hidden rounded-[18px] bg-gradient-to-br from-amber-300 via-orange-400 to-sky-500 text-sm font-semibold text-white shadow-lg ring-2 ring-orange-300/40 float-gentle sm:h-10 sm:w-10 sm:rounded-2xl">
                 {user.avatarUrl ? (
                   <Image
                     src={user.avatarUrl}
@@ -2363,40 +2456,54 @@ function Header({
           </div>
         </div>
 
-        <div className="mt-3 min-w-0 md:hidden">
-          <h2 className={`truncate text-sm font-bold leading-tight sm:text-xl ${themeConfig.text}`}>
-            {getGreeting(language)}, {user.name}!
-          </h2>
-          <p className={`${themeConfig.textSecondary} mt-1 text-[11px] sm:text-sm`}>
-            {metrics.completedToday} / {metrics.totalHabits} {text.habitsCompletedToday}
-          </p>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {headerPills.slice(0, 2).map((pill) => (
+        <div className="mt-2.5 md:hidden">
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+            <div
+              className={`inline-flex max-w-[58vw] shrink-0 items-center gap-2 rounded-[18px] border px-3 py-2 prism-surface ${
+                theme === 'dark' ? 'border-slate-700 bg-slate-800/80' : 'border-slate-200 bg-white/90'
+              }`}
+            >
+              <span className={`truncate text-sm font-semibold ${themeConfig.text}`}>
+                {getGreeting(language)}, {user.name}!
+              </span>
+              <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${theme === 'dark' ? 'bg-amber-300' : 'bg-amber-500'}`} />
+              <span className={`shrink-0 text-[11px] font-medium ${themeConfig.textSecondary}`}>
+                {metrics.completedToday}/{metrics.totalHabits}
+              </span>
+            </div>
+
+            {headerPills.slice(0, 2).map((pill, index) => (
               <span
                 key={pill}
-                className={`rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] ${
-                  theme === 'dark' ? 'bg-slate-800 text-slate-300' : 'bg-slate-100 text-slate-700'
+                className={`shrink-0 rounded-full px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] ${
+                  index === 1
+                    ? theme === 'dark'
+                      ? 'bg-amber-500/12 text-amber-200'
+                      : 'bg-amber-50 text-amber-700'
+                    : theme === 'dark'
+                    ? 'bg-slate-800 text-slate-300'
+                    : 'bg-slate-100 text-slate-700'
                 }`}
               >
                 {pill}
               </span>
             ))}
-          </div>
-        </div>
 
-        <div className="mt-3 flex items-center gap-2 md:hidden">
-          <span
-            className={`inline-flex shrink-0 items-center rounded-full px-2.5 py-1 text-[11px] font-semibold ${
-              theme === 'dark' ? 'bg-amber-500/14 text-amber-200' : 'bg-amber-50 text-amber-700'
-            }`}
-          >
-            {completionRatio}% {text.complete.toLowerCase()}
-          </span>
-          <div className={`h-2 flex-1 overflow-hidden rounded-full ${theme === 'dark' ? 'bg-slate-700' : 'bg-slate-200'}`}>
             <div
-              className="h-full rounded-full bg-gradient-to-r from-amber-400 via-orange-500 to-sky-500 transition-all duration-500"
-              style={{ width: `${completionRatio}%` }}
-            />
+              className={`inline-flex shrink-0 items-center gap-2 rounded-full px-2.5 py-1.5 ${
+                theme === 'dark' ? 'bg-amber-500/14 text-amber-200' : 'bg-amber-50 text-amber-700'
+              }`}
+            >
+              <span className="text-[11px] font-semibold">
+                {completionRatio}% {text.complete.toLowerCase()}
+              </span>
+              <div className={`h-1.5 w-16 overflow-hidden rounded-full ${theme === 'dark' ? 'bg-slate-700' : 'bg-slate-200'}`}>
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-amber-400 via-orange-500 to-sky-500 transition-all duration-500"
+                  style={{ width: `${completionRatio}%` }}
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -2439,9 +2546,9 @@ function DashboardPage({
   const dashboardCopy = language === 'uz'
     ? {
         badge: 'Habitify ritmi',
-        summary: 'Bugungi jarayon {progress}% ga yetdi va seriya {streak} kun davom etmoqda.',
-        timerActive: 'Hozir faol taymer ishlayapti.',
-        timerIdle: 'Hozircha taymer ishga tushmagan.',
+        summary: "Bugungi ko'rsatkich {progress}% ga yetdi, joriy seriya esa {streak} kunni tashkil etmoqda.",
+        timerActive: 'Hozir bitta faol taymer ishlayapti.',
+        timerIdle: 'Hozircha hech bir taymer ishga tushmagan.',
         bestPulse: 'Eng yaxshi seriya',
       }
     : language === 'ru'
@@ -2460,9 +2567,14 @@ function DashboardPage({
         bestPulse: 'Best streak',
       };
   const dashboardSummary = dashboardCopy.summary
-    .replace('{progress}', String(metrics.weeklyCompletion))
+    .replace('{progress}', String(metrics.todayProgress))
     .replace('{streak}', String(metrics.currentStreak));
-  const weekSnapshot = weekDates.map((date) => {
+  const snapshotDates = [-1, 0, 1].map((offset) => {
+    const baseDate = parseLocalDate(getTodayDate());
+    baseDate.setDate(baseDate.getDate() + offset);
+    return formatLocalDate(baseDate);
+  });
+  const weekSnapshot = snapshotDates.map((date) => {
     const activeHabits = habits.filter((habit) => !habit.createdAt || habit.createdAt <= date);
     const progress = activeHabits.reduce((sum, habit) => {
       const completion = habit.completions.find((entry) => entry.date === date);
@@ -2492,8 +2604,8 @@ function DashboardPage({
         }`} />
         <div className={`pointer-events-none absolute inset-y-0 left-0 w-1/2 ${
           theme === 'dark'
-            ? 'bg-[radial-gradient(circle_at_bottom_left,_rgba(16,185,129,0.12),_transparent_55%)]'
-            : 'bg-[radial-gradient(circle_at_bottom_left,_rgba(16,185,129,0.10),_transparent_58%)]'
+            ? 'bg-[radial-gradient(circle_at_bottom_left,_rgba(245,158,11,0.14),_transparent_55%)]'
+            : 'bg-[radial-gradient(circle_at_bottom_left,_rgba(245,158,11,0.12),_transparent_58%)]'
         }`} />
         <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl">
@@ -2504,7 +2616,7 @@ function DashboardPage({
             }`}>
               {dashboardCopy.badge}
             </div>
-            <h3 className={`mt-4 text-3xl font-bold leading-tight ${themeConfig.text}`}>
+            <h3 className={`mt-4 text-3xl font-bold leading-tight ${themeConfig.text}`} style={{ fontFamily: "'Fraunces', 'Space Grotesk', serif" }}>
               {text.todaysHabits}
             </h3>
             <p className={`mt-2 text-sm ${themeConfig.textSecondary}`}>{selectedDateLabel}</p>
@@ -2521,8 +2633,8 @@ function DashboardPage({
                     ? 'bg-amber-500/12 text-amber-200'
                     : 'bg-amber-50 text-amber-700'
                   : theme === 'dark'
-                  ? 'bg-amber-500/12 text-amber-200'
-                  : 'bg-amber-50 text-amber-700'
+                  ? 'bg-sky-500/12 text-sky-200'
+                  : 'bg-sky-50 text-sky-700'
               }`}>
                 {hasActiveTimer ? dashboardCopy.timerActive : dashboardCopy.timerIdle}
               </span>
@@ -2532,7 +2644,7 @@ function DashboardPage({
                 theme === 'dark' ? 'border-slate-700 bg-slate-900/70' : 'border-slate-200 bg-white/85'
               }`}>
                 <p className={`text-[11px] uppercase tracking-[0.18em] ${themeConfig.textSecondary}`}>{text.todaysProgress}</p>
-                <p className={`mt-1 text-xl font-bold ${themeConfig.text}`}>{metrics.weeklyCompletion}%</p>
+                <p className={`mt-1 text-xl font-bold ${themeConfig.text}`}>{metrics.todayProgress}%</p>
               </div>
               <div className={`rounded-2xl border px-4 py-3 hover-lift section-reveal section-delay-2 glass-band prism-surface ${
                 theme === 'dark' ? 'border-slate-700 bg-slate-900/70' : 'border-slate-200 bg-white/85'
@@ -2547,11 +2659,11 @@ function DashboardPage({
                 <p className={`mt-1 text-xl font-bold ${themeConfig.text}`}>{metrics.totalHabits}</p>
               </div>
             </div>
-            <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-7">
+            <div className="mt-5 grid grid-cols-3 gap-2 sm:max-w-md">
               {weekSnapshot.map((item, index) => (
                 <div
                   key={item.date}
-                  className={`rounded-2xl border px-3 py-3 section-reveal ${
+                  className={`min-w-0 rounded-2xl border px-2.5 py-3 section-reveal ${
                     index % 4 === 0 ? 'section-delay-1' : index % 4 === 1 ? 'section-delay-2' : index % 4 === 2 ? 'section-delay-3' : 'section-delay-4'
                   } ${
                     item.isSelected
@@ -2563,8 +2675,8 @@ function DashboardPage({
                       : 'border-white/80 bg-white/80'
                   }`}
                 >
-                  <div className="flex items-center justify-between gap-2">
-                    <p className={`text-[11px] font-semibold uppercase tracking-[0.12em] ${themeConfig.textSecondary}`}>{item.label}</p>
+                  <div className="flex flex-col items-start gap-1 min-w-0">
+                    <p className={`max-w-full truncate text-[10px] font-semibold uppercase tracking-[0.12em] ${themeConfig.textSecondary}`}>{item.label}</p>
                     <span className={`text-[11px] font-semibold ${themeConfig.text}`}>{item.progress}%</span>
                   </div>
                   <div className={`mt-3 h-1.5 overflow-hidden rounded-full ${theme === 'dark' ? 'bg-slate-700' : 'bg-slate-200'}`}>
@@ -2578,7 +2690,7 @@ function DashboardPage({
             </div>
           </div>
 
-          <div className={`grid gap-3 rounded-[28px] border p-4 sm:min-w-[360px] section-reveal section-delay-2 spotlight-card aurora-panel prism-surface ${
+          <div className={`grid w-full gap-3 rounded-[28px] border p-4 sm:min-w-[360px] section-reveal section-delay-2 spotlight-card aurora-panel prism-surface ${
             theme === 'dark' ? 'border-slate-700 bg-slate-900/80' : 'border-white/80 bg-white/90'
           }`}>
             <div className="mesh-grid opacity-30" />
@@ -2586,39 +2698,45 @@ function DashboardPage({
             <div className={`relative overflow-hidden rounded-[24px] border px-4 py-4 ${
               theme === 'dark' ? 'border-slate-700 bg-slate-950/35' : 'border-slate-200 bg-white/82'
             }`}>
-              <div className={`pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full blur-2xl ${theme === 'dark' ? 'bg-sky-500/18' : 'bg-sky-200/70'} ring-pulse`} />
+              <div className={`pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full blur-2xl ${theme === 'dark' ? 'bg-amber-500/18' : 'bg-amber-200/70'} ring-pulse`} />
               <p className={`text-[11px] uppercase tracking-[0.2em] ${themeConfig.textSecondary}`}>{text.todaysProgress}</p>
-              <div className="mt-2 flex items-end justify-between gap-3">
-                <div>
-                  <p className={`text-4xl font-bold leading-none ${themeConfig.text}`}>{metrics.weeklyCompletion}%</p>
-                  <p className={`mt-2 text-xs ${themeConfig.textSecondary}`}>{metrics.completedToday}/{metrics.totalHabits} {text.habitsCompleted}</p>
+              <div className="mt-3 flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <p className={`text-[2.75rem] font-bold leading-none sm:text-4xl ${themeConfig.text}`}>{metrics.todayProgress}%</p>
+                  <p className={`mt-2 text-sm ${themeConfig.textSecondary}`}>{metrics.completedToday}/{metrics.totalHabits} {text.habitsCompleted}</p>
                 </div>
-                <div className={`flex h-14 w-14 items-center justify-center rounded-2xl ${
+                <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-[20px] sm:h-14 sm:w-14 sm:rounded-2xl ${
                   hasActiveTimer
                     ? theme === 'dark'
                       ? 'bg-amber-500/15 text-amber-300'
                       : 'bg-amber-50 text-amber-700'
                     : theme === 'dark'
-                    ? 'bg-amber-500/12 text-amber-200'
-                    : 'bg-amber-50 text-amber-700'
+                    ? 'bg-sky-500/12 text-sky-200'
+                    : 'bg-sky-50 text-sky-700'
                 }`}>
                   {hasActiveTimer ? <Pause className="h-6 w-6" /> : <Sparkles className="h-6 w-6" />}
                 </div>
               </div>
+              <div className={`mt-4 h-2 overflow-hidden rounded-full ${theme === 'dark' ? 'bg-slate-700' : 'bg-slate-200'}`}>
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-amber-400 via-orange-500 to-sky-500 transition-all duration-500"
+                  style={{ width: `${metrics.todayProgress}%` }}
+                />
+              </div>
             </div>
-            <div className="flex items-center justify-between gap-3">
-              <div>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0">
                 <p className={`text-xs uppercase tracking-[0.18em] ${themeConfig.textSecondary}`}>{text.habitsCompleted}</p>
                 <p className={`mt-1 text-2xl font-bold ${themeConfig.text}`}>{metrics.completedToday}/{metrics.totalHabits}</p>
               </div>
               <button
                 onClick={onAddHabit}
-                className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-amber-400 via-orange-500 to-sky-500 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-orange-500/20 transition hover:scale-[1.02]"
-                >
-                  <Plus className="h-4 w-4" />
-                  {text.addNewHabit}
-                </button>
-              </div>
+                className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-amber-400 via-orange-500 to-sky-500 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-orange-500/20 transition hover:scale-[1.02] sm:w-auto"
+              >
+                <Plus className="h-4 w-4" />
+                {text.addNewHabit}
+              </button>
+            </div>
             <div className={`grid grid-cols-3 gap-2`}>
               <div className={`glass-band rounded-2xl px-3 py-3 prism-surface ${theme === 'dark' ? 'bg-slate-950/20' : 'bg-white/85'}`}>
                 <p className={`text-[11px] uppercase tracking-[0.18em] ${themeConfig.textSecondary}`}>{dashboardCopy.bestPulse}</p>
@@ -2651,11 +2769,11 @@ function DashboardPage({
       {/* Metrics Grid */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {/* Progress Card */}
-        <div className={`${themeConfig.card} rounded-[26px] p-6 border ${themeConfig.border} shadow-lg spotlight-card hover-lift section-reveal section-delay-1 prism-surface aurora-panel`}>
+        <div className={`${themeConfig.card} rounded-[26px] p-6 border ${themeConfig.border} shadow-lg spotlight-card hover-lift section-reveal section-delay-1 prism-surface aurora-panel premium-shell edge-glow`}>
           <div className="ambient-specks opacity-30" />
           <div className="mb-4 flex items-center justify-between gap-3">
             <h3 className={`${themeConfig.textSecondary} text-sm font-medium`}>{text.todaysProgress}</h3>
-            <div className={`flex h-10 w-10 items-center justify-center rounded-2xl ${theme === 'dark' ? 'bg-sky-500/12 text-sky-300' : 'bg-sky-50 text-sky-700'}`}>
+            <div className={`flex h-10 w-10 items-center justify-center rounded-2xl ${theme === 'dark' ? 'bg-amber-500/12 text-amber-200' : 'bg-amber-50 text-amber-700'}`}>
               <BarChart3 className="h-5 w-5" />
             </div>
           </div>
@@ -2677,19 +2795,20 @@ function DashboardPage({
                   stroke="url(#gradient1)"
                   strokeWidth="8"
                   fill="none"
-                  strokeDasharray={`${(metrics.weeklyCompletion / 100) * 251.2} 251.2`}
+                  strokeDasharray={`${(metrics.todayProgress / 100) * 251.2} 251.2`}
                   strokeLinecap="round"
                 />
                 <defs>
                   <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#3b82f6" />
-                    <stop offset="100%" stopColor="#a855f7" />
+                    <stop offset="0%" stopColor="#fbbf24" />
+                    <stop offset="55%" stopColor="#f97316" />
+                    <stop offset="100%" stopColor="#38bdf8" />
                   </linearGradient>
                 </defs>
               </svg>
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="text-center">
-                  <p className={`text-2xl font-bold ${themeConfig.text}`}>{metrics.weeklyCompletion}%</p>
+                  <p className={`text-2xl font-bold ${themeConfig.text}`}>{metrics.todayProgress}%</p>
                   <p className={`${themeConfig.textSecondary} text-xs`}>{text.complete}</p>
                 </div>
               </div>
@@ -2702,7 +2821,7 @@ function DashboardPage({
         </div>
 
         {/* Streak Card */}
-        <div className={`${theme === 'dark' ? 'bg-orange-500/20 border-orange-500/30' : 'bg-orange-50 border-orange-200'} ${themeConfig.card} rounded-[26px] p-6 border shadow-lg spotlight-card hover-lift section-reveal section-delay-2 prism-surface`}>
+        <div className={`${theme === 'dark' ? 'bg-orange-500/12 border-orange-500/30' : 'bg-orange-50/80 border-orange-200'} ${themeConfig.card} rounded-[26px] p-6 border shadow-lg spotlight-card hover-lift section-reveal section-delay-2 prism-surface premium-shell`}>
           <div className="flex items-start justify-between">
             <div>
               <p className={`${themeConfig.textSecondary} text-sm font-medium mb-2`}>{text.currentStreak}</p>
@@ -2717,24 +2836,26 @@ function DashboardPage({
         </div>
 
         {/* Total Habits Card */}
-        <div className={`${theme === 'dark' ? 'bg-green-500/20 border-green-500/30' : 'bg-green-50 border-green-200'} ${themeConfig.card} rounded-[26px] p-6 border shadow-lg spotlight-card hover-lift section-reveal section-delay-3 prism-surface`}>
+        <div className={`${theme === 'dark' ? 'bg-sky-500/12 border-sky-500/30' : 'bg-sky-50/85 border-sky-200'} ${themeConfig.card} rounded-[26px] p-6 border shadow-lg spotlight-card hover-lift section-reveal section-delay-3 prism-surface premium-shell`}>
           <div className="mb-4 flex items-center justify-between gap-3">
             <p className={`${themeConfig.textSecondary} text-sm font-medium`}>{text.totalHabits}</p>
-            <div className={`flex h-10 w-10 items-center justify-center rounded-2xl ${theme === 'dark' ? 'bg-amber-500/12 text-amber-200' : 'bg-amber-50 text-amber-700'}`}>
+            <div className={`flex h-10 w-10 items-center justify-center rounded-2xl ${theme === 'dark' ? 'bg-sky-500/14 text-sky-200' : 'bg-sky-50 text-sky-700'}`}>
               <ListTodo className="h-5 w-5" />
             </div>
           </div>
-          <p className={`text-4xl font-bold ${theme === 'dark' ? 'text-green-400' : 'text-green-600'}`}>{metrics.totalHabits}</p>
+          <p className={`text-4xl font-bold ${theme === 'dark' ? 'text-sky-300' : 'text-sky-700'}`}>{metrics.totalHabits}</p>
           <p className={`${themeConfig.textSecondary} text-xs mt-2`}>{text.activeHabits}</p>
         </div>
 
         {/* Add Habit Card */}
-        <div className={`${theme === 'dark' ? 'bg-amber-500/20 border-amber-500/30' : 'bg-amber-50 border-amber-200'} ${themeConfig.card} rounded-[26px] p-6 border flex items-center justify-center cursor-pointer hover:border-amber-500/50 transition shadow-lg spotlight-card hover-lift section-reveal section-delay-4 prism-surface`}>
+        <div className={`${theme === 'dark' ? 'bg-amber-500/12 border-amber-500/30' : 'bg-amber-50/85 border-amber-200'} ${themeConfig.card} rounded-[26px] p-6 border flex items-center justify-center cursor-pointer hover:border-amber-500/50 transition shadow-lg spotlight-card hover-lift section-reveal section-delay-4 prism-surface aurora-panel premium-shell edge-glow`}>
           <button
             onClick={onAddHabit}
             className="flex flex-col items-center gap-2 text-center"
           >
-            <Plus className={`w-8 h-8 ${theme === 'dark' ? 'text-amber-300' : 'text-amber-600'}`} />
+            <div className={`flex h-14 w-14 items-center justify-center rounded-[22px] ${theme === 'dark' ? 'bg-slate-900/55 text-amber-300' : 'bg-white/85 text-amber-600'} shadow-[0_18px_35px_-24px_rgba(249,115,22,0.7)]`}>
+              <Plus className="w-8 h-8" />
+            </div>
             <span className={`text-sm font-semibold ${theme === 'dark' ? 'text-amber-300' : 'text-amber-600'}`}>{text.addNewHabit}</span>
             <span className={`text-xs ${themeConfig.textSecondary}`}>{text.createFirstHabit}</span>
           </button>
@@ -2781,8 +2902,14 @@ function DashboardPage({
 
       {/* Week Overview Chart */}
       {habits.length > 0 && (
-        <div className={`${themeConfig.card} rounded-2xl p-6 border ${themeConfig.border} shadow-lg spotlight-card section-reveal section-delay-3`}>
-          <h3 className={`${themeConfig.text} font-bold mb-6`}>{text.thisWeekOverview}</h3>
+        <div className={`${themeConfig.card} rounded-[28px] p-6 border ${themeConfig.border} shadow-lg spotlight-card section-reveal section-delay-3 prism-surface aurora-panel premium-shell`}>
+          <div className="ambient-specks opacity-30" />
+          <div className="mb-6 flex items-center justify-between gap-3">
+            <h3 className={`${themeConfig.text} font-bold`} style={{ fontFamily: "'Fraunces', 'Space Grotesk', serif" }}>{text.thisWeekOverview}</h3>
+            <span className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] ${theme === 'dark' ? 'bg-slate-800 text-slate-300' : 'bg-white/85 text-slate-700 border border-slate-200'}`}>
+              7 days
+            </span>
+          </div>
           {isMounted ? (
             <ResponsiveContainer width="100%" height={300}>
               <BarChart
@@ -2811,8 +2938,9 @@ function DashboardPage({
                 <Bar dataKey="progress" fill="url(#colorGradient)" radius={[8, 8, 0, 0]} maxBarSize={42} />
                 <defs>
                   <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#3b82f6" />
-                    <stop offset="100%" stopColor="#a855f7" />
+                    <stop offset="0%" stopColor="#fbbf24" />
+                    <stop offset="52%" stopColor="#f97316" />
+                    <stop offset="100%" stopColor="#38bdf8" />
                   </linearGradient>
                 </defs>
               </BarChart>
@@ -2862,7 +2990,7 @@ function HabitsPage({
   const visibleCount = filteredHabits.length;
   return (
     <div className="max-w-6xl space-y-6">
-      <div className={`relative overflow-hidden rounded-[30px] border ${themeConfig.border} ${themeConfig.card} section-reveal spotlight-card aurora-panel prism-surface p-5 sm:p-6`}>
+      <div className={`relative overflow-hidden rounded-[30px] border ${themeConfig.border} ${themeConfig.card} section-reveal spotlight-card aurora-panel prism-surface premium-shell edge-glow p-5 sm:p-6`}>
         <div className="mesh-grid opacity-30" />
         <div className="ambient-specks opacity-40" />
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -2872,7 +3000,7 @@ function HabitsPage({
             }`}>
               {text.allHabits}
             </div>
-            <h2 className={`mt-4 text-3xl font-bold ${themeConfig.text}`}>{text.habits}</h2>
+            <h2 className={`mt-4 text-3xl font-bold ${themeConfig.text}`} style={{ fontFamily: "'Fraunces', 'Space Grotesk', serif" }}>{text.habits}</h2>
             <div className="mt-3 flex flex-wrap gap-2">
               <span className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] ${
                 theme === 'dark' ? 'bg-slate-800 text-slate-300' : 'bg-white/85 text-slate-700 border border-slate-200'
@@ -2894,7 +3022,7 @@ function HabitsPage({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={text.searchPlaceholder}
-                className={`w-full sm:w-72 px-4 py-3 rounded-2xl ${themeConfig.input} ${themeConfig.text} placeholder:opacity-60 focus:outline-none focus:ring-2 focus:ring-amber-400`}
+                className={`w-full sm:w-72 px-4 py-3 rounded-2xl ${themeConfig.input} ${themeConfig.text} placeholder:opacity-60 focus:outline-none focus:ring-2 focus:ring-amber-400 shadow-[0_18px_40px_-32px_rgba(15,23,42,0.38)]`}
               />
             </div>
             <button
@@ -2943,8 +3071,8 @@ function HabitsPage({
                 <div className="ambient-specks opacity-30" />
                 <div className={`pointer-events-none absolute inset-x-0 top-0 h-24 ${
                   theme === 'dark'
-                    ? 'bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.14),_transparent_58%)]'
-                    : 'bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.10),_transparent_62%)]'
+                    ? 'bg-[radial-gradient(circle_at_top_left,_rgba(245,158,11,0.16),_transparent_58%)]'
+                    : 'bg-[radial-gradient(circle_at_top_left,_rgba(245,158,11,0.12),_transparent_62%)]'
                 }`} />
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-start gap-3">
@@ -2982,7 +3110,7 @@ function HabitsPage({
                     </p>
                     <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${
                       progress >= 100
-                        ? 'bg-emerald-500/15 text-emerald-500'
+                        ? 'bg-sky-500/15 text-sky-500'
                         : theme === 'dark'
                         ? 'bg-slate-800 text-slate-300'
                         : 'bg-slate-100 text-slate-700'
@@ -3124,7 +3252,7 @@ function CalendarPage({
                   isSelected
                     ? 'bg-amber-500/30 border border-amber-500/50'
                     : isToday
-                    ? theme === 'dark' ? 'bg-green-500/20 border border-green-500/30' : 'bg-green-100 border border-green-300'
+                    ? theme === 'dark' ? 'bg-sky-500/18 border border-sky-500/30' : 'bg-sky-100 border border-sky-300'
                     : `${themeConfig.bgTertiary} border ${themeConfig.border} ${themeConfig.hover}`
                 }`}
               >
@@ -3134,7 +3262,7 @@ function CalendarPage({
                     <div className={`hidden sm:block text-xs ${themeConfig.textSecondary} mt-1`}>{completionRate}%</div>
                     <span
                       className={`sm:hidden mt-1 w-1.5 h-1.5 rounded-full ${
-                        completionRate === 100 ? 'bg-green-500' : 'bg-emerald-500'
+                        completionRate === 100 ? 'bg-sky-500' : 'bg-amber-500'
                       }`}
                     />
                   </>
@@ -3169,7 +3297,7 @@ function CalendarPage({
                     <span className="text-xl">{habit.icon}</span>
                     <span className={`${themeConfig.text} font-medium`}>{habit.name}</span>
                   </div>
-                  {completion?.completed && <Check className="w-5 h-5 text-green-500" />}
+                  {completion?.completed && <Check className="w-5 h-5 text-sky-500" />}
                 </div>
                 <div className={`h-2 ${theme === 'dark' ? 'bg-slate-600' : 'bg-slate-300'} rounded-full overflow-hidden`}>
                   <div
@@ -3468,6 +3596,7 @@ function ProfilePage({
   const [editData, setEditData] = useState(user);
   const [todayDate] = useState(() => getTodayDate());
   const text = translations[language];
+  const profileBadgeSecondary = language === 'uz' ? "Profil bo'limi" : language === 'ru' ? 'Центр профиля' : 'Profile hub';
 
   useEffect(() => {
     setEditData(user);
@@ -3509,11 +3638,25 @@ function ProfilePage({
   );
 
   return (
-    <div className="max-w-2xl space-y-6">
+    <div className="max-w-3xl space-y-6">
       {/* Profile Card */}
-      <div className={`${themeConfig.card} rounded-2xl p-8 border ${themeConfig.border} shadow-lg spotlight-card glow-pulse section-reveal`}>
-        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
-          <div className="flex items-start gap-4 flex-1 min-w-0">
+      <div className={`${themeConfig.card} rounded-[30px] p-8 border ${themeConfig.border} shadow-lg spotlight-card glow-pulse section-reveal aurora-panel prism-surface`}>
+        <div className="mesh-grid opacity-25" />
+        <div className="ambient-specks opacity-35" />
+        <div className="mb-6 flex flex-wrap items-center gap-2">
+          <span className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${
+            theme === 'dark' ? 'bg-slate-800/90 text-amber-200' : 'bg-amber-50 text-amber-700'
+          }`}>
+            {text.profile}
+          </span>
+          <span className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${
+            theme === 'dark' ? 'bg-sky-500/12 text-sky-200' : 'bg-sky-50 text-sky-700'
+          }`}>
+            {language === 'uz' ? "Profil bo'limi" : profileBadgeSecondary}
+          </span>
+        </div>
+        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex min-w-0 flex-1 flex-col gap-4 sm:flex-row sm:items-start">
             <div className="w-16 h-16 shrink-0 bg-gradient-to-br from-amber-300 via-orange-400 to-sky-500 rounded-full flex items-center justify-center text-3xl shadow-lg ring-2 ring-orange-300/40 overflow-hidden">
               {user.avatarUrl ? (
                 <Image
@@ -3528,26 +3671,30 @@ function ProfilePage({
                 <span>{user.avatar}</span>
               )}
             </div>
-            <div className="min-w-0">
+            <div
+              className={`min-w-0 flex-1 rounded-[24px] border px-4 py-3 glass-lux ${
+                theme === 'dark' ? 'border-slate-700 bg-slate-900/35' : 'border-white/80 bg-white/70'
+              }`}
+            >
               {showInlineEdit ? (
                 <div className="space-y-2">
                   <input
                     type="text"
                     value={editData.name}
                     onChange={(e) => setEditData({ ...editData, name: e.target.value })}
-                    className={`text-2xl font-bold ${themeConfig.text} bg-opacity-50 ${themeConfig.bgTertiary} px-2 py-1 rounded w-full sm:w-auto max-w-full`}
+                    className={`text-2xl font-bold ${themeConfig.text} bg-opacity-50 ${themeConfig.bgTertiary} px-3 py-2 rounded-2xl w-full max-w-full`}
                   />
                   <input
                     type="email"
                     value={editData.email}
                     onChange={(e) => setEditData({ ...editData, email: e.target.value })}
-                    className={`text-sm ${themeConfig.text} ${themeConfig.bgTertiary} px-2 py-1 rounded w-full sm:w-auto max-w-full`}
+                    className={`text-sm ${themeConfig.text} ${themeConfig.bgTertiary} px-3 py-2 rounded-2xl w-full max-w-full`}
                   />
                 </div>
               ) : (
                 <h2 className={`text-2xl font-bold ${themeConfig.text} break-words`}>{user.name}</h2>
               )}
-              {!showInlineEdit && <p className={themeConfig.textSecondary}>{user.email}</p>}
+              {!showInlineEdit && <p className={`${themeConfig.textSecondary} break-all`}>{user.email}</p>}
               <p className={`text-sm ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>{text.joined} {formatDate(user.joinDate, locale)}</p>
             </div>
           </div>
@@ -3556,7 +3703,7 @@ function ProfilePage({
             <div className="flex gap-2 sm:ml-4 self-start sm:self-auto">
               <button
                 onClick={handleSave}
-                className="p-2 bg-green-500/20 hover:bg-green-500/30 text-green-500 rounded-lg transition"
+                className="p-2 bg-sky-500/15 hover:bg-sky-500/25 text-sky-500 rounded-lg transition"
               >
                 <Save className="w-5 h-5" />
               </button>
@@ -3595,15 +3742,15 @@ function ProfilePage({
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className={`${themeConfig.card} rounded-xl p-6 border ${themeConfig.border} shadow-lg spotlight-card hover-lift section-reveal section-delay-1`}>
+        <div className={`${themeConfig.card} rounded-[24px] p-6 border ${themeConfig.border} shadow-lg spotlight-card hover-lift section-reveal section-delay-1 prism-surface`}>
           <p className={`${themeConfig.textSecondary} text-sm mb-2`}>{text.totalHabits}</p>
           <p className={`text-3xl font-bold ${themeConfig.text}`}>{habits.length}</p>
         </div>
-        <div className={`${themeConfig.card} rounded-xl p-6 border ${themeConfig.border} shadow-lg spotlight-card hover-lift section-reveal section-delay-2`}>
+        <div className={`${themeConfig.card} rounded-[24px] p-6 border ${themeConfig.border} shadow-lg spotlight-card hover-lift section-reveal section-delay-2 prism-surface`}>
           <p className={`${themeConfig.textSecondary} text-sm mb-2`}>{text.totalCompleted}</p>
-          <p className={`text-3xl font-bold ${theme === 'dark' ? 'text-green-400' : 'text-green-600'}`}>{totalCompleted}</p>
+          <p className={`text-3xl font-bold ${theme === 'dark' ? 'text-sky-300' : 'text-sky-600'}`}>{totalCompleted}</p>
         </div>
-        <div className={`${themeConfig.card} rounded-xl p-6 border ${themeConfig.border} shadow-lg spotlight-card hover-lift section-reveal section-delay-3`}>
+        <div className={`${themeConfig.card} rounded-[24px] p-6 border ${themeConfig.border} shadow-lg spotlight-card hover-lift section-reveal section-delay-3 prism-surface`}>
           <p className={`${themeConfig.textSecondary} text-sm mb-2`}>{text.accountAge}</p>
           <p className={`text-3xl font-bold text-amber-500`}>
             {accountAgeDays}
@@ -3613,14 +3760,15 @@ function ProfilePage({
       </div>
 
       {/* Recent Habits */}
-      <div className={`${themeConfig.card} rounded-2xl p-6 border ${themeConfig.border} shadow-lg spotlight-card section-reveal section-delay-4`}>
+      <div className={`${themeConfig.card} rounded-[28px] p-6 border ${themeConfig.border} shadow-lg spotlight-card section-reveal section-delay-4 aurora-panel prism-surface`}>
+        <div className="ambient-specks opacity-35" />
         <h3 className={`${themeConfig.text} font-bold mb-4`}>{text.yourHabits}</h3>
         <div className="space-y-2">
           {habits.length === 0 ? (
             <p className={themeConfig.textSecondary}>{text.noHabitsYetShort}</p>
           ) : (
             habits.map((habit: Habit) => (
-              <div key={habit.id} className={`flex items-center justify-between p-3 ${themeConfig.bgTertiary} rounded-lg hover-lift section-reveal`}>
+              <div key={habit.id} className={`flex items-center justify-between p-3 ${themeConfig.bgTertiary} rounded-2xl hover-lift section-reveal prism-surface`}>
                 <div className="flex items-center gap-2">
                   <span className="text-xl">{habit.icon}</span>
                   <span className={themeConfig.text}>{habit.name}</span>
@@ -3635,8 +3783,9 @@ function ProfilePage({
       </div>
 
       {isMobile && isMobileEditOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className={`${themeConfig.card} w-full max-w-md rounded-2xl border ${themeConfig.border} p-6 shadow-2xl max-h-[90vh] overflow-y-auto spotlight-card section-reveal`}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[linear-gradient(135deg,rgba(15,23,42,0.62),rgba(15,23,42,0.36))] p-4 backdrop-blur-sm">
+          <div className={`${themeConfig.card} w-full max-w-md rounded-[28px] border ${themeConfig.border} p-6 shadow-2xl max-h-[90vh] overflow-y-auto spotlight-card section-reveal aurora-panel prism-surface`}>
+            <div className="ambient-specks opacity-35" />
             <div className="flex items-center justify-between mb-4">
               <h3 className={`${themeConfig.text} text-lg font-bold`}>{text.profile}</h3>
               <button
@@ -3741,8 +3890,8 @@ function HabitCard({
     <div className={`group relative overflow-hidden rounded-[24px] border ${themeConfig.border} ${themeConfig.card} p-4 shadow-lg transition hover:-translate-y-0.5 hover:border-amber-500/30 spotlight-card hover-lift section-reveal`}>
       <div className={`pointer-events-none absolute inset-x-0 top-0 h-20 opacity-80 ${
         theme === 'dark'
-          ? 'bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.14),_transparent_58%)]'
-          : 'bg-[radial-gradient(circle_at_top_left,_rgba(99,102,241,0.08),_transparent_62%)]'
+          ? 'bg-[radial-gradient(circle_at_top_left,_rgba(245,158,11,0.14),_transparent_58%)]'
+          : 'bg-[radial-gradient(circle_at_top_left,_rgba(245,158,11,0.10),_transparent_62%)]'
       }`} />
       <div className="relative flex items-start gap-4 flex-1 w-full">
         {!timedHabit ? (
@@ -3751,7 +3900,7 @@ function HabitCard({
               type="checkbox"
               checked={percentage >= 100}
               onChange={() => onToggleTimer(habit.id, date)}
-              className="h-4 w-4 accent-emerald-500"
+              className="h-4 w-4 accent-amber-500"
             />
             <span className={`${isMobile ? 'text-xs font-semibold' : 'text-sm font-medium'}`}>{text.completedCheckbox}</span>
           </label>
@@ -3762,10 +3911,10 @@ function HabitCard({
             aria-disabled={buttonDisabled}
             className={`mt-1 flex-shrink-0 w-12 h-12 rounded-2xl border ${themeConfig.border} flex items-center justify-center transition ${
               percentage >= 100
-                ? 'bg-green-500/20 text-green-500'
+                ? 'bg-sky-500/20 text-sky-500'
                 : isRunning
                 ? 'bg-amber-500/20 text-amber-500'
-                : `${themeConfig.bgTertiary} ${themeConfig.textSecondary} hover:bg-emerald-500/20 hover:text-emerald-500`
+                : `${themeConfig.bgTertiary} ${themeConfig.textSecondary} hover:bg-amber-500/16 hover:text-amber-500 focus-visible:bg-amber-500/16 focus-visible:text-amber-500`
             } ${buttonDisabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}`}
             aria-label={isRunning ? 'Pause habit timer' : 'Start habit timer'}
           >
@@ -3811,10 +3960,10 @@ function HabitCard({
                   aria-disabled={buttonDisabled}
                   className={`w-10 h-10 rounded-xl border ${themeConfig.border} flex items-center justify-center transition ${
                     percentage >= 100
-                      ? 'bg-green-500/20 text-green-500'
-                      : isRunning
+                      ? 'bg-sky-500/20 text-sky-500'
+                    : isRunning
                       ? 'bg-amber-500/20 text-amber-500'
-                      : `${themeConfig.bgTertiary} ${themeConfig.textSecondary} hover:bg-emerald-500/20 hover:text-emerald-500`
+                      : `${themeConfig.bgTertiary} ${themeConfig.textSecondary} hover:bg-amber-500/16 hover:text-amber-500 focus-visible:bg-amber-500/16 focus-visible:text-amber-500`
                   } ${buttonDisabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}`}
                   aria-label={isRunning ? 'Pause habit timer' : 'Start habit timer'}
                 >
@@ -3829,7 +3978,7 @@ function HabitCard({
               )}
               <div className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${
                 percentage >= 100
-                  ? 'bg-green-500/15 text-green-500'
+                  ? 'bg-sky-500/15 text-sky-500'
                   : isRunning
                   ? 'bg-amber-500/15 text-amber-500'
                   : theme === 'dark'
@@ -4005,11 +4154,50 @@ function AddHabitModal({
   const units = ['min', 'hours', 'reps', 'km', 'liters', 'count', 'pages'];
   const text = translations[language];
   const selectedIcon = normalizeIcon(habit.icon);
+  const modalCopy = language === 'uz'
+    ? {
+        badgeSecondary: 'Tez sozlash',
+        helper: "Bu yerda nom, maqsad, belgi va eslatma vaqtini sozlaysiz. Asosiy oqim o'zgarmaydi.",
+      }
+    : language === 'ru'
+    ? {
+        badgeSecondary: 'Быстрая настройка',
+        helper: 'Здесь задаются название, цель, иконка и напоминание без изменения общего потока приложения.',
+      }
+    : {
+        badgeSecondary: 'Quick setup',
+        helper: 'Set the name, goal, icon, and reminder here without changing the overall app flow.',
+      };
 
   return (
-    <div className={`fixed inset-0 ${theme === 'dark' ? 'bg-black/50' : 'bg-white/50'} backdrop-blur-sm flex items-center justify-center p-4 z-50`}>
-      <div className={`${themeConfig.card} rounded-2xl p-8 max-w-md w-full border ${themeConfig.border} max-h-[90vh] overflow-y-auto shadow-2xl spotlight-card section-reveal`}>
-        <h2 className={`text-2xl font-bold ${themeConfig.text} mb-6`}>{text.addHabitTitle}</h2>
+    <div className={`fixed inset-0 ${theme === 'dark' ? 'bg-[linear-gradient(135deg,rgba(2,6,23,0.72),rgba(15,23,42,0.48))]' : 'bg-[linear-gradient(135deg,rgba(255,247,237,0.72),rgba(255,255,255,0.56))]'} backdrop-blur-md flex items-center justify-center p-4 z-50`}>
+      <div className={`${themeConfig.card} rounded-[30px] p-8 max-w-lg w-full border ${themeConfig.border} max-h-[90vh] overflow-y-auto shadow-2xl spotlight-card section-reveal aurora-panel prism-surface`}>
+        <div className="ambient-specks opacity-35" />
+        <div className="mb-6 flex flex-wrap items-center gap-2">
+          <span className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${
+            theme === 'dark' ? 'bg-slate-800/90 text-amber-200' : 'bg-amber-50 text-amber-700'
+          }`}>
+            New Habit
+          </span>
+          <span className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${
+            theme === 'dark' ? 'bg-sky-500/12 text-sky-200' : 'bg-sky-50 text-sky-700'
+          }`}>
+            {modalCopy.badgeSecondary}
+          </span>
+        </div>
+        <div className="mb-6 flex items-start justify-between gap-4">
+          <div>
+            <h2 className={`text-2xl font-bold ${themeConfig.text}`}>{text.addHabitTitle}</h2>
+            <p className={`mt-2 text-sm ${themeConfig.textSecondary}`}>{modalCopy.helper}</p>
+          </div>
+          <button
+            onClick={onClose}
+            className={`rounded-2xl p-2 transition ${themeConfig.hover}`}
+            aria-label={text.cancel}
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
 
         <div className="space-y-4">
           <div>
@@ -4021,7 +4209,7 @@ function AddHabitModal({
               value={habit.name}
               onChange={(e) => onChange({ ...habit, name: e.target.value })}
               placeholder={text.habitNamePlaceholder}
-              className={`w-full px-4 py-2 ${themeConfig.input} rounded-lg ${themeConfig.text} placeholder-opacity-50 focus:outline-none focus:ring-2 focus:ring-amber-400`}
+              className={`w-full px-4 py-3 ${themeConfig.input} rounded-2xl ${themeConfig.text} placeholder-opacity-50 focus:outline-none focus:ring-2 focus:ring-amber-400`}
             />
           </div>
 
@@ -4032,7 +4220,7 @@ function AddHabitModal({
             <select
               value={habit.category}
               onChange={(e) => onChange({ ...habit, category: e.target.value })}
-              className={`w-full px-4 py-2 ${themeConfig.input} rounded-lg ${themeConfig.text} focus:outline-none focus:ring-2 focus:ring-amber-400`}
+              className={`w-full px-4 py-3 ${themeConfig.input} rounded-2xl ${themeConfig.text} focus:outline-none focus:ring-2 focus:ring-amber-400`}
             >
               {categories.map((cat) => (
                 <option key={cat} value={cat}>
@@ -4052,7 +4240,7 @@ function AddHabitModal({
                 value={habit.goal}
                 onChange={(e) => onChange({ ...habit, goal: e.target.value })}
                 placeholder="30"
-                className={`w-full px-4 py-2 ${themeConfig.input} rounded-lg ${themeConfig.text} placeholder-opacity-50 focus:outline-none focus:ring-2 focus:ring-amber-400`}
+                className={`w-full px-4 py-3 ${themeConfig.input} rounded-2xl ${themeConfig.text} placeholder-opacity-50 focus:outline-none focus:ring-2 focus:ring-amber-400`}
               />
             </div>
 
@@ -4063,7 +4251,7 @@ function AddHabitModal({
               <select
                 value={habit.unit}
                 onChange={(e) => onChange({ ...habit, unit: e.target.value })}
-                className={`w-full px-4 py-2 ${themeConfig.input} rounded-lg ${themeConfig.text} focus:outline-none focus:ring-2 focus:ring-amber-400`}
+                className={`w-full px-4 py-3 ${themeConfig.input} rounded-2xl ${themeConfig.text} focus:outline-none focus:ring-2 focus:ring-amber-400`}
               >
                 {units.map((unit) => (
                   <option key={unit} value={unit}>
@@ -4083,7 +4271,7 @@ function AddHabitModal({
               value={habit.icon}
               onChange={(e) => onChange({ ...habit, icon: e.target.value })}
               placeholder="emoji yoki text"
-              className={`w-full px-4 py-2 mb-3 ${themeConfig.input} rounded-lg ${themeConfig.text} placeholder-opacity-50 focus:outline-none focus:ring-2 focus:ring-amber-400`}
+              className={`w-full px-4 py-3 mb-3 ${themeConfig.input} rounded-2xl ${themeConfig.text} placeholder-opacity-50 focus:outline-none focus:ring-2 focus:ring-amber-400`}
             />
             <div className="grid grid-cols-5 gap-2">
               {habitIcons.map((icon) => (
@@ -4091,7 +4279,7 @@ function AddHabitModal({
                   key={icon}
                   type="button"
                   onClick={() => onChange({ ...habit, icon })}
-                  className={`p-3 rounded-lg text-xl transition ${
+                  className={`p-3 rounded-2xl text-xl transition ${
                     selectedIcon === icon
                       ? 'bg-amber-500/30 border border-amber-500/50'
                       : `${themeConfig.bgTertiary} border ${themeConfig.border} ${themeConfig.hover}`
@@ -4111,20 +4299,20 @@ function AddHabitModal({
               type="time"
               value={habit.reminderTime}
               onChange={(e) => onChange({ ...habit, reminderTime: e.target.value })}
-              className={`w-full px-4 py-2 ${themeConfig.input} rounded-lg ${themeConfig.text} focus:outline-none focus:ring-2 focus:ring-amber-400`}
+              className={`w-full px-4 py-3 ${themeConfig.input} rounded-2xl ${themeConfig.text} focus:outline-none focus:ring-2 focus:ring-amber-400`}
             />
           </div>
 
           <div className="flex gap-4 mt-8">
             <button
               onClick={onClose}
-              className={`flex-1 px-4 py-2 ${themeConfig.bgTertiary} ${themeConfig.textSecondary} rounded-lg hover:opacity-80 transition`}
+              className={`flex-1 px-4 py-3 ${themeConfig.bgTertiary} ${themeConfig.textSecondary} rounded-2xl hover:opacity-80 transition`}
             >
               {text.cancel}
             </button>
             <button
               onClick={onAdd}
-              className="flex-1 px-4 py-2 bg-gradient-to-r from-amber-400 via-orange-500 to-sky-500 text-white rounded-lg hover:shadow-lg transition"
+              className="flex-1 px-4 py-3 bg-gradient-to-r from-amber-400 via-orange-500 to-sky-500 text-white rounded-2xl hover:shadow-lg transition"
             >
               {text.addHabit}
             </button>
