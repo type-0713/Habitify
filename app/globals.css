@@ -24,6 +24,8 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: "Space Grotesk", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
 body::before {
@@ -86,6 +88,52 @@ body::before {
   }
   50% {
     box-shadow: 0 24px 55px -24px rgba(16, 185, 129, 0.24);
+  }
+}
+
+@keyframes auroraSweep {
+  0% {
+    transform: translate3d(-4%, -2%, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(3%, 3%, 0) scale(1.06);
+  }
+  100% {
+    transform: translate3d(5%, -4%, 0) scale(1.02);
+  }
+}
+
+@keyframes gridScroll {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(34px, 34px, 0);
+  }
+}
+
+@keyframes haloOrbit {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(0, -16px, 0) scale(1.06);
+  }
+}
+
+@keyframes cometPass {
+  0% {
+    transform: translate3d(-20%, -20%, 0) rotate(18deg);
+    opacity: 0;
+  }
+  12%,
+  72% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(260%, 160%, 0) rotate(18deg);
+    opacity: 0;
   }
 }
 
@@ -172,4 +220,86 @@ body::before {
 
 .glow-pulse {
   animation: softGlow 4s ease-in-out infinite;
+}
+
+.aurora-panel {
+  position: relative;
+  isolation: isolate;
+}
+
+.aurora-panel::before {
+  content: "";
+  position: absolute;
+  inset: -18%;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 18% 28%, rgba(16, 185, 129, 0.16), transparent 24%),
+    radial-gradient(circle at 82% 18%, rgba(59, 130, 246, 0.18), transparent 26%),
+    radial-gradient(circle at 52% 88%, rgba(245, 158, 11, 0.12), transparent 24%);
+  filter: blur(32px);
+  animation: auroraSweep 16s ease-in-out infinite alternate;
+}
+
+.aurora-panel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(140deg, rgba(255, 255, 255, 0.06), transparent 45%, rgba(255, 255, 255, 0.04));
+  opacity: 0.75;
+}
+
+.mesh-grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+  background-size: 34px 34px;
+  opacity: 0.16;
+  mask-image: radial-gradient(circle at center, black, transparent 80%);
+  animation: gridScroll 18s linear infinite;
+}
+
+.orbital-halo {
+  animation: haloOrbit 8s ease-in-out infinite;
+}
+
+.orbital-halo-reverse {
+  animation: haloOrbit 9s ease-in-out infinite reverse;
+}
+
+.comet-trail {
+  position: absolute;
+  height: 1px;
+  width: 170px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.85), transparent);
+  box-shadow: 0 0 18px rgba(125, 211, 252, 0.45);
+  opacity: 0;
+  animation: cometPass 7s linear infinite;
+}
+
+.glass-band {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.06));
+  backdrop-filter: blur(18px);
+  box-shadow: 0 24px 60px -45px rgba(15, 23, 42, 0.7);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .section-reveal,
+  .float-gentle,
+  .glow-pulse,
+  .orbital-halo,
+  .orbital-halo-reverse,
+  .comet-trail,
+  .mesh-grid,
+  .aurora-panel::before,
+  .spotlight-card:hover::after {
+    animation: none !important;
+    transform: none !important;
+  }
 }

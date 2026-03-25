@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Head from "next/head";
 
 export const metadata: Metadata = {
   title: "Habitify",
   description: "Habit tracking dashboard for daily progress",
+  verification: {
+    google: "QlkT9HgiIiDUj-QuuMDS4WtZyJoKQU4EXW-2tYUWxF0",
+  },
   icons: {
     icon: [
       { url: "/icon.png", type: "image/png", sizes: "32x32" },
@@ -23,12 +25,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <Head>
-        <meta name="google-site-verification" content="QlkT9HgiIiDUj-QuuMDS4WtZyJoKQU4EXW-2tYUWxF0" />
-      </Head>
-      <body className="antialiased">
-        {children}
-      </body>
+      <body className="antialiased">{children}</body>
     </html>
   );
 }

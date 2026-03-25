@@ -1565,7 +1565,11 @@ function HabitTrackerApp() {
   }
 
   return (
-    <div className={`flex h-screen ${themeConfig.bg} ${themeConfig.text} overflow-hidden`}>
+    <div className={`relative flex h-screen ${themeConfig.bg} ${themeConfig.text} overflow-hidden aurora-panel`}>
+      <div className="mesh-grid opacity-60" />
+      <div className={`pointer-events-none absolute -left-20 top-0 h-72 w-72 rounded-full blur-3xl orbital-halo ${theme === 'dark' ? 'bg-emerald-500/12' : 'bg-emerald-200/45'}`} />
+      <div className={`pointer-events-none absolute right-0 top-16 h-80 w-80 rounded-full blur-3xl orbital-halo-reverse ${theme === 'dark' ? 'bg-sky-500/12' : 'bg-sky-200/50'}`} />
+      <div className="comet-trail top-10 left-[12%] hidden xl:block" />
       {mobileSidebarOpen && (
         <>
           <div
@@ -1645,13 +1649,15 @@ function HabitTrackerApp() {
           </div>
         )}
 
-        <div className={`relative w-full rounded-[28px] p-4 sm:p-5 md:p-8 max-w-7xl mx-auto section-reveal ${themeConfig.bgSecondary}`}>
+        <div className={`relative w-full rounded-[28px] p-4 sm:p-5 md:p-8 max-w-7xl mx-auto section-reveal aurora-panel ${themeConfig.bgSecondary}`}>
+          <div className="mesh-grid opacity-40" />
           <div className={`pointer-events-none absolute -top-20 right-0 h-48 w-48 rounded-full blur-3xl ${
             theme === 'dark' ? 'bg-emerald-500/10' : 'bg-emerald-200/50'
-          }`} />
+          } orbital-halo`} />
           <div className={`pointer-events-none absolute bottom-0 left-0 h-56 w-56 rounded-full blur-3xl ${
             theme === 'dark' ? 'bg-sky-500/10' : 'bg-sky-200/50'
-          }`} />
+          } orbital-halo-reverse`} />
+          <div className="comet-trail top-16 right-[14%] hidden lg:block" />
           <div className="relative">
           {currentPage === 'dashboard' && (
             <DashboardPage
@@ -2354,10 +2360,40 @@ function DashboardPage({
   const text = translations[language];
   const selectedDateLabel = formatDate(selectedDate, locale);
   const hasActiveTimer = Boolean(activeTimer);
+  const dashboardCopy = language === 'uz'
+    ? {
+        badge: 'Habitify ritmi',
+        summary: 'Bugungi jarayon {progress}% ga yetdi va seriya {streak} kun davom etmoqda.',
+        timerActive: 'Hozir faol taymer ishlayapti.',
+        timerIdle: 'Hozircha taymer ishga tushmagan.',
+        bestPulse: 'Eng yaxshi seriya',
+      }
+    : language === 'ru'
+    ? {
+        badge: 'Ритм Habitify',
+        summary: 'Сегодня прогресс дошел до {progress}%, а серия держится уже {streak} дн.',
+        timerActive: 'Сейчас запущен активный таймер.',
+        timerIdle: 'Сейчас ни один таймер не запущен.',
+        bestPulse: 'Лучшая серия',
+      }
+    : {
+        badge: 'Habitify Flow',
+        summary: 'Today is running at {progress}% progress with a {streak}-day streak in motion.',
+        timerActive: 'There is an active timer running right now.',
+        timerIdle: 'No timer is running right now.',
+        bestPulse: 'Best streak',
+      };
+  const dashboardSummary = dashboardCopy.summary
+    .replace('{progress}', String(metrics.weeklyCompletion))
+    .replace('{streak}', String(metrics.currentStreak));
 
   return (
     <div className="space-y-8">
-      <section className={`relative overflow-hidden rounded-[28px] border ${themeConfig.border} ${themeConfig.card} spotlight-card glow-pulse section-reveal p-5 shadow-lg sm:p-6 lg:p-8`}>
+      <section className={`relative overflow-hidden rounded-[28px] border ${themeConfig.border} ${themeConfig.card} spotlight-card glow-pulse section-reveal aurora-panel p-5 shadow-lg sm:p-6 lg:p-8`}>
+        <div className="mesh-grid opacity-40" />
+        <div className={`pointer-events-none absolute -right-10 top-10 h-36 w-36 rounded-full blur-3xl orbital-halo ${theme === 'dark' ? 'bg-fuchsia-500/12' : 'bg-fuchsia-200/50'}`} />
+        <div className={`pointer-events-none absolute left-8 bottom-6 h-28 w-28 rounded-full blur-3xl orbital-halo-reverse ${theme === 'dark' ? 'bg-emerald-500/14' : 'bg-emerald-200/50'}`} />
+        <div className="comet-trail left-[14%] top-12 hidden lg:block" />
         <div className={`pointer-events-none absolute inset-y-0 right-0 w-1/2 ${
           theme === 'dark'
             ? 'bg-[radial-gradient(circle_at_top_right,_rgba(56,189,248,0.16),_transparent_58%)]'
@@ -2375,28 +2411,27 @@ function DashboardPage({
                 ? 'border-slate-700 bg-slate-800/80 text-emerald-300'
                 : 'border-emerald-200 bg-emerald-50 text-emerald-700'
             }`}>
-              Habitify Flow
+              {dashboardCopy.badge}
             </div>
             <h3 className={`mt-4 text-3xl font-bold leading-tight ${themeConfig.text}`}>
               {text.todaysHabits}
             </h3>
-            <p className={`mt-2 text-sm ${themeConfig.textSecondary}`}>
-              {selectedDateLabel}
-            </p>
+            <p className={`mt-2 text-sm ${themeConfig.textSecondary}`}>{selectedDateLabel}</p>
+            <p className={`mt-3 max-w-2xl text-sm leading-6 ${themeConfig.textSecondary}`}>{dashboardSummary}</p>
             <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
-                <div className={`rounded-2xl border px-4 py-3 hover-lift section-reveal section-delay-1 ${
+                <div className={`rounded-2xl border px-4 py-3 hover-lift section-reveal section-delay-1 glass-band ${
                 theme === 'dark' ? 'border-slate-700 bg-slate-900/70' : 'border-slate-200 bg-white/85'
               }`}>
                 <p className={`text-[11px] uppercase tracking-[0.18em] ${themeConfig.textSecondary}`}>{text.todaysProgress}</p>
                 <p className={`mt-1 text-xl font-bold ${themeConfig.text}`}>{metrics.weeklyCompletion}%</p>
               </div>
-                <div className={`rounded-2xl border px-4 py-3 hover-lift section-reveal section-delay-2 ${
+                <div className={`rounded-2xl border px-4 py-3 hover-lift section-reveal section-delay-2 glass-band ${
                 theme === 'dark' ? 'border-slate-700 bg-slate-900/70' : 'border-slate-200 bg-white/85'
               }`}>
                 <p className={`text-[11px] uppercase tracking-[0.18em] ${themeConfig.textSecondary}`}>{text.currentStreak}</p>
                 <p className={`mt-1 text-xl font-bold ${themeConfig.text}`}>{metrics.currentStreak} {text.days}</p>
               </div>
-                <div className={`rounded-2xl border px-4 py-3 hover-lift section-reveal section-delay-3 ${
+                <div className={`rounded-2xl border px-4 py-3 hover-lift section-reveal section-delay-3 glass-band ${
                 theme === 'dark' ? 'border-slate-700 bg-slate-900/70' : 'border-slate-200 bg-white/85'
               }`}>
                 <p className={`text-[11px] uppercase tracking-[0.18em] ${themeConfig.textSecondary}`}>{text.totalHabits}</p>
@@ -2405,9 +2440,10 @@ function DashboardPage({
             </div>
           </div>
 
-          <div className={`grid gap-3 rounded-[24px] border p-4 sm:min-w-[280px] section-reveal section-delay-2 spotlight-card ${
+          <div className={`grid gap-3 rounded-[24px] border p-4 sm:min-w-[320px] section-reveal section-delay-2 spotlight-card aurora-panel ${
             theme === 'dark' ? 'border-slate-700 bg-slate-900/80' : 'border-white/80 bg-white/90'
           }`}>
+            <div className="mesh-grid opacity-30" />
             <div className="flex items-center justify-between gap-3">
               <div>
                 <p className={`text-xs uppercase tracking-[0.18em] ${themeConfig.textSecondary}`}>{text.habitsCompleted}</p>
@@ -2416,10 +2452,24 @@ function DashboardPage({
               <button
                 onClick={onAddHabit}
                 className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-500 via-sky-500 to-indigo-500 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-sky-500/20 transition hover:scale-[1.02]"
-              >
-                <Plus className="h-4 w-4" />
-                {text.addNewHabit}
-              </button>
+                >
+                  <Plus className="h-4 w-4" />
+                  {text.addNewHabit}
+                </button>
+              </div>
+            <div className={`grid grid-cols-3 gap-2`}>
+              <div className={`glass-band rounded-2xl px-3 py-3 ${theme === 'dark' ? 'bg-slate-950/20' : 'bg-white/85'}`}>
+                <p className={`text-[11px] uppercase tracking-[0.18em] ${themeConfig.textSecondary}`}>{dashboardCopy.bestPulse}</p>
+                <p className={`mt-1 text-lg font-bold ${themeConfig.text}`}>{metrics.bestStreak}</p>
+              </div>
+              <div className={`glass-band rounded-2xl px-3 py-3 ${theme === 'dark' ? 'bg-slate-950/20' : 'bg-white/85'}`}>
+                <p className={`text-[11px] uppercase tracking-[0.18em] ${themeConfig.textSecondary}`}>{text.complete}</p>
+                <p className={`mt-1 text-lg font-bold ${themeConfig.text}`}>{metrics.completedToday}</p>
+              </div>
+              <div className={`glass-band rounded-2xl px-3 py-3 ${theme === 'dark' ? 'bg-slate-950/20' : 'bg-white/85'}`}>
+                <p className={`text-[11px] uppercase tracking-[0.18em] ${themeConfig.textSecondary}`}>{text.totalHabits}</p>
+                <p className={`mt-1 text-lg font-bold ${themeConfig.text}`}>{metrics.totalHabits}</p>
+              </div>
             </div>
             <div className={`rounded-2xl px-4 py-3 ${
               hasActiveTimer
@@ -2430,9 +2480,7 @@ function DashboardPage({
                 ? 'bg-slate-800 text-slate-300'
                 : 'bg-slate-100 text-slate-600'
             }`}>
-              <p className="text-sm font-medium">
-                {hasActiveTimer ? '1 active timer running right now.' : 'No timer is running right now.'}
-              </p>
+              <p className="text-sm font-medium">{hasActiveTimer ? dashboardCopy.timerActive : dashboardCopy.timerIdle}</p>
             </div>
           </div>
         </div>
@@ -2523,7 +2571,8 @@ function DashboardPage({
       <div className="section-reveal section-delay-2">
         <h3 className={`text-2xl font-bold ${themeConfig.text} mb-6`}>{text.todaysHabits}</h3>
         {habits.length === 0 ? (
-          <div className={`${themeConfig.card} rounded-2xl p-12 border ${themeConfig.border} text-center shadow-lg spotlight-card`}>
+          <div className={`${themeConfig.card} rounded-2xl p-12 border ${themeConfig.border} text-center shadow-lg spotlight-card aurora-panel`}>
+            <div className="mesh-grid opacity-30" />
             <Plus className={`w-12 h-12 ${themeConfig.textSecondary} mx-auto mb-4 opacity-50`} />
             <p className={`${themeConfig.textSecondary} mb-4`}>{text.noHabitsYet}</p>
             <button
