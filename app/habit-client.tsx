@@ -12,6 +12,7 @@ import {
   signOut,
 } from 'firebase/auth';
 import { firebaseAuth } from './lib/firebase';
+import { createHabit, deleteHabitById, listHabitsByUser, type SupabaseHabitRow } from './lib/supabase-habits';
 import { Check, Plus, Flame, Menu, LogOut, Home, ListTodo, BarChart3, Bell, User, Calendar, Edit2, Save, X, ChevronLeft, ChevronRight, Sun, Moon, Apple, Chrome, Mail, LockKeyhole, Eye, EyeOff, Play, Pause, Sparkles } from 'lucide-react';
 
 const ResponsiveContainer = dynamic(() => import('recharts').then((m) => m.ResponsiveContainer), { ssr: false });
@@ -425,6 +426,15 @@ interface ActiveTimer {
   date: string;
 }
 
+interface HabitMeta {
+  color: string;
+  createdAt: string;
+  completions: HabitCompletion[];
+  category: string;
+}
+
+type HabitMetaMap = Record<string, HabitMeta>;
+
 // Theme Configuration
 const themes = {
   dark: {
@@ -470,11 +480,10 @@ const legacyIconMap: Record<string, string> = {
   'рџЋЇ': '🎯',
   'в­ђ': '⭐',
 };
-const habitIconSet = new Set(habitIcons);
 const normalizeIcon = (icon: string | null | undefined) => {
   if (!icon) return defaultHabitIcon;
-  const mapped = legacyIconMap[icon] ?? icon;
-  return habitIconSet.has(mapped) ? mapped : defaultHabitIcon;
+  const mapped = (legacyIconMap[icon] ?? icon).trim();
+  return mapped || defaultHabitIcon;
 };
 
 const normalizeLanguage = (value: string | null | undefined): Language => {
@@ -535,6 +544,83 @@ const setLocalStorage = <T,>(key: string, value: T) => {
     console.error('Error writing to localStorage:', error);
   }
 };
+
+const getHabitMetaStorageKey = (userId: string) => `habit_meta_${userId}`;
+
+const getHabitOwner = (user: AuthUser | null) => {
+  const rawValue = user?.email?.trim() || user?.id || '';
+  return rawValue.toLowerCase();
+};
+
+const normalizeReminderTime = (value: string | null | undefined) => {
+  if (!value) return '09:00';
+  return value.slice(0, 5);
+};
+
+const normalizeHabitMetaMap = (value: unknown): HabitMetaMap => {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return {};
+  }
+
+  const entries = Object.entries(value as Record<string, unknown>).map(([habitId, item]) => {
+    const rawItem = item && typeof item === 'object' && !Array.isArray(item) ? (item as Partial<HabitMeta>) : {};
+    return [
+      habitId,
+      {
+        color: typeof rawItem.color === 'string' ? rawItem.color : getRandomColor(),
+        createdAt: typeof rawItem.createdAt === 'string' ? rawItem.createdAt : getTodayDate(),
+        completions: Array.isArray(rawItem.completions) ? (rawItem.completions as HabitCompletion[]) : [],
+        category: typeof rawItem.category === 'string' ? rawItem.category : 'health',
+      },
+    ] as const;
+  });
+
+  return Object.fromEntries(entries);
+};
+
+const normalizeLegacyHabit = (item: unknown): Habit | null => {
+  if (!item || typeof item !== 'object') return null;
+  const habit = item as Partial<Habit>;
+  if (!habit.id || !habit.name || typeof habit.goal !== 'number' || !habit.unit) {
+    return null;
+  }
+
+  return {
+    id: String(habit.id),
+    name: habit.name,
+    goal: habit.goal,
+    unit: habit.unit,
+    icon: normalizeIcon(habit.icon),
+    color: typeof habit.color === 'string' ? habit.color : getRandomColor(),
+    createdAt: typeof habit.createdAt === 'string' ? habit.createdAt : getTodayDate(),
+    completions: Array.isArray(habit.completions) ? (habit.completions as HabitCompletion[]) : [],
+    category: typeof habit.category === 'string' ? habit.category : 'health',
+    reminderTime: normalizeReminderTime(habit.reminderTime),
+  };
+};
+
+const habitToMeta = (habit: Habit): HabitMeta => ({
+  color: habit.color,
+  createdAt: habit.createdAt,
+  completions: habit.completions,
+  category: habit.category,
+});
+
+const habitsToMetaMap = (habits: Habit[]): HabitMetaMap =>
+  Object.fromEntries(habits.map((habit) => [habit.id, habitToMeta(habit)]));
+
+const mergeHabitRowWithMeta = (row: SupabaseHabitRow, meta?: HabitMeta): Habit => ({
+  id: String(row.id),
+  name: row.Name,
+  goal: Number(row.Goal),
+  unit: row.Unit,
+  icon: normalizeIcon(row.Icon),
+  color: meta?.color ?? getRandomColor(),
+  createdAt: meta?.createdAt ?? getTodayDate(),
+  completions: meta?.completions ?? [],
+  category: meta?.category ?? 'health',
+  reminderTime: normalizeReminderTime(row.ReminderTime),
+});
 
 type SoundCue = 'success' | 'complete' | 'reminder' | 'add' | 'start' | 'pause';
 
@@ -808,6 +894,7 @@ function HabitTrackerApp() {
   const locale = getLocale(language);
   const text = translations[language];
   const minMonth = getMonthStart(new Date());
+  const habitOwner = getHabitOwner(user);
 
   const launchCelebration = (title: string, message: string) => {
     setCelebrationToast({ title, message });
@@ -823,7 +910,7 @@ function HabitTrackerApp() {
     setCurrentMonth(nextMonth);
   };
 
-  // Monthly reset for local storage (habits + profile overrides).
+  // Monthly reset only clears local completion/profile state.
   useEffect(() => {
     if (!isSignedIn || !user?.id) {
       return;
@@ -833,9 +920,27 @@ function HabitTrackerApp() {
       const monthKey = getMonthKey(now);
       const resetKey = `monthly_reset_${user.id}`;
       const lastReset = getLocalStorage<string>(resetKey, '');
+      const currentMeta = normalizeHabitMetaMap(getLocalStorage<unknown>(getHabitMetaStorageKey(user.id), {}));
+
+      if (!lastReset) {
+        setLocalStorage(resetKey, monthKey);
+        return;
+      }
+
       if (lastReset !== monthKey) {
-        setHabits([]);
+        const resetMeta = Object.fromEntries(
+          Object.entries(currentMeta).map(([habitId, meta]) => [
+            habitId,
+            {
+              ...meta,
+              completions: [],
+            },
+          ]),
+        ) as HabitMetaMap;
+
+        setHabits((prev) => prev.map((habit) => ({ ...habit, completions: [] })));
         setProfileOverrides({});
+        setLocalStorage(getHabitMetaStorageKey(user.id), resetMeta);
         setLocalStorage(`habits_${user.id}`, []);
         setLocalStorage(`profile_${user.id}`, {});
         setLocalStorage(resetKey, monthKey);
@@ -855,24 +960,14 @@ function HabitTrackerApp() {
 
   // Load user-specific data after auth is ready.
   useEffect(() => {
-    const loadUserData = () => {
+    let ignore = false;
+
+    const loadUserData = async () => {
       if (!isSignedIn || !user?.id) {
         setHabits([]);
         setProfileOverrides({});
         return;
       }
-      const savedHabits = getLocalStorage<unknown>(`habits_${user.id}`, []);
-      const safeHabits = Array.isArray(savedHabits) ? savedHabits : [];
-      if (!Array.isArray(savedHabits)) {
-        setLocalStorage(`habits_${user.id}`, []);
-      }
-      const normalizedHabits = safeHabits.map((item) => {
-        if (!item || typeof item !== 'object') return item;
-        const habit = item as Habit;
-        const nextIcon = normalizeIcon(habit.icon);
-        return habit.icon === nextIcon ? habit : { ...habit, icon: nextIcon };
-      }) as Habit[];
-      setHabits(normalizedHabits);
 
       const savedProfile = getLocalStorage<unknown>(`profile_${user.id}`, {});
       const isProfileObject = Boolean(savedProfile) && typeof savedProfile === 'object' && !Array.isArray(savedProfile);
@@ -880,10 +975,81 @@ function HabitTrackerApp() {
       if (!isProfileObject) {
         setLocalStorage(`profile_${user.id}`, {});
       }
-      setProfileOverrides(safeProfile);
+      if (!ignore) {
+        setProfileOverrides(safeProfile);
+      }
+
+      const savedMeta = getLocalStorage<unknown>(getHabitMetaStorageKey(user.id), {});
+      const habitMeta = normalizeHabitMetaMap(savedMeta);
+      const shouldRewriteMeta =
+        !savedMeta ||
+        typeof savedMeta !== 'object' ||
+        Array.isArray(savedMeta);
+      if (shouldRewriteMeta) {
+        setLocalStorage(getHabitMetaStorageKey(user.id), habitMeta);
+      }
+
+      const legacyHabitsRaw = getLocalStorage<unknown>(`habits_${user.id}`, []);
+      const legacyHabits = Array.isArray(legacyHabitsRaw)
+        ? legacyHabitsRaw.map(normalizeLegacyHabit).filter((habit): habit is Habit => Boolean(habit))
+        : [];
+      if (!Array.isArray(legacyHabitsRaw)) {
+        setLocalStorage(`habits_${user.id}`, []);
+      }
+
+      if (!habitOwner) {
+        if (!ignore) {
+          setHabits(legacyHabits);
+        }
+        return;
+      }
+
+      try {
+        const remoteRows = await listHabitsByUser(habitOwner);
+
+        if (remoteRows.length === 0 && legacyHabits.length > 0) {
+          const migratedHabits: Habit[] = [];
+
+          for (const legacyHabit of legacyHabits) {
+            const row = await createHabit({
+              name: legacyHabit.name,
+              goal: legacyHabit.goal,
+              unit: legacyHabit.unit,
+              icon: normalizeIcon(legacyHabit.icon),
+              reminderTime: legacyHabit.reminderTime,
+              user: habitOwner,
+              habitt: false,
+            });
+
+            migratedHabits.push(mergeHabitRowWithMeta(row, habitToMeta(legacyHabit)));
+          }
+
+          const migratedMeta = habitsToMetaMap(migratedHabits);
+          setLocalStorage(getHabitMetaStorageKey(user.id), migratedMeta);
+          setLocalStorage(`habits_${user.id}`, []);
+
+          if (!ignore) {
+            setHabits(migratedHabits);
+          }
+          return;
+        }
+
+        const nextHabits = remoteRows.map((row) => mergeHabitRowWithMeta(row, habitMeta[String(row.id)]));
+        if (!ignore) {
+          setHabits(nextHabits);
+        }
+      } catch (error) {
+        console.error('Error loading habits from Supabase:', error);
+        if (!ignore) {
+          setHabits(legacyHabits);
+        }
+      }
     };
-    loadUserData();
-  }, [isSignedIn, user?.id]);
+    void loadUserData();
+    return () => {
+      ignore = true;
+    };
+  }, [habitOwner, isSignedIn, user?.id]);
 
   // Save theme
   useEffect(() => {
@@ -934,10 +1100,10 @@ function HabitTrackerApp() {
     return () => unsubscribe();
   }, []);
 
-  // Save habits
+  // Save only local habit metadata. Habit rows live in Supabase.
   useEffect(() => {
     if (isSignedIn && user?.id) {
-      setLocalStorage(`habits_${user.id}`, habits);
+      setLocalStorage(getHabitMetaStorageKey(user.id), habitsToMetaMap(habits));
     }
   }, [habits, isSignedIn, user?.id]);
 
@@ -1146,20 +1312,31 @@ function HabitTrackerApp() {
   };
 
   // Add Habit
-  const handleAddHabit = () => {
-    if (newHabit.name && newHabit.goal) {
-      const habit: Habit = {
-        id: Date.now().toString(),
-        name: newHabit.name,
-        goal: parseFloat(newHabit.goal),
+  const handleAddHabit = async () => {
+    const trimmedName = newHabit.name.trim();
+    const parsedGoal = parseFloat(newHabit.goal);
+
+    if (!trimmedName || Number.isNaN(parsedGoal) || !habitOwner) {
+      return;
+    }
+
+    try {
+      const row = await createHabit({
+        name: trimmedName,
+        goal: parsedGoal,
         unit: newHabit.unit,
         icon: normalizeIcon(newHabit.icon),
+        reminderTime: newHabit.reminderTime,
+        user: habitOwner,
+        habitt: false,
+      });
+
+      const habit = mergeHabitRowWithMeta(row, {
         color: getRandomColor(),
         createdAt: getTodayDate(),
         completions: [],
         category: newHabit.category,
-        reminderTime: newHabit.reminderTime,
-      };
+      });
 
       setHabits((prev) => [...prev, habit]);
       setNewHabit({
@@ -1172,7 +1349,13 @@ function HabitTrackerApp() {
       });
       setShowAddHabit(false);
       playNotificationSound(soundEnabled, 'add');
-      launchCelebration('New habit added', `${newHabit.name} is ready for today.`);
+      launchCelebration('New habit added', `${trimmedName} is ready for today.`);
+    } catch (error) {
+      console.error('Error creating habit in Supabase:', error);
+      setReminderToast({
+        title: 'Sync error',
+        message: 'Habitni Supabase ga saqlab bo‘lmadi. Iltimos qayta urinib ko‘ring.',
+      });
     }
   };
 
@@ -1256,8 +1439,19 @@ function HabitTrackerApp() {
   };
 
   // Delete Habit
-  const deleteHabit = (habitId: string) => {
-    setHabits((prev) => prev.filter(h => h.id !== habitId));
+  const deleteHabit = async (habitId: string) => {
+    if (!habitOwner) return;
+
+    try {
+      await deleteHabitById(Number(habitId), habitOwner);
+      setHabits((prev) => prev.filter(h => h.id !== habitId));
+    } catch (error) {
+      console.error('Error deleting habit from Supabase:', error);
+      setReminderToast({
+        title: 'Sync error',
+        message: 'Habitni Supabase dan o‘chirib bo‘lmadi. Iltimos qayta urinib ko‘ring.',
+      });
+    }
   };
 
   // Update Profile
@@ -3574,10 +3768,18 @@ function AddHabitModal({
             <label className={`block text-sm font-medium ${themeConfig.textSecondary} mb-2`}>
               {text.icon}
             </label>
+            <input
+              type="text"
+              value={habit.icon}
+              onChange={(e) => onChange({ ...habit, icon: e.target.value })}
+              placeholder="emoji yoki text"
+              className={`w-full px-4 py-2 mb-3 ${themeConfig.input} rounded-lg ${themeConfig.text} placeholder-opacity-50 focus:outline-none focus:ring-2 focus:ring-emerald-400`}
+            />
             <div className="grid grid-cols-5 gap-2">
               {habitIcons.map((icon) => (
                 <button
                   key={icon}
+                  type="button"
                   onClick={() => onChange({ ...habit, icon })}
                   className={`p-3 rounded-lg text-xl transition ${
                     selectedIcon === icon

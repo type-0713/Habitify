@@ -1,19 +1,18 @@
-import type { NextConfig } from "next";
-import path from "node:path";
+import path from 'path';
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  turbopack: {
-    root: path.resolve(__dirname),
-  },
   images: {
     remotePatterns: [
-      { protocol: "https", hostname: "img.clerk.com" },
-      { protocol: "https", hostname: "images.clerk.dev" },
-      { protocol: "https", hostname: "images.clerk.com" },
-      { protocol: "https", hostname: "lh3.googleusercontent.com" },
-      { protocol: "https", hostname: "avatars.githubusercontent.com" },
-      { protocol: "https", hostname: "lh3.google.com" },
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+        pathname: '/**',
+      },
     ],
+  },
+  turbopack: {
+    root: path.join(__dirname),
   },
 };
 
