@@ -713,6 +713,21 @@ const habitToMeta = (habit: Habit): HabitMeta => ({
 const habitsToMetaMap = (habits: Habit[]): HabitMetaMap =>
   Object.fromEntries(habits.map((habit) => [habit.id, habitToMeta(habit)]));
 
+const createLocalHabitId = () => `local-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
+const getLegacyHabitsStorageKey = (userId: string) => `habits_${userId}`;
+
+const readLegacyHabits = (userId: string) => {
+  const raw = getLocalStorage<unknown>(getLegacyHabitsStorageKey(userId), []);
+  return Array.isArray(raw)
+    ? raw.map(normalizeLegacyHabit).filter((habit): habit is Habit => Boolean(habit))
+    : [];
+};
+
+const writeLegacyHabits = (userId: string, habits: Habit[]) => {
+  setLocalStorage(getLegacyHabitsStorageKey(userId), habits);
+};
+
 const mergeHabitRowWithMeta = (row: SupabaseHabitRow, meta?: HabitMeta): Habit => ({
   id: String(row.id),
   name: row.Name,
@@ -1199,12 +1214,12 @@ function HabitTrackerApp() {
         setLocalStorage(getHabitMetaStorageKey(user.id), habitMeta);
       }
 
-      const legacyHabitsRaw = getLocalStorage<unknown>(`habits_${user.id}`, []);
+      const legacyHabitsRaw = getLocalStorage<unknown>(getLegacyHabitsStorageKey(user.id), []);
       const legacyHabits = Array.isArray(legacyHabitsRaw)
         ? legacyHabitsRaw.map(normalizeLegacyHabit).filter((habit): habit is Habit => Boolean(habit))
         : [];
       if (!Array.isArray(legacyHabitsRaw)) {
-        setLocalStorage(`habits_${user.id}`, []);
+        writeLegacyHabits(user.id, []);
       }
 
       if (!habitOwner) {
@@ -1236,7 +1251,7 @@ function HabitTrackerApp() {
 
           const migratedMeta = habitsToMetaMap(migratedHabits);
           setLocalStorage(getHabitMetaStorageKey(user.id), migratedMeta);
-          setLocalStorage(`habits_${user.id}`, []);
+          writeLegacyHabits(user.id, []);
 
           if (!ignore) {
             setHabits(migratedHabits);
@@ -1596,12 +1611,45 @@ function HabitTrackerApp() {
       launchCelebration('New habit added', `${trimmedName} is ready for today.`);
     } catch (error) {
       console.error('Error creating habit in Supabase:', error);
+      if (user?.id) {
+        const fallbackHabit: Habit = {
+          id: createLocalHabitId(),
+          name: trimmedName,
+          goal: parsedGoal,
+          unit: newHabit.unit,
+          icon: normalizeIcon(newHabit.icon),
+          color: getRandomColor(),
+          createdAt: getTodayDate(),
+          completions: [],
+          category: newHabit.category,
+          reminderTime: newHabit.reminderTime,
+        };
+
+        setHabits((prev) => [...prev, fallbackHabit]);
+        writeLegacyHabits(user.id, [...readLegacyHabits(user.id), fallbackHabit]);
+        setNewHabit({
+          name: '',
+          goal: '',
+          unit: 'min',
+          icon: defaultHabitIcon,
+          category: 'health',
+          reminderTime: '09:00',
+        });
+        setShowAddHabit(false);
+        playNotificationSound(soundEnabled, 'add');
+        launchCelebration('New habit added', `${trimmedName} is ready for today.`);
+        setReminderToast({
+          title: 'Offline mode',
+          message: "Supabase ulanmagan. Habit vaqtincha qurilmada saqlandi.",
+        });
+        return;
+      }
       setReminderToast({
         title: 'Sync error',
         message: 'Habitni Supabase ga saqlab bo‘lmadi. Iltimos qayta urinib ko‘ring.',
       });
     }
-  }, [habitOwner, launchCelebration, newHabit, soundEnabled]);
+  }, [habitOwner, launchCelebration, newHabit, soundEnabled, user]);
 
   const handleToggleHabitTimer = useCallback((habitId: string, date: string) => {
     const targetHabit = habits.find((habit) => habit.id === habitId);
@@ -1645,19 +1693,25 @@ function HabitTrackerApp() {
 
   // Delete Habit
   const deleteHabit = useCallback(async (habitId: string) => {
-    if (!habitOwner) return;
+    if (!habitOwner || !user?.id) return;
 
     try {
-      await deleteHabitById(Number(habitId), habitOwner);
+      if (habitId.startsWith('local-')) {
+        writeLegacyHabits(user.id, readLegacyHabits(user.id).filter((habit) => habit.id !== habitId));
+      } else {
+        await deleteHabitById(Number(habitId), habitOwner);
+      }
       setHabits((prev) => prev.filter(h => h.id !== habitId));
     } catch (error) {
       console.error('Error deleting habit from Supabase:', error);
+      writeLegacyHabits(user.id, readLegacyHabits(user.id).filter((habit) => habit.id !== habitId));
+      setHabits((prev) => prev.filter((habit) => habit.id !== habitId));
       setReminderToast({
-        title: 'Sync error',
-        message: 'Habitni Supabase dan o‘chirib bo‘lmadi. Iltimos qayta urinib ko‘ring.',
+        title: 'Offline mode',
+        message: "Supabase ulanmagan. Habit qurilmadagi ro'yxatdan olib tashlandi.",
       });
     }
-  }, [habitOwner]);
+  }, [habitOwner, user]);
 
   // Update Profile
   const updateProfileState = useCallback((updates: Partial<UserProfile>) => {
@@ -4488,3 +4542,4 @@ const MemoProfilePage = React.memo(ProfilePage);
 const MemoHabitCard = React.memo(HabitCard, areHabitCardPropsEqual);
 
 // Animation styles live in app/globals.css to avoid module-level side effects.
+
