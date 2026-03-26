@@ -3951,8 +3951,8 @@ function ProfilePage({
       </div>
 
       {isMobile && isMobileEditOpen && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center overflow-y-auto overscroll-contain bg-[linear-gradient(135deg,rgba(15,23,42,0.62),rgba(15,23,42,0.36))] p-3 backdrop-blur-sm sm:items-center sm:p-4 sm:backdrop-blur-md">
-          <div className={`${themeConfig.card} mt-auto w-full max-w-md rounded-[24px] border ${themeConfig.border} p-4 shadow-2xl max-h-[calc(100dvh-0.75rem)] overflow-y-auto overscroll-contain spotlight-card section-reveal aurora-panel prism-surface sm:mt-0 sm:max-h-[90vh] sm:rounded-[28px] sm:p-6`}>
+        <div className="fixed inset-0 z-50 flex items-end justify-center overflow-y-auto overscroll-contain bg-[linear-gradient(135deg,rgba(15,23,42,0.62),rgba(15,23,42,0.36))] px-3 pb-3 pt-[calc(env(safe-area-inset-top)+3px)] backdrop-blur-sm sm:items-center sm:p-4 sm:backdrop-blur-md">
+          <div className={`${themeConfig.card} relative mt-auto flex w-full max-w-md flex-col overflow-hidden rounded-[24px] border ${themeConfig.border} p-4 shadow-2xl max-h-[calc(100dvh-env(safe-area-inset-top)-0.75rem-3px)] spotlight-card section-reveal aurora-panel prism-surface sm:mt-0 sm:max-h-[90vh] sm:rounded-[28px] sm:p-6`}>
             <div className="ambient-specks opacity-35" />
             <div className="flex items-center justify-between mb-4">
               <h3 className={`${themeConfig.text} text-lg font-bold`}>{text.profile}</h3>
@@ -3965,33 +3965,35 @@ function ProfilePage({
               </button>
             </div>
 
-            <div className="space-y-4">
-              <div>
-                <label className={`block text-sm ${themeConfig.textSecondary} mb-2`}>{text.nameLabel}</label>
-                <input
-                  type="text"
-                  value={editData.name}
-                  onChange={(e) => setEditData({ ...editData, name: e.target.value })}
-                  className={`w-full px-4 py-2 ${themeConfig.input} rounded-lg ${themeConfig.text} focus:outline-none focus:ring-2 focus:ring-amber-400`}
-                />
-              </div>
-              <div>
-                <label className={`block text-sm ${themeConfig.textSecondary} mb-2`}>{text.emailLabel}</label>
-                <input
-                  type="email"
-                  value={editData.email}
-                  onChange={(e) => setEditData({ ...editData, email: e.target.value })}
-                  className={`w-full px-4 py-2 ${themeConfig.input} rounded-lg ${themeConfig.text} focus:outline-none focus:ring-2 focus:ring-amber-400`}
-                />
-              </div>
-              <div>
-                <label className={`block text-sm ${themeConfig.textSecondary} mb-2`}>{text.bio}</label>
-                <textarea
-                  value={editData.bio}
-                  onChange={(e) => setEditData({ ...editData, bio: e.target.value })}
-                  className={`w-full px-4 py-2 ${themeConfig.input} rounded-lg ${themeConfig.text} focus:outline-none focus:ring-2 focus:ring-amber-400`}
-                  rows={4}
-                />
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1">
+              <div className="space-y-4">
+                <div>
+                  <label className={`block text-sm ${themeConfig.textSecondary} mb-2`}>{text.nameLabel}</label>
+                  <input
+                    type="text"
+                    value={editData.name}
+                    onChange={(e) => setEditData({ ...editData, name: e.target.value })}
+                    className={`w-full px-4 py-2 ${themeConfig.input} rounded-lg ${themeConfig.text} focus:outline-none focus:ring-2 focus:ring-amber-400`}
+                  />
+                </div>
+                <div>
+                  <label className={`block text-sm ${themeConfig.textSecondary} mb-2`}>{text.emailLabel}</label>
+                  <input
+                    type="email"
+                    value={editData.email}
+                    onChange={(e) => setEditData({ ...editData, email: e.target.value })}
+                    className={`w-full px-4 py-2 ${themeConfig.input} rounded-lg ${themeConfig.text} focus:outline-none focus:ring-2 focus:ring-amber-400`}
+                  />
+                </div>
+                <div>
+                  <label className={`block text-sm ${themeConfig.textSecondary} mb-2`}>{text.bio}</label>
+                  <textarea
+                    value={editData.bio}
+                    onChange={(e) => setEditData({ ...editData, bio: e.target.value })}
+                    className={`w-full px-4 py-2 ${themeConfig.input} rounded-lg ${themeConfig.text} focus:outline-none focus:ring-2 focus:ring-amber-400`}
+                    rows={4}
+                  />
+                </div>
               </div>
             </div>
 
@@ -4341,8 +4343,8 @@ function AddHabitModal({
       };
 
   return (
-    <div className={`fixed inset-0 ${theme === 'dark' ? 'bg-[linear-gradient(135deg,rgba(2,6,23,0.72),rgba(15,23,42,0.48))]' : 'bg-[linear-gradient(135deg,rgba(255,247,237,0.72),rgba(255,255,255,0.56))]'} flex items-end justify-center overflow-y-auto overscroll-contain p-2 z-50 backdrop-blur-sm sm:items-center sm:p-4 sm:backdrop-blur-md`}>
-      <div className={`${themeConfig.card} relative mt-auto flex max-h-[calc(100dvh-1rem)] w-full max-w-lg flex-col overflow-hidden border ${themeConfig.border} rounded-[24px] p-4 shadow-2xl spotlight-card section-reveal aurora-panel prism-surface premium-shell edge-glow sm:mt-0 sm:max-h-[90vh] sm:rounded-[30px] sm:p-8`}>
+    <div className={`fixed inset-0 ${theme === 'dark' ? 'bg-[linear-gradient(135deg,rgba(2,6,23,0.72),rgba(15,23,42,0.48))]' : 'bg-[linear-gradient(135deg,rgba(255,247,237,0.72),rgba(255,255,255,0.56))]'} flex items-end justify-center overflow-y-auto overscroll-contain px-2 pb-2 pt-[calc(env(safe-area-inset-top)+3px)] z-50 backdrop-blur-sm sm:items-center sm:p-4 sm:backdrop-blur-md`}>
+      <div className={`${themeConfig.card} relative mt-auto flex max-h-[calc(100dvh-env(safe-area-inset-top)-0.5rem-3px)] w-full max-w-lg flex-col overflow-hidden border ${themeConfig.border} rounded-[24px] p-4 shadow-2xl spotlight-card section-reveal aurora-panel prism-surface premium-shell edge-glow sm:mt-0 sm:max-h-[90vh] sm:rounded-[30px] sm:p-8`}>
         <div className="ambient-specks opacity-35" />
         <div className="mb-4 flex flex-wrap items-center gap-2 sm:mb-6">
           <span className={`chip-hover rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${
