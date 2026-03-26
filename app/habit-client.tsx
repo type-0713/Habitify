@@ -14,7 +14,7 @@ import {
 } from 'firebase/auth';
 import { firebaseAuth } from './lib/firebase';
 import { createHabit, deleteHabitById, listHabitsByUser, type SupabaseHabitRow } from './lib/supabase-habits';
-import { Check, Plus, Flame, Menu, LogOut, Home, ListTodo, BarChart3, Bell, User, Calendar, Edit2, Save, X, ChevronLeft, ChevronRight, Sun, Moon, Apple, Chrome, Mail, LockKeyhole, Eye, EyeOff, Play, Pause, Sparkles } from 'lucide-react';
+import { Camera, Check, Plus, Flame, Menu, LogOut, Home, ListTodo, BarChart3, Bell, User, Calendar, Edit2, Save, X, ChevronLeft, ChevronRight, Sun, Moon, Apple, Chrome, Mail, LockKeyhole, Eye, EyeOff, Play, Pause, Sparkles } from 'lucide-react';
 
 const ResponsiveContainer = dynamic(() => import('recharts').then((m) => m.ResponsiveContainer), { ssr: false });
 const BarChart = dynamic(() => import('recharts').then((m) => m.BarChart), { ssr: false });
@@ -504,6 +504,7 @@ interface ProfileOverrides {
   name?: string;
   email?: string;
   bio?: string;
+  avatarUrl?: string;
 }
 
 interface ActiveTimer {
@@ -739,6 +740,56 @@ const isRecoverableHabitSyncError = (error: unknown) => {
     message.includes('networkerror') ||
     message.includes('load failed')
   );
+};
+
+const isDataUrlImage = (value: string | null | undefined) => Boolean(value?.startsWith('data:image/'));
+
+const readFileAsDataUrl = (file: File) =>
+  new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result ?? ''));
+    reader.onerror = () => reject(new Error('Avatarni o‘qib bo‘lmadi.'));
+    reader.readAsDataURL(file);
+  });
+
+const loadImageElement = (src: string) =>
+  new Promise<HTMLImageElement>((resolve, reject) => {
+    const img = new window.Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error('Avatar rasmini tayyorlab bo‘lmadi.'));
+    img.src = src;
+  });
+
+const createAvatarDataUrl = async (file: File) => {
+  if (!file.type.startsWith('image/')) {
+    throw new Error('Faqat rasm fayl tanlang.');
+  }
+
+  const rawDataUrl = await readFileAsDataUrl(file);
+  const image = await loadImageElement(rawDataUrl);
+  const maxSide = 320;
+  const scale = Math.min(maxSide / image.width, maxSide / image.height, 1);
+  const targetWidth = Math.max(1, Math.round(image.width * scale));
+  const targetHeight = Math.max(1, Math.round(image.height * scale));
+  const canvas = document.createElement('canvas');
+  canvas.width = targetWidth;
+  canvas.height = targetHeight;
+
+  const context = canvas.getContext('2d');
+  if (!context) {
+    return rawDataUrl;
+  }
+
+  context.imageSmoothingEnabled = true;
+  context.imageSmoothingQuality = 'high';
+  context.drawImage(image, 0, 0, targetWidth, targetHeight);
+
+  const webpDataUrl = canvas.toDataURL('image/webp', 0.86);
+  if (isDataUrlImage(webpDataUrl)) {
+    return webpDataUrl;
+  }
+
+  return canvas.toDataURL('image/jpeg', 0.86);
 };
 
 const mergeStoredHabitWithMeta = (habit: Habit, meta?: HabitMeta): Habit => ({
@@ -1157,7 +1208,7 @@ function HabitTrackerApp() {
     setCurrentMonth(nextMonth);
   }, [minMonth]);
 
-  // Monthly reset only clears local completion/profile state.
+  // Monthly reset only clears local completion state.
   useEffect(() => {
     if (!isSignedIn || !user?.id) {
       return;
@@ -1190,10 +1241,8 @@ function HabitTrackerApp() {
         }));
 
         setHabits((prev) => prev.map((habit) => ({ ...habit, completions: [] })));
-        setProfileOverrides({});
         setLocalStorage(getHabitMetaStorageKey(user.id), resetMeta);
         writeLegacyHabits(user.id, resetLegacyHabits);
-        setLocalStorage(`profile_${user.id}`, {});
         setLocalStorage(resetKey, monthKey);
         setSelectedDate(getTodayDate());
         setCurrentMonth(getMonthStart(now));
@@ -1777,10 +1826,12 @@ function HabitTrackerApp() {
   // Update Profile
   const updateProfileState = useCallback((updates: Partial<UserProfile>) => {
     if (!isSignedIn || !user?.id) return;
+    const hasAvatarUpdate = Object.prototype.hasOwnProperty.call(updates, 'avatarUrl');
     const nextOverrides: ProfileOverrides = {
       name: updates.name ?? profileOverrides.name,
       email: updates.email ?? profileOverrides.email,
       bio: updates.bio ?? profileOverrides.bio,
+      avatarUrl: hasAvatarUpdate ? updates.avatarUrl : profileOverrides.avatarUrl,
     };
     setProfileOverrides(nextOverrides);
     setLocalStorage(`profile_${user.id}`, nextOverrides);
@@ -1822,7 +1873,7 @@ function HabitTrackerApp() {
       name: displayName,
       email: displayEmail,
       avatar: getInitials(displayName),
-      avatarUrl: user.avatarUrl || undefined,
+      avatarUrl: (profileOverrides.avatarUrl ?? user.avatarUrl) || undefined,
       bio: profileOverrides.bio ?? 'Building better habits daily!',
       joinDate: user.createdAt || getTodayDate(),
     };
@@ -2434,20 +2485,16 @@ function Sidebar({
       <div className={`relative p-4 border-t ${themeConfig.border} space-y-4`}>
         <div className={`rounded-[24px] border p-3 glass-lux hover-lift ${theme === 'dark' ? 'border-slate-700 bg-slate-900/45' : 'border-white/80 bg-white/68'}`}>
           <div className={`flex items-center gap-3 ${!showLabels && 'justify-center'}`}>
-          <div className="w-10 h-10 bg-gradient-to-br from-amber-300 via-orange-400 to-sky-500 rounded-full flex items-center justify-center text-base font-semibold shadow-lg overflow-hidden ring-2 ring-orange-300/40 shrink-0">
-            {user.avatarUrl ? (
-              <Image
-                src={user.avatarUrl}
-                alt={user.name}
-                width={40}
-                height={40}
-                sizes="40px"
-                className="w-full h-full rounded-full object-cover"
-              />
-            ) : (
-              <span className="leading-none">{user.avatar}</span>
-            )}
-          </div>
+          <UserAvatar
+            name={user.name}
+            avatar={user.avatar}
+            avatarUrl={user.avatarUrl}
+            width={40}
+            height={40}
+            sizes="40px"
+            className="h-10 w-10 shrink-0 rounded-full bg-gradient-to-br from-amber-300 via-orange-400 to-sky-500 text-base font-semibold shadow-lg ring-2 ring-orange-300/40 overflow-hidden flex items-center justify-center"
+            imageClassName="h-full w-full rounded-full object-cover"
+          />
           {showLabels && (
             <div className="flex-1 min-w-0">
               <p className={`text-sm font-semibold ${themeConfig.text} truncate`}>{user.name}</p>
@@ -2623,22 +2670,16 @@ function Header({
                 <p className={`max-w-[132px] truncate text-sm font-semibold ${themeConfig.text}`}>{user.name}</p>
                 <p className={`text-[11px] ${themeConfig.textSecondary}`}>{text.profile}</p>
               </div>
-              <div className="h-9 w-9 overflow-hidden rounded-[18px] bg-gradient-to-br from-amber-300 via-orange-400 to-sky-500 text-sm font-semibold text-white shadow-lg ring-2 ring-orange-300/40 float-gentle sm:h-10 sm:w-10 sm:rounded-2xl">
-                {user.avatarUrl ? (
-                  <Image
-                    src={user.avatarUrl}
-                    alt={user.name}
-                    width={40}
-                    height={40}
-                    sizes="40px"
-                    className="h-full w-full rounded-2xl object-cover"
-                  />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center">
-                    <span className="leading-none">{user.avatar}</span>
-                  </div>
-                )}
-              </div>
+              <UserAvatar
+                name={user.name}
+                avatar={user.avatar}
+                avatarUrl={user.avatarUrl}
+                width={40}
+                height={40}
+                sizes="40px"
+                className="h-9 w-9 overflow-hidden rounded-[18px] bg-gradient-to-br from-amber-300 via-orange-400 to-sky-500 text-sm font-semibold text-white shadow-lg ring-2 ring-orange-300/40 float-gentle sm:h-10 sm:w-10 sm:rounded-2xl flex items-center justify-center"
+                imageClassName="h-full w-full rounded-2xl object-cover"
+              />
             </button>
           </div>
         </div>
@@ -3798,6 +3839,46 @@ function StatsPage({
   );
 }
 
+function UserAvatar({
+  name,
+  avatar,
+  avatarUrl,
+  width,
+  height,
+  sizes,
+  className,
+  imageClassName,
+  fallbackClassName = 'leading-none',
+}: {
+  name: string;
+  avatar: string;
+  avatarUrl?: string;
+  width: number;
+  height: number;
+  sizes: string;
+  className: string;
+  imageClassName: string;
+  fallbackClassName?: string;
+}) {
+  return (
+    <div className={className}>
+      {avatarUrl ? (
+        <Image
+          src={avatarUrl}
+          alt={name}
+          width={width}
+          height={height}
+          sizes={sizes}
+          className={imageClassName}
+          unoptimized={isDataUrlImage(avatarUrl)}
+        />
+      ) : (
+        <span className={fallbackClassName}>{avatar}</span>
+      )}
+    </div>
+  );
+}
+
 // Profile Page
 function ProfilePage({
   user,
@@ -3821,30 +3902,99 @@ function ProfilePage({
   const [isEditing, setIsEditing] = useState(false);
   const [isMobileEditOpen, setIsMobileEditOpen] = useState(false);
   const [editData, setEditData] = useState(user);
+  const [avatarError, setAvatarError] = useState<string | null>(null);
   const [todayDate] = useState(() => getTodayDate());
   const text = translations[language];
 
   useBodyScrollLock(isMobile && isMobileEditOpen);
+  const profileCopy = language === 'uz'
+    ? {
+        premiumBadge: 'Premium aura',
+        premiumTitle: 'Shaxsiy profilingizga signature ko‘rinish bering',
+        premiumNote: 'Avatar, bio va ko‘rinish qurilmada saqlanadi va keyingi kirishda ham tayyor turadi.',
+        avatarTitle: 'Avatar studiyasi',
+        avatarHint: 'PNG, JPG yoki WEBP yuklang. Rasm avtomatik siqiladi va local profilga saqlanadi.',
+        uploadAvatar: 'Avatar yuklash',
+        memberLabel: 'Azo bo‘lgan',
+        signatureLabel: 'Signature look',
+        rhythmLabel: 'Kunlik ritm',
+        completionLabel: 'Yakunlangan odatlar',
+        signatureActiveCustom: 'Custom avatar faol',
+        signatureActiveDefault: 'Monogram avatar faol',
+        dailyRhythmNote: 'kuniga o‘rtacha yakunlash',
+        completionNote: 'odat kamida bir marta bajarilgan',
+      }
+    : language === 'ru'
+    ? {
+        premiumBadge: 'Premium aura',
+        premiumTitle: 'Сделайте профиль узнаваемым с персональным аватаром',
+        premiumNote: 'Аватар, био и визуальные настройки сохраняются локально и остаются после обновления страницы.',
+        avatarTitle: 'Студия аватара',
+        avatarHint: 'Загрузите PNG, JPG или WEBP. Изображение будет сжато и сохранено в локальном профиле.',
+        uploadAvatar: 'Загрузить аватар',
+        memberLabel: 'С нами',
+        signatureLabel: 'Signature look',
+        rhythmLabel: 'Ритм в день',
+        completionLabel: 'Завершено привычек',
+        signatureActiveCustom: 'Пользовательский аватар активен',
+        signatureActiveDefault: 'Активна монограмма',
+        dailyRhythmNote: 'средних завершений в день',
+        completionNote: 'привычек имеют хотя бы одно выполнение',
+      }
+    : {
+        premiumBadge: 'Premium aura',
+        premiumTitle: 'Give your profile a signature look with a custom avatar',
+        premiumNote: 'Avatar, bio, and styling stay saved locally so the profile feels personal on every visit.',
+        avatarTitle: 'Avatar studio',
+        avatarHint: 'Upload PNG, JPG, or WEBP. The image is compressed and stored in your local profile.',
+        uploadAvatar: 'Upload avatar',
+        memberLabel: 'Member for',
+        signatureLabel: 'Signature look',
+        rhythmLabel: 'Daily rhythm',
+        completionLabel: 'Habits completed',
+        signatureActiveCustom: 'Custom avatar active',
+        signatureActiveDefault: 'Initial monogram active',
+        dailyRhythmNote: 'avg completions per day',
+        completionNote: 'habits have at least one completed session',
+      };
   const profileBadgeSecondary = language === 'uz' ? "Profil bo'limi" : language === 'ru' ? 'Центр профиля' : 'Profile hub';
 
-  useEffect(() => {
-    setEditData(user);
-  }, [user]);
+  const handleAvatarUpload = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+
+    if (!file) {
+      return;
+    }
+
+    setAvatarError(null);
+
+    try {
+      const avatarUrl = await createAvatarDataUrl(file);
+      setEditData((prev) => ({ ...prev, avatarUrl }));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : profileCopy.avatarHint;
+      setAvatarError(message);
+    }
+  }, [profileCopy.avatarHint]);
 
   const handleSave = () => {
     onUpdate(editData);
+    setAvatarError(null);
     setIsEditing(false);
     setIsMobileEditOpen(false);
   };
 
   const handleCancel = () => {
     setEditData(user);
+    setAvatarError(null);
     setIsEditing(false);
     setIsMobileEditOpen(false);
   };
 
   const openEditor = () => {
     setEditData(user);
+    setAvatarError(null);
     if (isMobile) {
       setIsMobileEditOpen(true);
     } else {
@@ -3853,6 +4003,111 @@ function ProfilePage({
   };
 
   const showInlineEdit = isEditing && !isMobile;
+  const totalCompleted = habits.reduce(
+    (sum: number, h: Habit) => sum + h.completions.filter(c => c.completed).length,
+    0
+  );
+
+  const accountAgeDays = Math.max(
+    Math.floor(
+      (new Date(`${todayDate}T00:00:00`).getTime() - new Date(`${user.joinDate}T00:00:00`).getTime()) / MS_PER_DAY
+    ) + 1,
+    1
+  );
+  const completedHabitCount = habits.filter((habit) => habit.completions.some((completion) => completion.completed)).length;
+  const dailyRhythm = totalCompleted === 0 ? '0.0' : (totalCompleted / accountAgeDays).toFixed(totalCompleted / accountAgeDays >= 10 ? 0 : 1);
+  const profileHighlights = [
+    { label: text.totalHabits, value: String(habits.length), accent: theme === 'dark' ? 'text-amber-300' : 'text-amber-600' },
+    { label: profileCopy.completionLabel, value: String(totalCompleted), accent: theme === 'dark' ? 'text-sky-300' : 'text-sky-600' },
+    { label: profileCopy.memberLabel, value: `${accountAgeDays} ${text.days}`, accent: theme === 'dark' ? 'text-emerald-300' : 'text-emerald-600' },
+  ];
+
+  const renderProfileEditorFields = (variant: 'inline' | 'modal') => {
+    const compact = variant === 'inline';
+    return (
+      <div className={compact ? 'space-y-4' : 'space-y-5'}>
+        <div className={`relative overflow-hidden rounded-[28px] border ${themeConfig.border} ${themeConfig.bgTertiary} p-4 shadow-[0_18px_48px_-34px_rgba(15,23,42,0.85)]`}>
+          <div className={`pointer-events-none absolute inset-0 ${
+            theme === 'dark'
+              ? 'bg-[radial-gradient(circle_at_top_left,_rgba(251,191,36,0.18),_transparent_52%),radial-gradient(circle_at_bottom_right,_rgba(56,189,248,0.16),_transparent_48%)]'
+              : 'bg-[radial-gradient(circle_at_top_left,_rgba(251,191,36,0.20),_transparent_52%),radial-gradient(circle_at_bottom_right,_rgba(14,165,233,0.14),_transparent_48%)]'
+          }`} />
+          <div className={`relative flex ${compact ? 'flex-col gap-4' : 'flex-col gap-4 sm:flex-row sm:items-center'}`}>
+            <UserAvatar
+              name={editData.name}
+              avatar={getInitials(editData.name || user.name)}
+              avatarUrl={editData.avatarUrl}
+              width={compact ? 88 : 104}
+              height={compact ? 88 : 104}
+              sizes={compact ? '88px' : '104px'}
+              className="flex h-[88px] w-[88px] items-center justify-center overflow-hidden rounded-[28px] bg-gradient-to-br from-amber-300 via-orange-400 to-sky-500 text-2xl font-semibold text-white shadow-[0_18px_44px_-26px_rgba(249,115,22,0.78)] ring-4 ring-white/10 sm:h-[104px] sm:w-[104px] sm:text-3xl"
+              imageClassName="h-full w-full rounded-[28px] object-cover"
+            />
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className={`rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] ${
+                  theme === 'dark' ? 'bg-slate-950/55 text-amber-200' : 'bg-white/85 text-amber-700'
+                }`}>
+                  {profileCopy.avatarTitle}
+                </span>
+                <span className={`rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] ${
+                  theme === 'dark' ? 'bg-sky-500/14 text-sky-200' : 'bg-sky-50 text-sky-700'
+                }`}>
+                  {profileCopy.signatureLabel}
+                </span>
+              </div>
+              <p className={`mt-3 text-sm font-medium ${themeConfig.text}`}>{profileCopy.premiumTitle}</p>
+              <p className={`mt-2 text-xs leading-6 ${themeConfig.textSecondary}`}>{profileCopy.avatarHint}</p>
+              <label className="mt-4 inline-flex cursor-pointer items-center gap-2 rounded-2xl bg-gradient-to-r from-amber-400 via-orange-500 to-sky-500 px-4 py-2 text-sm font-semibold text-white shadow-[0_18px_34px_-22px_rgba(249,115,22,0.95)] transition hover:scale-[1.01]">
+                <Camera className="h-4 w-4" />
+                {profileCopy.uploadAvatar}
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp"
+                  onChange={handleAvatarUpload}
+                  className="sr-only"
+                />
+              </label>
+              {avatarError && (
+                <p className="mt-3 text-xs font-medium text-rose-400">{avatarError}</p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4">
+          <div>
+            <label className={`mb-2 block text-sm font-medium ${themeConfig.textSecondary}`}>{text.nameLabel}</label>
+            <input
+              type="text"
+              value={editData.name}
+              onChange={(e) => setEditData({ ...editData, name: e.target.value })}
+              className={`w-full rounded-2xl px-4 py-3 ${themeConfig.input} ${themeConfig.text} focus:outline-none focus:ring-2 focus:ring-amber-400`}
+            />
+          </div>
+          <div>
+            <label className={`mb-2 block text-sm font-medium ${themeConfig.textSecondary}`}>{text.emailLabel}</label>
+            <input
+              type="email"
+              value={editData.email}
+              onChange={(e) => setEditData({ ...editData, email: e.target.value })}
+              className={`w-full rounded-2xl px-4 py-3 ${themeConfig.input} ${themeConfig.text} focus:outline-none focus:ring-2 focus:ring-amber-400`}
+            />
+          </div>
+          <div>
+            <label className={`mb-2 block text-sm font-medium ${themeConfig.textSecondary}`}>{text.bio}</label>
+            <textarea
+              value={editData.bio}
+              onChange={(e) => setEditData({ ...editData, bio: e.target.value })}
+              className={`w-full rounded-2xl px-4 py-3 ${themeConfig.input} ${themeConfig.text} focus:outline-none focus:ring-2 focus:ring-amber-400`}
+              rows={compact ? 3 : 4}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const mobileEditModal = isMobile && isMobileEditOpen && typeof document !== 'undefined'
     ? createPortal(
         <div className="fixed inset-0 z-50 overflow-y-auto overscroll-contain bg-[linear-gradient(135deg,rgba(15,23,42,0.62),rgba(15,23,42,0.36))] backdrop-blur-sm sm:backdrop-blur-md">
@@ -3860,7 +4115,10 @@ function ProfilePage({
             <div className={`${themeConfig.card} relative flex w-full max-w-md flex-col overflow-hidden rounded-[24px] border ${themeConfig.border} p-4 shadow-2xl max-h-[calc(100dvh-env(safe-area-inset-top)-0.75rem-3px)] spotlight-card section-reveal aurora-panel prism-surface sm:max-h-[90vh] sm:rounded-[28px] sm:p-6`}>
               <div className="ambient-specks opacity-35" />
               <div className="mb-4 flex items-center justify-between">
-                <h3 className={`${themeConfig.text} text-lg font-bold`}>{text.profile}</h3>
+                <div>
+                  <p className={`text-[11px] font-semibold uppercase tracking-[0.24em] ${themeConfig.textSecondary}`}>{profileCopy.premiumBadge}</p>
+                  <h3 className={`${themeConfig.text} mt-2 text-lg font-bold`}>{text.profile}</h3>
+                </div>
                 <button
                   onClick={handleCancel}
                   className={`icon-button-soft rounded-lg p-2 transition ${themeConfig.hover}`}
@@ -3871,47 +4129,19 @@ function ProfilePage({
               </div>
 
               <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1">
-                <div className="space-y-4">
-                  <div>
-                    <label className={`mb-2 block text-sm ${themeConfig.textSecondary}`}>{text.nameLabel}</label>
-                    <input
-                      type="text"
-                      value={editData.name}
-                      onChange={(e) => setEditData({ ...editData, name: e.target.value })}
-                      className={`w-full rounded-lg px-4 py-2 ${themeConfig.input} ${themeConfig.text} focus:outline-none focus:ring-2 focus:ring-amber-400`}
-                    />
-                  </div>
-                  <div>
-                    <label className={`mb-2 block text-sm ${themeConfig.textSecondary}`}>{text.emailLabel}</label>
-                    <input
-                      type="email"
-                      value={editData.email}
-                      onChange={(e) => setEditData({ ...editData, email: e.target.value })}
-                      className={`w-full rounded-lg px-4 py-2 ${themeConfig.input} ${themeConfig.text} focus:outline-none focus:ring-2 focus:ring-amber-400`}
-                    />
-                  </div>
-                  <div>
-                    <label className={`mb-2 block text-sm ${themeConfig.textSecondary}`}>{text.bio}</label>
-                    <textarea
-                      value={editData.bio}
-                      onChange={(e) => setEditData({ ...editData, bio: e.target.value })}
-                      className={`w-full rounded-lg px-4 py-2 ${themeConfig.input} ${themeConfig.text} focus:outline-none focus:ring-2 focus:ring-amber-400`}
-                      rows={4}
-                    />
-                  </div>
-                </div>
+                {renderProfileEditorFields('modal')}
               </div>
 
               <div className={`sticky bottom-0 -mx-4 mt-6 flex gap-3 border-t ${theme === 'dark' ? 'border-slate-700/80 bg-slate-950/95' : 'border-slate-200/80 bg-white/95'} px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-4 sm:mx-0 sm:border-0 sm:bg-transparent sm:px-0 sm:pb-0 sm:pt-0`}>
                 <button
                   onClick={handleCancel}
-                  className={`ghost-action flex-1 rounded-lg px-4 py-2 ${themeConfig.bgTertiary} ${themeConfig.textSecondary} transition hover:opacity-80`}
+                  className={`ghost-action flex-1 rounded-2xl px-4 py-3 ${themeConfig.bgTertiary} ${themeConfig.textSecondary} transition hover:opacity-80`}
                 >
                   {text.cancel}
                 </button>
                 <button
                   onClick={handleSave}
-                  className="gradient-action flex-1 rounded-lg bg-gradient-to-r from-amber-400 via-orange-500 to-sky-500 px-4 py-2 text-white transition hover:shadow-lg"
+                  className="gradient-action flex-1 rounded-2xl bg-gradient-to-r from-amber-400 via-orange-500 to-sky-500 px-4 py-3 text-white transition hover:shadow-lg"
                 >
                   <Save className="mr-2 inline-block h-4 w-4" />
                   {text.saveChanges}
@@ -3924,26 +4154,19 @@ function ProfilePage({
       )
     : null;
 
-  const totalCompleted = habits.reduce(
-    (sum: number, h: Habit) => sum + h.completions.filter(c => c.completed).length,
-    0
-  );
-
-  const accountAgeDays = Math.max(
-    Math.floor(
-      (new Date(`${todayDate}T00:00:00`).getTime() - new Date(`${user.joinDate}T00:00:00`).getTime()) / MS_PER_DAY
-    ) + 1,
-    1
-  );
-
   return (
     <>
     <div className="max-w-3xl space-y-6">
       {/* Profile Card */}
-      <div className={`${themeConfig.card} rounded-[30px] p-8 border ${themeConfig.border} shadow-lg spotlight-card glow-pulse section-reveal aurora-panel prism-surface premium-shell edge-glow`}>
+      <div className={`${themeConfig.card} relative overflow-hidden rounded-[32px] border ${themeConfig.border} p-6 shadow-[0_34px_90px_-52px_rgba(15,23,42,0.95)] spotlight-card glow-pulse section-reveal aurora-panel prism-surface premium-shell edge-glow sm:p-8`}>
         <div className="mesh-grid opacity-25" />
         <div className="ambient-specks opacity-35" />
-        <div className="mb-6 flex flex-wrap items-center gap-2">
+        <div className={`pointer-events-none absolute inset-0 ${
+          theme === 'dark'
+            ? 'bg-[radial-gradient(circle_at_top_left,_rgba(251,191,36,0.18),_transparent_28%),radial-gradient(circle_at_top_right,_rgba(56,189,248,0.12),_transparent_22%),radial-gradient(circle_at_bottom_left,_rgba(16,185,129,0.10),_transparent_24%)]'
+            : 'bg-[radial-gradient(circle_at_top_left,_rgba(251,191,36,0.18),_transparent_28%),radial-gradient(circle_at_top_right,_rgba(14,165,233,0.10),_transparent_24%),radial-gradient(circle_at_bottom_left,_rgba(16,185,129,0.10),_transparent_22%)]'
+        }`} />
+        <div className="relative mb-6 flex flex-wrap items-center gap-2">
           <span className={`chip-hover rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${
             theme === 'dark' ? 'bg-slate-800/90 text-amber-200' : 'bg-amber-50 text-amber-700'
           }`}>
@@ -3952,109 +4175,149 @@ function ProfilePage({
           <span className={`chip-hover rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${
             theme === 'dark' ? 'bg-sky-500/12 text-sky-200' : 'bg-sky-50 text-sky-700'
           }`}>
+            {profileCopy.premiumBadge}
+          </span>
+          <span className={`chip-hover rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${
+            theme === 'dark' ? 'bg-emerald-500/12 text-emerald-200' : 'bg-emerald-50 text-emerald-700'
+          }`}>
             {language === 'uz' ? "Profil bo'limi" : profileBadgeSecondary}
           </span>
         </div>
-        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div className="flex min-w-0 flex-1 flex-col gap-4 sm:flex-row sm:items-start">
-            <div className="w-16 h-16 shrink-0 bg-gradient-to-br from-amber-300 via-orange-400 to-sky-500 rounded-full flex items-center justify-center text-3xl shadow-lg ring-2 ring-orange-300/40 overflow-hidden">
-              {user.avatarUrl ? (
-                <Image
-                  src={user.avatarUrl}
-                  alt={user.name}
-                  width={64}
-                  height={64}
-                  sizes="64px"
-                  className="w-full h-full rounded-full object-cover"
-                />
-              ) : (
-                <span>{user.avatar}</span>
-              )}
-            </div>
-            <div
-              className={`min-w-0 flex-1 rounded-[24px] border px-4 py-3 glass-lux hover-lift ${
-                theme === 'dark' ? 'border-slate-700 bg-slate-900/35' : 'border-white/80 bg-white/70'
-              }`}
-            >
-              {showInlineEdit ? (
-                <div className="space-y-2">
-                  <input
-                    type="text"
-                    value={editData.name}
-                    onChange={(e) => setEditData({ ...editData, name: e.target.value })}
-                    className={`text-2xl font-bold ${themeConfig.text} bg-opacity-50 ${themeConfig.bgTertiary} px-3 py-2 rounded-2xl w-full max-w-full`}
-                  />
-                  <input
-                    type="email"
-                    value={editData.email}
-                    onChange={(e) => setEditData({ ...editData, email: e.target.value })}
-                    className={`text-sm ${themeConfig.text} ${themeConfig.bgTertiary} px-3 py-2 rounded-2xl w-full max-w-full`}
-                  />
+
+        <div className="relative grid gap-5 lg:grid-cols-[1.35fr_0.85fr]">
+          <div className={`rounded-[30px] border p-5 backdrop-blur-xl ${
+            theme === 'dark' ? 'border-slate-700/90 bg-slate-950/38' : 'border-white/80 bg-white/72'
+          }`}>
+            {showInlineEdit ? (
+              <>
+                {renderProfileEditorFields('inline')}
+                <div className="mt-5 flex gap-3">
+                  <button
+                    onClick={handleSave}
+                    className="gradient-action flex-1 rounded-2xl bg-gradient-to-r from-amber-400 via-orange-500 to-sky-500 px-4 py-3 text-white transition hover:shadow-lg"
+                  >
+                    <Save className="mr-2 inline-block h-4 w-4" />
+                    {text.saveChanges}
+                  </button>
+                  <button
+                    onClick={handleCancel}
+                    className={`ghost-action rounded-2xl px-4 py-3 ${themeConfig.bgTertiary} ${themeConfig.textSecondary} transition hover:opacity-80`}
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
                 </div>
-              ) : (
-                <h2 className={`text-2xl font-bold ${themeConfig.text} break-words`}>{user.name}</h2>
-              )}
-              {!showInlineEdit && <p className={`${themeConfig.textSecondary} break-all`}>{user.email}</p>}
-              <p className={`text-sm ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>{text.joined} {formatDate(user.joinDate, locale)}</p>
-            </div>
+              </>
+            ) : (
+              <>
+                <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
+                  <div className="relative shrink-0">
+                    <div className="absolute inset-0 rounded-[34px] bg-gradient-to-br from-amber-400/40 via-orange-500/30 to-sky-500/35 blur-2xl" />
+                    <UserAvatar
+                      name={user.name}
+                      avatar={user.avatar}
+                      avatarUrl={user.avatarUrl}
+                      width={112}
+                      height={112}
+                      sizes="112px"
+                      className="relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-[32px] bg-gradient-to-br from-amber-300 via-orange-400 to-sky-500 text-3xl font-semibold text-white shadow-[0_30px_60px_-34px_rgba(249,115,22,0.95)] ring-4 ring-white/10 sm:h-28 sm:w-28"
+                      imageClassName="h-full w-full rounded-[32px] object-cover"
+                    />
+                    <div className={`absolute -bottom-2 -right-2 flex h-9 w-9 items-center justify-center rounded-2xl border ${
+                      theme === 'dark' ? 'border-slate-800 bg-slate-950/95 text-amber-300' : 'border-white bg-white/95 text-amber-500'
+                    } shadow-lg`}>
+                      <Sparkles className="h-4 w-4" />
+                    </div>
+                  </div>
+
+                  <div className="min-w-0 flex-1">
+                    <p className={`text-[11px] font-semibold uppercase tracking-[0.24em] ${themeConfig.textSecondary}`}>{profileCopy.premiumTitle}</p>
+                    <h2 className={`mt-3 break-words text-3xl font-bold ${themeConfig.text}`}>{user.name}</h2>
+                    <p className={`mt-2 break-all text-sm ${themeConfig.textSecondary}`}>{user.email}</p>
+                    <p className={`mt-2 text-sm ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>{text.joined} {formatDate(user.joinDate, locale)}</p>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {profileHighlights.map((item) => (
+                        <div key={item.label} className={`rounded-2xl border px-3 py-2 ${
+                          theme === 'dark' ? 'border-slate-700/80 bg-slate-900/60' : 'border-white/80 bg-white/75'
+                        }`}>
+                          <p className={`text-[10px] uppercase tracking-[0.2em] ${themeConfig.textSecondary}`}>{item.label}</p>
+                          <p className={`mt-1 text-base font-semibold ${item.accent}`}>{item.value}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={openEditor}
+                    className="icon-button-soft self-start rounded-2xl border border-amber-400/20 bg-amber-500/15 p-3 text-amber-400 transition hover:bg-amber-500/25 sm:self-center"
+                  >
+                    <Edit2 className="h-5 w-5" />
+                  </button>
+                </div>
+
+                <div className={`mt-5 rounded-[24px] border p-5 ${
+                  theme === 'dark' ? 'border-slate-700/80 bg-slate-950/45' : 'border-white/80 bg-white/76'
+                }`}>
+                  <p className={`text-[11px] font-semibold uppercase tracking-[0.22em] ${themeConfig.textSecondary}`}>{text.bio}</p>
+                  <p className={`mt-3 text-base leading-7 ${themeConfig.text}`}>{user.bio}</p>
+                  <p className={`mt-4 text-sm leading-6 ${themeConfig.textSecondary}`}>{profileCopy.premiumNote}</p>
+                </div>
+              </>
+            )}
           </div>
 
-          {showInlineEdit ? (
-            <div className="flex gap-2 sm:ml-4 self-start sm:self-auto">
-              <button
-                onClick={handleSave}
-                className="icon-button-soft p-2 bg-sky-500/15 hover:bg-sky-500/25 text-sky-500 rounded-lg transition"
-              >
-                <Save className="w-5 h-5" />
-              </button>
-              <button
-                onClick={handleCancel}
-                className="icon-button-soft p-2 bg-red-500/20 hover:bg-red-500/30 text-red-500 rounded-lg transition"
-              >
-                <X className="w-5 h-5" />
-              </button>
+          <div className={`rounded-[30px] border p-5 backdrop-blur-xl ${
+            theme === 'dark' ? 'border-slate-700/90 bg-slate-950/48' : 'border-white/80 bg-white/78'
+          }`}>
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className={`text-[11px] font-semibold uppercase tracking-[0.22em] ${themeConfig.textSecondary}`}>{profileCopy.premiumBadge}</p>
+                <h3 className={`mt-3 text-xl font-bold ${themeConfig.text}`}>{profileCopy.signatureLabel}</h3>
+              </div>
+              <div className={`rounded-2xl px-3 py-2 ${
+                theme === 'dark' ? 'bg-slate-900/75 text-amber-300' : 'bg-amber-50 text-amber-700'
+              }`}>
+                <Sparkles className="h-4 w-4" />
+              </div>
             </div>
-          ) : (
-            <button
-              onClick={openEditor}
-              className="icon-button-soft p-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-500 rounded-lg transition self-start sm:self-auto"
-            >
-              <Edit2 className="w-5 h-5" />
-            </button>
-          )}
-        </div>
 
-        {/* Bio */}
-        <div>
-          <label className={`block text-sm ${themeConfig.textSecondary} mb-2`}>{text.bio}</label>
-          {showInlineEdit ? (
-            <textarea
-              value={editData.bio}
-              onChange={(e) => setEditData({ ...editData, bio: e.target.value })}
-              className={`w-full px-4 py-2 ${themeConfig.input} rounded-lg ${themeConfig.text} focus:outline-none focus:ring-2 focus:ring-amber-400`}
-              rows={3}
-            />
-          ) : (
-            <p className={`${themeConfig.text} opacity-90`}>{user.bio}</p>
-          )}
+            <div className="mt-5 space-y-3">
+              <div className={`rounded-[24px] border p-4 ${theme === 'dark' ? 'border-slate-700/80 bg-slate-900/60' : 'border-white/80 bg-white/82'}`}>
+                <p className={`text-xs uppercase tracking-[0.2em] ${themeConfig.textSecondary}`}>{profileCopy.signatureLabel}</p>
+                <p className={`mt-2 text-lg font-semibold ${themeConfig.text}`}>{user.avatarUrl ? profileCopy.signatureActiveCustom : profileCopy.signatureActiveDefault}</p>
+              </div>
+              <div className={`rounded-[24px] border p-4 ${theme === 'dark' ? 'border-slate-700/80 bg-slate-900/60' : 'border-white/80 bg-white/82'}`}>
+                <p className={`text-xs uppercase tracking-[0.2em] ${themeConfig.textSecondary}`}>{profileCopy.rhythmLabel}</p>
+                <p className={`mt-2 text-lg font-semibold ${theme === 'dark' ? 'text-sky-300' : 'text-sky-600'}`}>{dailyRhythm}</p>
+                <p className={`mt-1 text-sm ${themeConfig.textSecondary}`}>{profileCopy.dailyRhythmNote}</p>
+              </div>
+              <div className={`rounded-[24px] border p-4 ${theme === 'dark' ? 'border-slate-700/80 bg-slate-900/60' : 'border-white/80 bg-white/82'}`}>
+                <p className={`text-xs uppercase tracking-[0.2em] ${themeConfig.textSecondary}`}>{profileCopy.completionLabel}</p>
+                <p className={`mt-2 text-lg font-semibold ${theme === 'dark' ? 'text-emerald-300' : 'text-emerald-600'}`}>{completedHabitCount}/{Math.max(habits.length, 1)}</p>
+                <p className={`mt-1 text-sm ${themeConfig.textSecondary}`}>{profileCopy.completionNote}</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className={`${themeConfig.card} rounded-[24px] p-6 border ${themeConfig.border} shadow-lg spotlight-card hover-lift section-reveal section-delay-1 prism-surface premium-shell edge-glow`}>
-          <p className={`${themeConfig.textSecondary} text-sm mb-2`}>{text.totalHabits}</p>
-          <p className={`text-3xl font-bold ${themeConfig.text}`}>{habits.length}</p>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className={`${themeConfig.card} relative overflow-hidden rounded-[26px] border ${themeConfig.border} p-6 shadow-lg spotlight-card hover-lift section-reveal section-delay-1 prism-surface premium-shell edge-glow`}>
+          <div className={`pointer-events-none absolute inset-x-0 top-0 h-24 ${theme === 'dark' ? 'bg-[radial-gradient(circle_at_top_left,_rgba(251,191,36,0.22),_transparent_60%)]' : 'bg-[radial-gradient(circle_at_top_left,_rgba(251,191,36,0.20),_transparent_62%)]'}`} />
+          <p className={`${themeConfig.textSecondary} relative text-xs uppercase tracking-[0.2em]`}>{text.totalHabits}</p>
+          <p className={`relative mt-4 text-4xl font-bold ${themeConfig.text}`}>{habits.length}</p>
         </div>
-        <div className={`${themeConfig.card} rounded-[24px] p-6 border ${themeConfig.border} shadow-lg spotlight-card hover-lift section-reveal section-delay-2 prism-surface premium-shell edge-glow`}>
-          <p className={`${themeConfig.textSecondary} text-sm mb-2`}>{text.totalCompleted}</p>
-          <p className={`text-3xl font-bold ${theme === 'dark' ? 'text-sky-300' : 'text-sky-600'}`}>{totalCompleted}</p>
+        <div className={`${themeConfig.card} relative overflow-hidden rounded-[26px] border ${themeConfig.border} p-6 shadow-lg spotlight-card hover-lift section-reveal section-delay-2 prism-surface premium-shell edge-glow`}>
+          <div className={`pointer-events-none absolute inset-x-0 top-0 h-24 ${theme === 'dark' ? 'bg-[radial-gradient(circle_at_top_left,_rgba(56,189,248,0.20),_transparent_60%)]' : 'bg-[radial-gradient(circle_at_top_left,_rgba(56,189,248,0.18),_transparent_62%)]'}`} />
+          <p className={`${themeConfig.textSecondary} relative text-xs uppercase tracking-[0.2em]`}>{text.totalCompleted}</p>
+          <p className={`relative mt-4 text-4xl font-bold ${theme === 'dark' ? 'text-sky-300' : 'text-sky-600'}`}>{totalCompleted}</p>
         </div>
-        <div className={`${themeConfig.card} rounded-[24px] p-6 border ${themeConfig.border} shadow-lg spotlight-card hover-lift section-reveal section-delay-3 prism-surface premium-shell edge-glow`}>
-          <p className={`${themeConfig.textSecondary} text-sm mb-2`}>{text.accountAge}</p>
-          <p className={`text-3xl font-bold text-amber-500`}>
+        <div className={`${themeConfig.card} relative overflow-hidden rounded-[26px] border ${themeConfig.border} p-6 shadow-lg spotlight-card hover-lift section-reveal section-delay-3 prism-surface premium-shell edge-glow`}>
+          <div className={`pointer-events-none absolute inset-x-0 top-0 h-24 ${theme === 'dark' ? 'bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.22),_transparent_60%)]' : 'bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.16),_transparent_62%)]'}`} />
+          <p className={`${themeConfig.textSecondary} relative text-xs uppercase tracking-[0.2em]`}>{text.accountAge}</p>
+          <p className="relative mt-4 text-4xl font-bold text-emerald-500">
             {accountAgeDays}
-            <span className="text-sm ml-1">{text.days}</span>
+            <span className="ml-1 text-sm">{text.days}</span>
           </p>
         </div>
       </div>
