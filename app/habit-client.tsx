@@ -729,6 +729,18 @@ const writeLegacyHabits = (userId: string, habits: Habit[]) => {
   setLocalStorage(getLegacyHabitsStorageKey(userId), habits);
 };
 
+const isRecoverableHabitSyncError = (error: unknown) => {
+  const message = error instanceof Error ? error.message.toLowerCase() : '';
+  return (
+    message.includes('next_public_supabase_url') ||
+    message.includes('supabase request failed with 404') ||
+    message.includes('vercel app url') ||
+    message.includes('failed to fetch') ||
+    message.includes('networkerror') ||
+    message.includes('load failed')
+  );
+};
+
 const mergeStoredHabitWithMeta = (habit: Habit, meta?: HabitMeta): Habit => ({
   ...habit,
   color: meta?.color ?? habit.color,
@@ -1291,7 +1303,9 @@ function HabitTrackerApp() {
           setHasHydratedHabits(true);
         }
       } catch (error) {
-        console.error('Error loading habits from Supabase:', error);
+        if (!isRecoverableHabitSyncError(error)) {
+          console.error('Error loading habits from Supabase:', error);
+        }
         if (!ignore) {
           setHabits(legacyHabits);
           setHasHydratedHabits(true);
@@ -1653,7 +1667,9 @@ function HabitTrackerApp() {
       playNotificationSound(soundEnabled, 'add');
       launchCelebration('New habit added', `${trimmedName} is ready for today.`);
     } catch (error) {
-      console.error('Error creating habit in Supabase:', error);
+      if (!isRecoverableHabitSyncError(error)) {
+        console.error('Error creating habit in Supabase:', error);
+      }
       if (user?.id) {
         const fallbackHabit: Habit = {
           id: createLocalHabitId(),
@@ -1746,7 +1762,9 @@ function HabitTrackerApp() {
       }
       setHabits((prev) => prev.filter(h => h.id !== habitId));
     } catch (error) {
-      console.error('Error deleting habit from Supabase:', error);
+      if (!isRecoverableHabitSyncError(error)) {
+        console.error('Error deleting habit from Supabase:', error);
+      }
       writeLegacyHabits(user.id, readLegacyHabits(user.id).filter((habit) => habit.id !== habitId));
       setHabits((prev) => prev.filter((habit) => habit.id !== habitId));
       setReminderToast({

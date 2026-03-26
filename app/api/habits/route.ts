@@ -3,6 +3,22 @@ import { NextRequest, NextResponse } from 'next/server';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
+const normalizeSupabaseUrl = (value: string) => {
+  let parsed: URL;
+
+  try {
+    parsed = new URL(value);
+  } catch {
+    throw new Error('NEXT_PUBLIC_SUPABASE_URL is invalid. Use your Supabase project URL.');
+  }
+
+  if (parsed.hostname.endsWith('vercel.app')) {
+    throw new Error('NEXT_PUBLIC_SUPABASE_URL is invalid. Use your Supabase project URL, not your Vercel app URL.');
+  }
+
+  return parsed.origin;
+};
+
 const getSupabaseConfig = () => {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
   const serviceRoleKey = process.env.SUPABASE_SECRET_KEY?.trim();
@@ -25,7 +41,7 @@ const getSupabaseConfig = () => {
 
   return {
     apiKey,
-    baseUrl: `${supabaseUrl.replace(/\/$/, '')}/rest/v1/${habitsTable}`,
+    baseUrl: `${normalizeSupabaseUrl(supabaseUrl)}/rest/v1/${habitsTable}`,
   };
 };
 
