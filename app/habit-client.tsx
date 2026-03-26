@@ -1081,6 +1081,7 @@ function HabitTrackerApp() {
   const [activeTimer, setActiveTimer] = useState<ActiveTimer | null>(null);
   const [liveTimerProgress, setLiveTimerProgress] = useState<LiveTimerProgress | null>(null);
   const timerTickRef = useRef<number | null>(null);
+  const timerElapsedMsRef = useRef(0);
 
   const [newHabit, setNewHabit] = useState<NewHabitDraft>({
     name: '',
@@ -1353,6 +1354,7 @@ function HabitTrackerApp() {
   useEffect(() => {
     if (!activeTimer) {
       timerTickRef.current = null;
+      timerElapsedMsRef.current = 0;
       return;
     }
 
@@ -1362,13 +1364,21 @@ function HabitTrackerApp() {
     }
 
     timerTickRef.current = Date.now();
-    const timerIntervalMs = isMobile ? 5000 : 2000;
+    timerElapsedMsRef.current = 0;
+    const timerIntervalMs = 1000;
 
     const intervalId = window.setInterval(() => {
       const now = Date.now();
       const lastTick = timerTickRef.current ?? now;
-      const elapsedSeconds = Math.max(1, Math.round((now - lastTick) / 1000));
+      timerElapsedMsRef.current += now - lastTick;
       timerTickRef.current = now;
+      const elapsedSeconds = Math.floor(timerElapsedMsRef.current / 1000);
+
+      if (elapsedSeconds < 1) {
+        return;
+      }
+
+      timerElapsedMsRef.current -= elapsedSeconds * 1000;
 
       startTransition(() => {
         let completed = false;
@@ -1397,8 +1407,10 @@ function HabitTrackerApp() {
 
     return () => {
       window.clearInterval(intervalId);
+      timerTickRef.current = null;
+      timerElapsedMsRef.current = 0;
     };
-  }, [activeTimer, habits, handleUpdateHabitCompletion, isMobile, soundEnabled]);
+  }, [activeTimer, habits, handleUpdateHabitCompletion, soundEnabled]);
 
   useEffect(() => {
     if (!activeTimer) return;
@@ -4275,8 +4287,8 @@ function AddHabitModal({
       };
 
   return (
-    <div className={`fixed inset-0 ${theme === 'dark' ? 'bg-[linear-gradient(135deg,rgba(2,6,23,0.72),rgba(15,23,42,0.48))]' : 'bg-[linear-gradient(135deg,rgba(255,247,237,0.72),rgba(255,255,255,0.56))]'} flex items-end justify-center overflow-y-auto overscroll-contain p-3 z-50 backdrop-blur-sm sm:items-center sm:p-4 sm:backdrop-blur-md`}>
-      <div className={`${themeConfig.card} mt-auto max-w-lg w-full border ${themeConfig.border} max-h-[calc(100dvh-0.75rem)] overflow-y-auto overscroll-contain rounded-[24px] p-4 shadow-2xl spotlight-card section-reveal aurora-panel prism-surface premium-shell edge-glow sm:mt-0 sm:max-h-[90vh] sm:rounded-[30px] sm:p-8`}>
+    <div className={`fixed inset-0 ${theme === 'dark' ? 'bg-[linear-gradient(135deg,rgba(2,6,23,0.72),rgba(15,23,42,0.48))]' : 'bg-[linear-gradient(135deg,rgba(255,247,237,0.72),rgba(255,255,255,0.56))]'} flex items-end justify-center overflow-y-auto overscroll-contain p-2 z-50 backdrop-blur-sm sm:items-center sm:p-4 sm:backdrop-blur-md`}>
+      <div className={`${themeConfig.card} relative mt-auto flex max-h-[calc(100dvh-1rem)] w-full max-w-lg flex-col overflow-hidden border ${themeConfig.border} rounded-[24px] p-4 shadow-2xl spotlight-card section-reveal aurora-panel prism-surface premium-shell edge-glow sm:mt-0 sm:max-h-[90vh] sm:rounded-[30px] sm:p-8`}>
         <div className="ambient-specks opacity-35" />
         <div className="mb-4 flex flex-wrap items-center gap-2 sm:mb-6">
           <span className={`chip-hover rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${
@@ -4304,6 +4316,7 @@ function AddHabitModal({
           </button>
         </div>
 
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1">
         <div className="space-y-4">
           <div>
             <label className={`block text-sm font-medium ${themeConfig.textSecondary} mb-2`}>
@@ -4422,6 +4435,7 @@ function AddHabitModal({
               {text.addHabit}
             </button>
           </div>
+        </div>
         </div>
       </div>
     </div>
