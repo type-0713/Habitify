@@ -728,6 +728,14 @@ const writeLegacyHabits = (userId: string, habits: Habit[]) => {
   setLocalStorage(getLegacyHabitsStorageKey(userId), habits);
 };
 
+const mergeStoredHabitWithMeta = (habit: Habit, meta?: HabitMeta): Habit => ({
+  ...habit,
+  color: meta?.color ?? habit.color,
+  createdAt: meta?.createdAt ?? habit.createdAt,
+  completions: meta?.completions ?? habit.completions,
+  category: meta?.category ?? habit.category,
+});
+
 const mergeHabitRowWithMeta = (row: SupabaseHabitRow, meta?: HabitMeta): Habit => ({
   id: String(row.id),
   name: row.Name,
@@ -1090,6 +1098,7 @@ function HabitTrackerApp() {
   const [sidebarOpen] = useState(true);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [habits, setHabits] = useState<Habit[]>([]);
+  const [hasHydratedHabits, setHasHydratedHabits] = useState(false);
   const [showAddHabit, setShowAddHabit] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string>(getTodayDate());
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -1162,11 +1171,15 @@ function HabitTrackerApp() {
             },
           ]),
         ) as HabitMetaMap;
+        const resetLegacyHabits = readLegacyHabits(user.id).map((habit) => ({
+          ...habit,
+          completions: [],
+        }));
 
         setHabits((prev) => prev.map((habit) => ({ ...habit, completions: [] })));
         setProfileOverrides({});
         setLocalStorage(getHabitMetaStorageKey(user.id), resetMeta);
-        setLocalStorage(`habits_${user.id}`, []);
+        writeLegacyHabits(user.id, resetLegacyHabits);
         setLocalStorage(`profile_${user.id}`, {});
         setLocalStorage(resetKey, monthKey);
         setSelectedDate(getTodayDate());
@@ -1189,9 +1202,16 @@ function HabitTrackerApp() {
 
     const loadUserData = async () => {
       if (!isSignedIn || !user?.id) {
-        setHabits([]);
-        setProfileOverrides({});
+        if (!ignore) {
+          setHabits([]);
+          setProfileOverrides({});
+          setHasHydratedHabits(false);
+        }
         return;
+      }
+
+      if (!ignore) {
+        setHasHydratedHabits(false);
       }
 
       const savedProfile = getLocalStorage<unknown>(`profile_${user.id}`, {});
@@ -1216,7 +1236,10 @@ function HabitTrackerApp() {
 
       const legacyHabitsRaw = getLocalStorage<unknown>(getLegacyHabitsStorageKey(user.id), []);
       const legacyHabits = Array.isArray(legacyHabitsRaw)
-        ? legacyHabitsRaw.map(normalizeLegacyHabit).filter((habit): habit is Habit => Boolean(habit))
+        ? legacyHabitsRaw
+            .map(normalizeLegacyHabit)
+            .filter((habit): habit is Habit => Boolean(habit))
+            .map((habit) => mergeStoredHabitWithMeta(habit, habitMeta[habit.id]))
         : [];
       if (!Array.isArray(legacyHabitsRaw)) {
         writeLegacyHabits(user.id, []);
@@ -1225,6 +1248,7 @@ function HabitTrackerApp() {
       if (!habitOwner) {
         if (!ignore) {
           setHabits(legacyHabits);
+          setHasHydratedHabits(true);
         }
         return;
       }
@@ -1255,6 +1279,7 @@ function HabitTrackerApp() {
 
           if (!ignore) {
             setHabits(migratedHabits);
+            setHasHydratedHabits(true);
           }
           return;
         }
@@ -1262,11 +1287,13 @@ function HabitTrackerApp() {
         const nextHabits = remoteRows.map((row) => mergeHabitRowWithMeta(row, habitMeta[String(row.id)]));
         if (!ignore) {
           setHabits(nextHabits);
+          setHasHydratedHabits(true);
         }
       } catch (error) {
         console.error('Error loading habits from Supabase:', error);
         if (!ignore) {
           setHabits(legacyHabits);
+          setHasHydratedHabits(true);
         }
       }
     };
@@ -1317,10 +1344,10 @@ function HabitTrackerApp() {
 
   // Save only local habit metadata. Habit rows live in Supabase.
   useEffect(() => {
-    if (isSignedIn && user?.id) {
+    if (isSignedIn && user?.id && hasHydratedHabits) {
       setLocalStorage(getHabitMetaStorageKey(user.id), habitsToMetaMap(habits));
     }
-  }, [habits, isSignedIn, user?.id]);
+  }, [habits, hasHydratedHabits, isSignedIn, user?.id]);
 
   // Update Habit Completion
   const handleUpdateHabitCompletion = useCallback((habitId: string, date: string, current: number, time?: string) => {
@@ -1563,6 +1590,7 @@ function HabitTrackerApp() {
   // Logout Handler
   const handleLogout = useCallback(() => {
     void signOut(firebaseAuth);
+    setHasHydratedHabits(false);
     setProfileOverrides({});
     setCurrentPage('dashboard');
     setHabits([]);
