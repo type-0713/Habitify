@@ -3,6 +3,7 @@
 import React, { startTransition, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
+import { createPortal } from 'react-dom';
 import {
   GoogleAuthProvider,
   OAuthProvider,
@@ -1354,44 +1355,52 @@ function HabitTrackerApp() {
     let completedHabitName = '';
     let becameCompleted = false;
 
-    setHabits((prev) => prev.map(h => {
-      if (h.id === habitId) {
-        const completions = [...h.completions];
-        const existingIndex = completions.findIndex(c => c.date === date);
-        const wasCompleted = existingIndex >= 0 ? completions[existingIndex].completed : false;
-        const nextCompleted = current >= h.goal;
+    setHabits((prev) => {
+      const nextHabits = prev.map((h) => {
+        if (h.id === habitId) {
+          const completions = [...h.completions];
+          const existingIndex = completions.findIndex((c) => c.date === date);
+          const wasCompleted = existingIndex >= 0 ? completions[existingIndex].completed : false;
+          const nextCompleted = current >= h.goal;
 
-        if (existingIndex >= 0) {
-          completions[existingIndex] = {
-            ...completions[existingIndex],
-            current,
-            completed: nextCompleted,
-            time: time || completions[existingIndex].time,
-          };
-        } else {
-          completions.push({
-            date,
-            completed: nextCompleted,
-            current,
-            time,
-          });
+          if (existingIndex >= 0) {
+            completions[existingIndex] = {
+              ...completions[existingIndex],
+              current,
+              completed: nextCompleted,
+              time: time || completions[existingIndex].time,
+            };
+          } else {
+            completions.push({
+              date,
+              completed: nextCompleted,
+              current,
+              time,
+            });
+          }
+
+          if (!wasCompleted && nextCompleted) {
+            becameCompleted = true;
+            completedHabitName = h.name;
+          }
+
+          return { ...h, completions };
         }
+        return h;
+      });
 
-        if (!wasCompleted && nextCompleted) {
-          becameCompleted = true;
-          completedHabitName = h.name;
-        }
-
-        return { ...h, completions };
+      if (user?.id) {
+        setLocalStorage(getHabitMetaStorageKey(user.id), habitsToMetaMap(nextHabits));
       }
-      return h;
-    }));
+
+      return nextHabits;
+    });
 
     if (becameCompleted) {
       playNotificationSound(soundEnabled, 'complete');
       launchCelebration('Habit completed', `${completedHabitName} finished successfully.`);
     }
-  }, [launchCelebration, soundEnabled]);
+  }, [launchCelebration, soundEnabled, user]);
 
   useEffect(() => {
     if (!activeTimer) {
@@ -1434,8 +1443,14 @@ function HabitTrackerApp() {
           return { current: nextCurrentValue };
         });
 
+        handleUpdateHabitCompletion(
+          activeTimer.habitId,
+          activeTimer.date,
+          nextCurrentValue,
+          completed ? getCurrentTimeString() : undefined,
+        );
+
         if (completed) {
-          handleUpdateHabitCompletion(activeTimer.habitId, activeTimer.date, timerHabit.goal, getCurrentTimeString());
           setActiveTimer((currentTimer) => (
             currentTimer?.habitId === activeTimer.habitId ? null : currentTimer
           ));
@@ -3820,6 +3835,76 @@ function ProfilePage({
   };
 
   const showInlineEdit = isEditing && !isMobile;
+  const mobileEditModal = isMobile && isMobileEditOpen && typeof document !== 'undefined'
+    ? createPortal(
+        <div className="fixed inset-0 z-50 overflow-y-auto overscroll-contain bg-[linear-gradient(135deg,rgba(15,23,42,0.62),rgba(15,23,42,0.36))] backdrop-blur-sm sm:backdrop-blur-md">
+          <div className="flex min-h-full items-end justify-center px-3 pb-3 pt-[calc(env(safe-area-inset-top)+3px)] sm:items-center sm:p-4">
+            <div className={`${themeConfig.card} relative flex w-full max-w-md flex-col overflow-hidden rounded-[24px] border ${themeConfig.border} p-4 shadow-2xl max-h-[calc(100dvh-env(safe-area-inset-top)-0.75rem-3px)] spotlight-card section-reveal aurora-panel prism-surface sm:max-h-[90vh] sm:rounded-[28px] sm:p-6`}>
+              <div className="ambient-specks opacity-35" />
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className={`${themeConfig.text} text-lg font-bold`}>{text.profile}</h3>
+                <button
+                  onClick={handleCancel}
+                  className={`icon-button-soft rounded-lg p-2 transition ${themeConfig.hover}`}
+                  aria-label={text.cancel}
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1">
+                <div className="space-y-4">
+                  <div>
+                    <label className={`mb-2 block text-sm ${themeConfig.textSecondary}`}>{text.nameLabel}</label>
+                    <input
+                      type="text"
+                      value={editData.name}
+                      onChange={(e) => setEditData({ ...editData, name: e.target.value })}
+                      className={`w-full rounded-lg px-4 py-2 ${themeConfig.input} ${themeConfig.text} focus:outline-none focus:ring-2 focus:ring-amber-400`}
+                    />
+                  </div>
+                  <div>
+                    <label className={`mb-2 block text-sm ${themeConfig.textSecondary}`}>{text.emailLabel}</label>
+                    <input
+                      type="email"
+                      value={editData.email}
+                      onChange={(e) => setEditData({ ...editData, email: e.target.value })}
+                      className={`w-full rounded-lg px-4 py-2 ${themeConfig.input} ${themeConfig.text} focus:outline-none focus:ring-2 focus:ring-amber-400`}
+                    />
+                  </div>
+                  <div>
+                    <label className={`mb-2 block text-sm ${themeConfig.textSecondary}`}>{text.bio}</label>
+                    <textarea
+                      value={editData.bio}
+                      onChange={(e) => setEditData({ ...editData, bio: e.target.value })}
+                      className={`w-full rounded-lg px-4 py-2 ${themeConfig.input} ${themeConfig.text} focus:outline-none focus:ring-2 focus:ring-amber-400`}
+                      rows={4}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className={`sticky bottom-0 -mx-4 mt-6 flex gap-3 border-t ${theme === 'dark' ? 'border-slate-700/80 bg-slate-950/95' : 'border-slate-200/80 bg-white/95'} px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-4 sm:mx-0 sm:border-0 sm:bg-transparent sm:px-0 sm:pb-0 sm:pt-0`}>
+                <button
+                  onClick={handleCancel}
+                  className={`ghost-action flex-1 rounded-lg px-4 py-2 ${themeConfig.bgTertiary} ${themeConfig.textSecondary} transition hover:opacity-80`}
+                >
+                  {text.cancel}
+                </button>
+                <button
+                  onClick={handleSave}
+                  className="gradient-action flex-1 rounded-lg bg-gradient-to-r from-amber-400 via-orange-500 to-sky-500 px-4 py-2 text-white transition hover:shadow-lg"
+                >
+                  <Save className="mr-2 inline-block h-4 w-4" />
+                  {text.saveChanges}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>,
+        document.body,
+      )
+    : null;
 
   const totalCompleted = habits.reduce(
     (sum: number, h: Habit) => sum + h.completions.filter(c => c.completed).length,
@@ -3834,6 +3919,7 @@ function ProfilePage({
   );
 
   return (
+    <>
     <div className="max-w-3xl space-y-6">
       {/* Profile Card */}
       <div className={`${themeConfig.card} rounded-[30px] p-8 border ${themeConfig.border} shadow-lg spotlight-card glow-pulse section-reveal aurora-panel prism-surface premium-shell edge-glow`}>
@@ -3978,72 +4064,9 @@ function ProfilePage({
         </div>
       </div>
 
-      {isMobile && isMobileEditOpen && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center overflow-y-auto overscroll-contain bg-[linear-gradient(135deg,rgba(15,23,42,0.62),rgba(15,23,42,0.36))] px-3 pb-3 pt-[calc(env(safe-area-inset-top)+3px)] backdrop-blur-sm sm:items-center sm:p-4 sm:backdrop-blur-md">
-          <div className={`${themeConfig.card} relative mt-auto flex w-full max-w-md flex-col overflow-hidden rounded-[24px] border ${themeConfig.border} p-4 shadow-2xl max-h-[calc(100dvh-env(safe-area-inset-top)-0.75rem-3px)] spotlight-card section-reveal aurora-panel prism-surface sm:mt-0 sm:max-h-[90vh] sm:rounded-[28px] sm:p-6`}>
-            <div className="ambient-specks opacity-35" />
-            <div className="flex items-center justify-between mb-4">
-              <h3 className={`${themeConfig.text} text-lg font-bold`}>{text.profile}</h3>
-              <button
-                onClick={handleCancel}
-                className={`icon-button-soft p-2 rounded-lg transition ${themeConfig.hover}`}
-                aria-label={text.cancel}
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1">
-              <div className="space-y-4">
-                <div>
-                  <label className={`block text-sm ${themeConfig.textSecondary} mb-2`}>{text.nameLabel}</label>
-                  <input
-                    type="text"
-                    value={editData.name}
-                    onChange={(e) => setEditData({ ...editData, name: e.target.value })}
-                    className={`w-full px-4 py-2 ${themeConfig.input} rounded-lg ${themeConfig.text} focus:outline-none focus:ring-2 focus:ring-amber-400`}
-                  />
-                </div>
-                <div>
-                  <label className={`block text-sm ${themeConfig.textSecondary} mb-2`}>{text.emailLabel}</label>
-                  <input
-                    type="email"
-                    value={editData.email}
-                    onChange={(e) => setEditData({ ...editData, email: e.target.value })}
-                    className={`w-full px-4 py-2 ${themeConfig.input} rounded-lg ${themeConfig.text} focus:outline-none focus:ring-2 focus:ring-amber-400`}
-                  />
-                </div>
-                <div>
-                  <label className={`block text-sm ${themeConfig.textSecondary} mb-2`}>{text.bio}</label>
-                  <textarea
-                    value={editData.bio}
-                    onChange={(e) => setEditData({ ...editData, bio: e.target.value })}
-                    className={`w-full px-4 py-2 ${themeConfig.input} rounded-lg ${themeConfig.text} focus:outline-none focus:ring-2 focus:ring-amber-400`}
-                    rows={4}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className={`sticky bottom-0 -mx-4 mt-6 flex gap-3 border-t ${theme === 'dark' ? 'border-slate-700/80 bg-slate-950/95' : 'border-slate-200/80 bg-white/95'} px-4 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))] sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:px-0 sm:pt-0 sm:pb-0`}>
-              <button
-                onClick={handleCancel}
-                className={`ghost-action flex-1 px-4 py-2 ${themeConfig.bgTertiary} ${themeConfig.textSecondary} rounded-lg hover:opacity-80 transition`}
-              >
-                {text.cancel}
-              </button>
-              <button
-                onClick={handleSave}
-                className="gradient-action flex-1 px-4 py-2 bg-gradient-to-r from-amber-400 via-orange-500 to-sky-500 text-white rounded-lg hover:shadow-lg transition"
-              >
-                <Save className="w-4 h-4 inline-block mr-2" />
-                {text.saveChanges}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
+    {mobileEditModal}
+    </>
   );
 }
 
